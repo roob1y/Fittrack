@@ -209,3 +209,27 @@ header {
 .wl-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
 .wl-badge.done { background: rgba(200,241,53,0.15); color: var(--accent); }
 .wl-badge.skip { background: rgba(122,122,140,0.1); color: var(--muted); }
+
+@media (min-width: 768px) {
+  body {
+    font-size: 20px;
+    max-width: 620px;
+  }
+  
+  .logo { font-size: 42px; }
+  .section-title { font-size: 32px; }
+  .day-header h2 { font-size: 56px; }
+  .cal-total { font-size: 56px; }
+  .stat-val { font-size: 52px; }
+  .nav-btn { font-size: 18px; padding: 16px; }
+  .day-card { padding: 28px 24px; }
+  .day-label { font-size: 24px; }
+  .day-focus { font-size: 15px; }
+  .exercise-name { font-size: 20px; }
+  .exercise-meta { font-size: 15px; }
+  .set-input { font-size: 18px; padding: 12px; }
+  .save-day-btn { font-size: 26px; padding: 20px; }
+  .meal-name { font-size: 18px; }
+  .meal-cal { font-size: 28px; }
+  .cal-goal { font-size: 16px; }
+}
