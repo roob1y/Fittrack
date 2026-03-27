@@ -34,7 +34,7 @@
 - [x] ~~Review and trim Day 4 to fit within 60 minute target~~
   - Day 4 currently ~66 mins
 
-- [] **Review and trim Day 5 to fit within 60 minute target**
+- [x] **Review and trim Day 5 to fit within 60 minute target**
   - Day 5 currently ~69 mins
 
 - [x] **Equipment profile on setup** ← top priority, required before most other features
