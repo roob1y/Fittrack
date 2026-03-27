@@ -241,14 +241,6 @@ const PROGRAM = [
     equipment: ['Barbell (7ft)', 'Squat Rack', 'Flat Bench'],
     exercises: [
       {
-        name: 'Leg Extensions (warm-up)',
-        sets: 1,
-        reps: '15',
-        defaultWeight: null,
-        equipment: ['Leg Extension Machine'],
-        alternative: { name: 'Sissy Squats (warm-up)', equipment: [] },
-      },
-      {
         name: 'Squats (heavy)',
         sets: 2,
         reps: '8/8',
@@ -311,3 +303,31 @@ const EQUIPMENT_LIST = [
   'Resistance Bands',
   'Pull Up Bar',
 ];
+
+const WARMUPS = {
+  'chest-biceps': [
+    { name: 'Arm Circles', sets: 2, reps: '30 secs', duration: 30, equipment: [] },
+    { name: 'Doorframe Chest Stretch', sets: 2, reps: '15', duration: 30, equipment: [] },
+    { name: 'Light Dumbbell Press', sets: 2, reps: '15', duration: 40, equipment: ['Dumbbells', 'Flat Bench'] },
+  ],
+  back: [
+    { name: 'Cat-Cow Stretches', sets: 2, reps: '10', duration: 30, equipment: [] },
+    { name: 'Shoulder Rotations', sets: 2, reps: '15', duration: 20, equipment: [] },
+    { name: 'Light Deadlift', sets: 2, reps: '10', duration: 40, equipment: ['Barbell (7ft)'] },
+  ],
+  'ham-glutes': [
+    { name: 'Leg Swings', sets: 2, reps: '15 each leg', duration: 30, equipment: [] },
+    { name: 'Hip Circles', sets: 2, reps: '10', duration: 20, equipment: [] },
+    { name: 'Bodyweight Hip Thrusts', sets: 2, reps: '15', duration: 30, equipment: ['Flat Bench'] },
+  ],
+  'shoulders-tri': [
+    { name: 'Arm Circles', sets: 2, reps: '30 secs', duration: 30, equipment: [] },
+    { name: 'Wall Slides', sets: 2, reps: '10', duration: 30, equipment: [] },
+    { name: 'Light Lateral Raises', sets: 2, reps: '15', duration: 30, equipment: ['Dumbbells'] },
+  ],
+  quads: [
+    { name: 'Leg Swings', sets: 2, reps: '15 each leg', duration: 30, equipment: [] },
+    { name: 'Bodyweight Squats', sets: 2, reps: '15', duration: 30, equipment: [] },
+    { name: 'Sissy Squats', sets: 2, reps: '10', duration: 30, equipment: [] },
+  ],
+};

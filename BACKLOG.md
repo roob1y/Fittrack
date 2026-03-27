@@ -78,11 +78,14 @@
   - Fix setData week-awareness — setData keys need to include week number so weight history is tracked per week rather than shared across all weeks. Required for strength graphs to show accurate progression.
   - Touches workouts.js in multiple places so dont break functionality.
 
-- [ ] **Targeted warmup per muscle group** ← depends on equipment profile
+- [x]~~Targeted warmup per muscle group~~ ← depends on equipment profile
   - Short specific warmup shown before each day
   - Based on muscles being trained that day
   - Filtered by available equipment
   - Bodyweight alternatives always available as fallback
+
+- [ ] **Warmup exercise demonstrations** — 
+  - Diagrams, GIFs or short videos showing correct form for each warmup movement
 
 ---
 
