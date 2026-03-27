@@ -37,7 +37,7 @@
 - [] **Review and trim Day 5 to fit within 60 minute target**
   - Day 5 currently ~69 mins
 
-- [ ] **Equipment profile on setup** ← top priority, required before most other features
+- [x] **Equipment profile on setup** ← top priority, required before most other features
   - User sets available equipment on first open
   - Each exercise tagged with required equipment
   - Exercises swapped or replaced with bodyweight alternatives if unavailable
