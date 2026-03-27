@@ -239,6 +239,8 @@ function saveDay() {
     showToast('Day marked incomplete');
   } else {
     state.completedDays[key] = true;
+    if (!state.workoutDates) state.workoutDates = {};
+    state.workoutDates[key] = todayStr();
     if (!state.sessionTimes) state.sessionTimes = {};
     const mins = Math.round((Date.now() - sessionStartTime) / 60000);
     state.sessionTimes[key] = mins;
@@ -267,6 +269,8 @@ function skipDay() {
   );
   if (!reason) return;
   const reasonText = reasons[parseInt(reason) - 1] || 'Other';
+  if (!state.workoutDates) state.workoutDates = {};
+  state.workoutDates[key] = todayStr();
   if (!state.skippedDays) state.skippedDays = {};
   state.skippedDays[key] = reasonText;
   saveState();

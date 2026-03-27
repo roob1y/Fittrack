@@ -58,7 +58,7 @@
       <button class="nav-btn active" onclick="showView('workouts')">
         Workouts
       </button>
-      <button class="nav-btn" onclick="showView('meals')">Meals</button>
+      <button class="nav-btn" onclick="showView('calendar')">Calendar</button>
       <button class="nav-btn" onclick="showView('progress')">Progress</button>
     </div>
 
@@ -107,33 +107,8 @@
       </div>
     </div>
 
-    <!-- ══ MEALS ══ -->
-    <div class="view" id="view-meals">
-      <div class="section-title" style="margin-top: 4px">MEAL LOG</div>
-      <div class="date-strip" id="dateStrip"></div>
-      <div class="calorie-bar-wrap">
-        <div class="cal-header">
-          <div>
-            <div class="cal-total" id="calTotal">0</div>
-            <div class="cal-goal">of 1800 kcal goal</div>
-          </div>
-          <div style="text-align: right">
-            <div style="font-size: 13px; font-weight: 600" id="calRemain">
-              1800 left
-            </div>
-            <div style="font-size: 12px; color: var(--muted)">remaining</div>
-          </div>
-        </div>
-        <div class="cal-track">
-          <div class="cal-fill" id="calFill" style="width: 0%"></div>
-        </div>
-      </div>
-      <div class="meal-list" id="mealList"></div>
-      <div class="suggest-section">
-        <div class="suggest-title">✦ Suggested meals — tap + to add</div>
-        <div id="suggestList"></div>
-      </div>
-    </div>
+    <!-- ══ CALENDAR ══ -->
+    <div class="view" id="view-calendar"></div>
 
     <!-- ══ PROGRESS ══ -->
     <div class="view" id="view-progress">
@@ -167,7 +142,7 @@
     <script src="js/state.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/workouts.js"></script>
-    <script src="js/meals.js"></script>
+    <script src="js/calendar.js"></script>
     <script src="js/progress.js"></script>
     <script>
       // Initialise
