@@ -1,6 +1,6 @@
 # FitTrack Backlog
 
-## v1.1 Bundle — In Progress
+## v1.1 Bundle — Done
 
 - [x] No way to undo marking a day complete
 - [x] Update Day 1 data — push-ups reduced to 1 set to failure as a chest finisher
@@ -13,10 +13,18 @@
 - [x] Record how long each day's workout took
 - [x] Reorder exercises in Day 3 — front squats before hip thrusts
 - [x] Reorder exercises in Day 4 — shoulder press before lateral raises
+- [x] Make session timer visible on screen during workout
 
-## v1.2 Bundle — Planned
+## v1.2 Bundle | Android Polish— In Progress
 
-- [ ] Make session timer visible on screen during workout
+- [ ] Pinch-to-zoom still possible — disable stretching on Android
+- [ ] App icon — replace default Android icon with FitTrack branding
+- [ ] Splash screen — replace plain white with branded screen
+- [ ] Back button behaviour — Android back button should navigate within the app not exit it
+- [ ] Keyboard behaviour — input fields push content up awkwardly when typing weights
+
+## v1.3 Bundle — Planned
+
 - [ ] Skipping a day should auto-complete it and hide the complete button
 
 ---
@@ -84,7 +92,7 @@
   - Filtered by available equipment
   - Bodyweight alternatives always available as fallback
 
-- [ ] **Warmup exercise demonstrations** — 
+- [ ] **Warmup exercise demonstrations** —
   - Diagrams, GIFs or short videos showing correct form for each warmup movement
 
 ---
