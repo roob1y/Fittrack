@@ -3,6 +3,10 @@
 //  Shared UI utilities used across all modules.
 // ══════════════════════════════════════════
 
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -21,11 +25,11 @@ function showView(v) {
     .querySelectorAll('.nav-btn')
     .forEach((el) => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
-  document
-    .querySelectorAll('.nav-btn')
-    [['workouts', 'meals', 'progress'].indexOf(v)].classList.add('active');
+  document.querySelectorAll('.nav-btn')[
+    ['workouts', 'calendar', 'progress'].indexOf(v)
+  ];
 
   if (v === 'workouts') renderWeekOverview();
-  if (v === 'meals') renderMeals();
+  if (v === 'calendar') renderCalendar();
   if (v === 'progress') renderProgress();
 }
