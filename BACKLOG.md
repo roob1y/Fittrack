@@ -97,3 +97,5 @@
 - Deload week suggestions after every 4-6 weeks
 - Integration with MindTrack recovery score to suggest lighter sessions
 - Integration with NutriTrack to adjust calorie targets based on training day
+- Exercise database API (e.g. wger.de) — full library of exercises tagged by muscle group, equipment and type (compound/isolation), allowing user to choose from a list of alternatives filtered by available equipment
+- User selectable exercise alternatives — when equipment is unavailable show filtered list of swaps rather than hardcoded presets
