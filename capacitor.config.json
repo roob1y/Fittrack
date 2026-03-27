@@ -1,5 +1,11 @@
 {
   "appId": "com.fittrack.app",
   "appName": "FitTrack",
-  "webDir": "dist"
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
 }
