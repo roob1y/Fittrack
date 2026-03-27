@@ -241,18 +241,18 @@ const PROGRAM = [
     equipment: ['Barbell (7ft)', 'Squat Rack', 'Flat Bench'],
     exercises: [
       {
-        name: 'Sissy Squats',
-        sets: 3,
-        reps: '15/15/15',
+        name: 'Leg Extensions (warm-up)',
+        sets: 1,
+        reps: '15',
         defaultWeight: null,
-        equipment: [],
-        alternative: { name: 'Wall Sit', equipment: [] },
+        equipment: ['Leg Extension Machine'],
+        alternative: { name: 'Sissy Squats (warm-up)', equipment: [] },
       },
       {
         name: 'Squats (heavy)',
         sets: 2,
         reps: '8/8',
-        defaultWeight: null,
+        defaultWeight: 50,
         equipment: ['Barbell (7ft)', 'Squat Rack'],
         alternative: {
           name: 'Dumbbell Goblet Squats',
@@ -261,9 +261,9 @@ const PROGRAM = [
       },
       {
         name: 'Squats (lighter)',
-        sets: 4,
+        sets: 3,
         reps: '10-12 each',
-        defaultWeight: null,
+        defaultWeight: 35,
         equipment: ['Barbell (7ft)', 'Squat Rack'],
         alternative: {
           name: 'Dumbbell Goblet Squats',
@@ -272,7 +272,7 @@ const PROGRAM = [
       },
       {
         name: 'Bulgarian Split Squats',
-        sets: 4,
+        sets: 3,
         reps: '10-12 each',
         defaultWeight: null,
         equipment: ['Flat Bench'],
