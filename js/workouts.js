@@ -141,6 +141,12 @@ function goBack() {
   renderWeekOverview();
 }
 
+function getBarWeight(ex) {
+  if (ex.equipment?.includes('Barbell (7ft)')) return 10;
+  if (ex.equipment?.includes('Barbell (5ft)')) return 7.5;
+  return null;
+}
+
 // ── Exercises ──────────────────────────────
 function renderExercises(day) {
   const list = document.getElementById('exerciseList');
@@ -172,9 +178,17 @@ function renderExercises(day) {
     <div class="exercise-toggle" style="${resolvedEx.status === 'unavailable' ? 'opacity:0.3' : ''}">+</div>
   </div>
     <div class="sets-table">
-      <div class="col-header">
-        <span>SET</span><span>REPS</span><span>KG</span><span></span>
-      </div>
+      ${
+        getBarWeight(resolvedEx)
+          ? `
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px">
+    🏋️ Includes ${getBarWeight(resolvedEx)}kg bar weight
+  </div>`
+          : ''
+      }
+<div class="col-header">
+  <span>SET</span><span>REPS</span><span>KG</span><span></span>
+</div>
       ${repsArr
         .map((rep, si) => {
           const key = `${day.id}_${ei}_${si}`;
@@ -186,8 +200,14 @@ function renderExercises(day) {
           <div class="set-label">S${si + 1}</div>
           <input class="set-input" type="number" inputmode="numeric" placeholder="${rep}" value="${saved.reps || ''}"
             onchange="saveSetData('${day.id}',${ei},${si},'reps',this.value)">
-          <input class="set-input" type="number" inputmode="decimal" placeholder="${resolvedEx.defaultWeight || 'kg'}" value="${saved.weight || ''}"
-            onchange="saveSetData('${day.id}',${ei},${si},'weight',this.value)">
+          <div style="display:flex;flex-direction:column;gap:2px">
+  <input class="set-input" type="number" inputmode="decimal" placeholder="${resolvedEx.defaultWeight || 'kg'}" value="${saved.weight || ''}"
+    onchange="saveSetData('${day.id}',${ei},${si},'weight',this.value);updateTotalWeight(this, ${getBarWeight(resolvedEx) || 0})"
+    oninput="updateTotalWeight(this, ${getBarWeight(resolvedEx) || 0})">
+  <div class="total-weight" style="font-size:10px;color:var(--accent);text-align:center">
+    ${saved.weight ? `= ${parseFloat(saved.weight) + (getBarWeight(resolvedEx) || 0)}kg total` : ''}
+  </div>
+</div>
           <button class="check-btn ${saved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this)">✓</button>
         </div>
         ${
@@ -211,6 +231,15 @@ function renderExercises(day) {
   `;
     list.appendChild(card);
   });
+}
+
+function updateTotalWeight(input, barWeight) {
+  if (!barWeight) return;
+  const val = parseFloat(input.value);
+  const totalEl = input.parentElement.querySelector('.total-weight');
+  if (totalEl) {
+    totalEl.textContent = val ? `= ${val + barWeight}kg total` : '';
+  }
 }
 
 function buildRepsArray(ex) {
