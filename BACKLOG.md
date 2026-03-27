@@ -31,9 +31,20 @@
   - Flag if too long left between sessions
   - Eventually warn if muscle groups trained too close together
 
-- [ ] **Review and trim Day 4 and Day 5 to fit within 60 minute target**
+- [x] ~~Review and trim Day 4 and Day 5 to fit within 60 minute target~~
   - Day 4 currently ~66 mins
   - Day 5 currently ~69 mins
+
+- [ ] **Equipment profile on setup** ← top priority, required before most other features
+  - User sets available equipment on first open
+  - Each exercise tagged with required equipment
+  - Exercises swapped or replaced with bodyweight alternatives if unavailable
+  - Robbie's equipment: squat rack, 7ft barbell (10kg), 5ft barbell (7.5kg), dumbbells, flat bench, weight plates
+
+- [ ] **Equipment notes / barbell weights** ← depends on equipment profile
+  - Store personal equipment details (e.g. 5ft barbell = 7.5kg, 7ft barbell = 10kg)
+  - Factor bar weight into total weight displayed
+  - Show as reminder on relevant exercises
 
 - [ ] **If a user logs a lower weight than recommended, ask if they want to update the default**
   - Prompt user when logged weight is lower than the exercise default
