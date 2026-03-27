@@ -202,6 +202,10 @@ header {
   margin-bottom: 14px;
   overflow: hidden;
 }
+.exercise-card.unavailable {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .exercise-header {
   padding: 14px 16px;
   display: flex;

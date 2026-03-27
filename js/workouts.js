@@ -61,6 +61,12 @@ function changeWeek(direction) {
 
 // ── Week Overview ──────────────────────────
 function renderWeekOverview() {
+  if (settingsOpen) {
+    returnFromSettings();
+    return;
+  }
+
+  if (!checkEquipmentProfile()) return;
   document.getElementById('weekOverview').style.display = '';
   document.getElementById('dayDetail').style.display = 'none';
   document.getElementById('weekBadge').textContent = 'Week ' + state.weekNum;
@@ -141,56 +147,68 @@ function renderExercises(day) {
   list.innerHTML = '';
 
   day.exercises.forEach((ex, ei) => {
-    const repsArr = buildRepsArray(ex);
+    const resolvedEx = resolveExercise(ex);
+    const repsArr = buildRepsArray(resolvedEx);
     const card = document.createElement('div');
-    card.className = 'exercise-card';
+    card.className =
+      'exercise-card' +
+      (resolvedEx.status === 'unavailable' ? ' unavailable' : '');
 
     card.innerHTML = `
-      <div class="exercise-header" onclick="toggleEx(this)">
-        <div>
-          <div class="exercise-name">${ex.name}${ex.superset ? ` + ${ex.superset.name}` : ''}</div>
-          <div class="exercise-meta">${ex.sets} sets · ${ex.reps}${ex.superset ? ` → ${ex.superset.reps}` : ''}${ex.note ? ' · ' + ex.note : ''}</div>
-        </div>
-        <div class="exercise-toggle">+</div>
+  <div class="exercise-header" onclick="toggleEx(this)">
+    <div>
+      <div class="exercise-name" style="color:${resolvedEx.status === 'unavailable' ? 'var(--muted)' : 'var(--text)'}">
+        ${resolvedEx.name}${resolvedEx.superset ? ' + ' + resolvedEx.superset.name : ''}
       </div>
-      <div class="sets-table">
-        <div class="col-header">
-          <span>SET</span><span>REPS</span><span>KG</span><span></span>
-        </div>
-        ${repsArr
-          .map((rep, si) => {
-            const key = `${day.id}_${ei}_${si}`;
-            const saved = state.setData[key] || {};
-            const ssKey = `${day.id}_${ei}_${si}_ss`;
-            const ssSaved = state.setData[ssKey] || {};
-            return `
-  <div class="set-row" style="${ex.superset ? 'margin-bottom:4px' : ''}">
-    <div class="set-label">S${si + 1}</div>
-    <input class="set-input" type="number" inputmode="numeric" placeholder="${rep}" value="${saved.reps || ''}"
-      onchange="saveSetData('${day.id}',${ei},${si},'reps',this.value)">
-    <input class="set-input" type="number" inputmode="decimal" placeholder="${ex.defaultWeight || 'kg'}" value="${saved.weight || ''}"
-      onchange="saveSetData('${day.id}',${ei},${si},'weight',this.value)">
-    <button class="check-btn ${saved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this)">✓</button>
+      <div class="exercise-meta">
+        ${
+          resolvedEx.status === 'unavailable'
+            ? '⚠ No alternative available for your equipment'
+            : `${resolvedEx.sets} sets · ${resolvedEx.reps}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`
+        }
+        ${resolvedEx.status === 'alternative' ? ' · <span style="color:var(--accent)">Substituted</span>' : ''}
+      </div>
+    </div>
+    <div class="exercise-toggle" style="${resolvedEx.status === 'unavailable' ? 'opacity:0.3' : ''}">+</div>
   </div>
-  ${
-    ex.superset
-      ? `
-  <div class="set-row" style="margin-bottom:12px;opacity:0.75">
-    <div class="set-label" style="font-size:10px;color:var(--accent)">↳</div>
-    <div class="set-input" style="display:flex;align-items:center;justify-content:center;opacity:0.5;cursor:default">
-      Failure
-    </div>
-    <div class="set-input" style="display:flex;align-items:center;justify-content:center;opacity:0.5;cursor:default">
-      ${saved.weight || ex.defaultWeight || '—'}
-    </div>
-    <button class="check-btn ${ssSaved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this,'${ssKey}')">✓</button>
-  </div>`
-      : ''
-  }`;
-          })
-          .join('')}
+    <div class="sets-table">
+      <div class="col-header">
+        <span>SET</span><span>REPS</span><span>KG</span><span></span>
       </div>
-    `;
+      ${repsArr
+        .map((rep, si) => {
+          const key = `${day.id}_${ei}_${si}`;
+          const saved = state.setData[key] || {};
+          const ssKey = `${day.id}_${ei}_${si}_ss`;
+          const ssSaved = state.setData[ssKey] || {};
+          return `
+        <div class="set-row" style="${resolvedEx.superset ? 'margin-bottom:4px' : ''}">
+          <div class="set-label">S${si + 1}</div>
+          <input class="set-input" type="number" inputmode="numeric" placeholder="${rep}" value="${saved.reps || ''}"
+            onchange="saveSetData('${day.id}',${ei},${si},'reps',this.value)">
+          <input class="set-input" type="number" inputmode="decimal" placeholder="${resolvedEx.defaultWeight || 'kg'}" value="${saved.weight || ''}"
+            onchange="saveSetData('${day.id}',${ei},${si},'weight',this.value)">
+          <button class="check-btn ${saved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this)">✓</button>
+        </div>
+        ${
+          resolvedEx.superset
+            ? `
+        <div class="set-row" style="margin-bottom:12px;opacity:0.75">
+          <div class="set-label" style="font-size:10px;color:var(--accent)">↳</div>
+          <div class="set-input" style="display:flex;align-items:center;justify-content:center;opacity:0.5;cursor:default">
+            Failure
+          </div>
+          <div class="set-input" style="display:flex;align-items:center;justify-content:center;opacity:0.5;cursor:default">
+            ${saved.weight || resolvedEx.defaultWeight || '—'}
+          </div>
+          <button class="check-btn ${ssSaved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this,'${ssKey}')">✓</button>
+        </div>`
+            : ''
+        }`;
+        })
+        .join('')}
+    </div>
+  `;
     list.appendChild(card);
   });
 }
