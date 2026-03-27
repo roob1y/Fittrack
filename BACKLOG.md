@@ -48,7 +48,7 @@
   - Factor bar weight into total weight displayed
   - Show as reminder on relevant exercises
 
-- [ ] **If a user logs a lower weight than recommended, ask if they want to update the default**
+- [x] **If a user logs a lower weight than recommended, ask if they want to update the default**
   - Prompt user when logged weight is lower than the exercise default
   - Allow them to update the default for future sessions
 
