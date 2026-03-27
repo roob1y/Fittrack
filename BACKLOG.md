@@ -70,7 +70,7 @@
   - Automatically detect when a new weight record is set on any exercise
   - Celebrate with a notification or visual indicator
 
-- [ ] **Strength progress graphs per body part** ← depends on body weight tracker and PB alerts
+- [x] ~~Strength progress graphs per body part~~ ← depends on body weight tracker and PB alerts
   - Graph showing weight progression over time per exercise
   - Grouped by muscle group / body part
 
@@ -79,6 +79,10 @@
   - Based on muscles being trained that day
   - Filtered by available equipment
   - Bodyweight alternatives always available as fallback
+
+  Strength progress graphs pt 2
+  - Fix setData week-awareness — setData keys need to include week number so weight history is tracked per week rather than shared across all weeks. Required for strength graphs to show accurate progression.
+  - Touches workouts.js in multiple places so dont break functionality.
 
 ---
 
