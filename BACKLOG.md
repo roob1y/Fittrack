@@ -66,7 +66,7 @@
   - Trend graph over time
   - Feeds into BodyTrack when that app is built
 
-- [ ] **Personal bests / PB alerts** ← depends on body weight tracker
+- [x] ~~Personal bests / PB alerts~~ ← depends on body weight tracker
   - Automatically detect when a new weight record is set on any exercise
   - Celebrate with a notification or visual indicator
 
