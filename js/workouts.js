@@ -5,6 +5,59 @@
 // ══════════════════════════════════════════
 
 let currentDayId = null;
+let sessionStartTime = null;
+let sessionTimer = null;
+
+function estimateDuration(day) {
+  let minutes = 0;
+  day.exercises.forEach((ex) => {
+    const isCompound = [
+      'Deadlifts',
+      'Squats',
+      'Bench Press',
+      'Front Barbell Squat',
+      'Straight-Legged Deadlifts',
+    ].some((name) => ex.name.includes(name));
+    const restTime = isCompound ? 3 : 1.25; // minutes between sets
+    const setTime = 0.75; // minutes per set
+    const transitionTime = 1.5; // minutes to set up and move to next exercise
+
+    if (ex.superset) {
+      // Supersets flow straight into second movement, rest only after both
+      minutes += ex.sets * (setTime + setTime + restTime);
+    } else {
+      minutes += ex.sets * (setTime + restTime);
+    }
+
+    minutes += transitionTime; // transition to next exercise
+  });
+
+  return Math.round(minutes);
+}
+
+function changeWeek(direction) {
+  state.weekNum = Math.max(1, state.weekNum + direction);
+  saveState();
+  document.getElementById('weekBadge').textContent = 'Week ' + state.weekNum;
+  if (currentDayId) {
+    document.getElementById('dayNotes').value =
+      state.notes?.[`week${state.weekNum}_${currentDayId}`] || '';
+    document.getElementById('saveDayBtn').textContent = state.completedDays[
+      `week${state.weekNum}_${currentDayId}`
+    ]
+      ? 'UNDO COMPLETE'
+      : 'MARK DAY COMPLETE';
+    const skipped = state.skippedDays?.[`week${state.weekNum}_${currentDayId}`];
+    document.getElementById('skipDayBtn').textContent = skipped
+      ? 'UNSKIP DAY'
+      : 'SKIP DAY';
+    document.getElementById('skipDayBtn').className =
+      'skip-day-btn' + (skipped ? ' skipped' : '');
+  } else {
+    renderWeekOverview();
+  }
+  if (currentView === 'progress') renderProgress();
+}
 
 // ── Week Overview ──────────────────────────
 function renderWeekOverview() {
@@ -15,14 +68,14 @@ function renderWeekOverview() {
   const grid = document.getElementById('weekGrid');
   grid.innerHTML = '';
 
-  PROGRAM.forEach(day => {
-    const done = !!state.completedDays[day.id];
+  PROGRAM.forEach((day) => {
+    const done = !!state.completedDays[`week${state.weekNum}_${day.id}`];
     const progress = getDayProgress(day.id, day.exercises);
     const card = document.createElement('div');
     card.className = 'day-card' + (done ? ' done' : '');
     card.innerHTML = `
       <div class="day-label">${day.label}</div>
-      <div class="day-focus">${day.focus}</div>
+      <div class="day-focus">${day.focus} · ~${estimateDuration(day)} mins</div>
       <div class="day-bar"><div class="day-bar-fill" style="width:${progress}%"></div></div>
     `;
     card.onclick = () => openDay(day.id);
@@ -31,7 +84,8 @@ function renderWeekOverview() {
 }
 
 function getDayProgress(dayId, exercises) {
-  let total = 0, done = 0;
+  let total = 0,
+    done = 0;
   exercises.forEach((ex, ei) => {
     for (let s = 0; s < ex.sets; s++) {
       total++;
@@ -45,15 +99,34 @@ function getDayProgress(dayId, exercises) {
 // ── Day Detail ─────────────────────────────
 function openDay(dayId) {
   currentDayId = dayId;
-  const day = PROGRAM.find(d => d.id === dayId);
+  const day = PROGRAM.find((d) => d.id === dayId);
 
   document.getElementById('weekOverview').style.display = 'none';
   document.getElementById('dayDetail').style.display = '';
   document.getElementById('detailTitle').textContent = day.focus.toUpperCase();
-  document.getElementById('detailFocus').textContent = day.label + ' · ' + day.exercises.length + ' exercises';
-  document.getElementById('saveDayBtn').textContent = state.completedDays[dayId] ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE';
+  document.getElementById('detailFocus').textContent =
+    day.label + ' · ' + day.exercises.length + ' exercises';
+  document.getElementById('equipmentList').innerHTML = day.equipment
+    .map((e) => `<span class="equip-tag">${e}</span>`)
+    .join('');
+  document.getElementById('saveDayBtn').textContent = state.completedDays[
+    `week${state.weekNum}_${dayId}`
+  ]
+    ? 'UNDO COMPLETE'
+    : 'MARK DAY COMPLETE';
+
+  document.getElementById('dayNotes').value =
+    state.notes?.[`week${state.weekNum}_${dayId}`] || '';
+
+  const skipped = state.skippedDays?.[`week${state.weekNum}_${dayId}`];
+  document.getElementById('skipDayBtn').textContent = skipped
+    ? 'UNSKIP DAY ' + `(${skipped})`
+    : 'SKIP DAY';
+  document.getElementById('skipDayBtn').className =
+    'skip-day-btn' + (skipped ? ' skipped' : '');
 
   renderExercises(day);
+  sessionStartTime = Date.now();
 }
 
 function goBack() {
@@ -75,8 +148,8 @@ function renderExercises(day) {
     card.innerHTML = `
       <div class="exercise-header" onclick="toggleEx(this)">
         <div>
-          <div class="exercise-name">${ex.name}</div>
-          <div class="exercise-meta">${ex.sets} sets · ${ex.reps}${ex.note ? ' · ' + ex.note : ''}</div>
+          <div class="exercise-name">${ex.name}${ex.superset ? ` + ${ex.superset.name}` : ''}</div>
+          <div class="exercise-meta">${ex.sets} sets · ${ex.reps}${ex.superset ? ` → ${ex.superset.reps}` : ''}${ex.note ? ' · ' + ex.note : ''}</div>
         </div>
         <div class="exercise-toggle">+</div>
       </div>
@@ -84,19 +157,38 @@ function renderExercises(day) {
         <div class="col-header">
           <span>SET</span><span>REPS</span><span>KG</span><span></span>
         </div>
-        ${repsArr.map((rep, si) => {
-          const key = `${day.id}_${ei}_${si}`;
-          const saved = state.setData[key] || {};
-          return `
-          <div class="set-row">
-            <div class="set-label">S${si + 1}</div>
-            <input class="set-input" type="number" inputmode="numeric" placeholder="${rep}" value="${saved.reps || ''}"
-              onchange="saveSetData('${day.id}',${ei},${si},'reps',this.value)">
-            <input class="set-input" type="number" inputmode="decimal" placeholder="${ex.defaultWeight || 'kg'}" value="${saved.weight || ''}"
-              onchange="saveSetData('${day.id}',${ei},${si},'weight',this.value)">
-            <button class="check-btn ${saved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this)">✓</button>
-          </div>`;
-        }).join('')}
+        ${repsArr
+          .map((rep, si) => {
+            const key = `${day.id}_${ei}_${si}`;
+            const saved = state.setData[key] || {};
+            const ssKey = `${day.id}_${ei}_${si}_ss`;
+            const ssSaved = state.setData[ssKey] || {};
+            return `
+  <div class="set-row" style="${ex.superset ? 'margin-bottom:4px' : ''}">
+    <div class="set-label">S${si + 1}</div>
+    <input class="set-input" type="number" inputmode="numeric" placeholder="${rep}" value="${saved.reps || ''}"
+      onchange="saveSetData('${day.id}',${ei},${si},'reps',this.value)">
+    <input class="set-input" type="number" inputmode="decimal" placeholder="${ex.defaultWeight || 'kg'}" value="${saved.weight || ''}"
+      onchange="saveSetData('${day.id}',${ei},${si},'weight',this.value)">
+    <button class="check-btn ${saved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this)">✓</button>
+  </div>
+  ${
+    ex.superset
+      ? `
+  <div class="set-row" style="margin-bottom:12px;opacity:0.75">
+    <div class="set-label" style="font-size:10px;color:var(--accent)">↳</div>
+    <div class="set-input" style="display:flex;align-items:center;justify-content:center;opacity:0.5;cursor:default">
+      Failure
+    </div>
+    <div class="set-input" style="display:flex;align-items:center;justify-content:center;opacity:0.5;cursor:default">
+      ${saved.weight || ex.defaultWeight || '—'}
+    </div>
+    <button class="check-btn ${ssSaved.done ? 'done' : ''}" onclick="toggleSet('${day.id}',${ei},${si},this,'${ssKey}')">✓</button>
+  </div>`
+      : ''
+  }`;
+          })
+          .join('')}
       </div>
     `;
     list.appendChild(card);
@@ -107,7 +199,8 @@ function buildRepsArray(ex) {
   const parts = ex.reps.split('/');
   if (parts.length >= ex.sets) return parts.slice(0, ex.sets);
   const arr = [];
-  for (let i = 0; i < ex.sets; i++) arr.push(parts[i] || parts[parts.length - 1]);
+  for (let i = 0; i < ex.sets; i++)
+    arr.push(parts[i] || parts[parts.length - 1]);
   return arr;
 }
 
@@ -137,15 +230,53 @@ function toggleSet(dayId, ei, si, btn) {
 // ── Complete Day ───────────────────────────
 function saveDay() {
   if (!currentDayId) return;
-  const alreadyDone = !!state.completedDays[currentDayId];
+  const key = `week${state.weekNum}_${currentDayId}`;
+  const alreadyDone = !!state.completedDays[key];
   if (alreadyDone) {
-    delete state.completedDays[currentDayId];
+    delete state.completedDays[key];
+    delete state.sessionTimes[key];
     saveState();
     showToast('Day marked incomplete');
   } else {
-    state.completedDays[currentDayId] = true;
+    state.completedDays[key] = true;
+    if (!state.sessionTimes) state.sessionTimes = {};
+    const mins = Math.round((Date.now() - sessionStartTime) / 60000);
+    state.sessionTimes[key] = mins;
     saveState();
-    showToast('Day complete! 💪');
+    showToast(`Day complete! 💪 ${mins} mins`);
   }
   setTimeout(goBack, 800);
+}
+
+function skipDay() {
+  if (!currentDayId) return;
+  const key = `week${state.weekNum}_${currentDayId}`;
+  const alreadySkipped = state.skippedDays?.[key];
+
+  if (alreadySkipped) {
+    delete state.skippedDays[key];
+    saveState();
+    showToast('Skip removed');
+    setTimeout(goBack, 800);
+    return;
+  }
+
+  const reasons = ['Rest day', 'Illness', 'No time', 'Other'];
+  const reason = prompt(
+    'Reason for skipping?\n\n1. Rest day\n2. Illness\n3. No time\n4. Other',
+  );
+  if (!reason) return;
+  const reasonText = reasons[parseInt(reason) - 1] || 'Other';
+  if (!state.skippedDays) state.skippedDays = {};
+  state.skippedDays[key] = reasonText;
+  saveState();
+  showToast('Day skipped — ' + reasonText);
+  setTimeout(goBack, 800);
+}
+
+function saveNotes(val) {
+  if (!state.notes) state.notes = {};
+  const key = `week${state.weekNum}_${currentDayId}`;
+  state.notes[key] = val;
+  saveState();
 }

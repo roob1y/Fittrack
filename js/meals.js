@@ -30,7 +30,10 @@ function renderDateStrip() {
     const chip = document.createElement('div');
     chip.className = 'date-chip' + (str === selectedDate ? ' active' : '');
     chip.innerHTML = `<div class="chip-day">${days[d.getDay()]}</div><div class="chip-num">${d.getDate()}</div>`;
-    chip.onclick = () => { selectedDate = str; renderMeals(); };
+    chip.onclick = () => {
+      selectedDate = str;
+      renderMeals();
+    };
     strip.appendChild(chip);
   }
 }
@@ -47,7 +50,8 @@ function renderMealDay() {
   const remain = 1800 - total;
 
   document.getElementById('calTotal').textContent = total;
-  document.getElementById('calRemain').textContent = remain >= 0 ? remain + ' left' : Math.abs(remain) + ' over';
+  document.getElementById('calRemain').textContent =
+    remain >= 0 ? remain + ' left' : Math.abs(remain) + ' over';
   const fill = document.getElementById('calFill');
   fill.style.width = pct + '%';
   fill.className = 'cal-fill' + (total > 1800 ? ' over' : '');
@@ -56,8 +60,8 @@ function renderMealDay() {
   list.innerHTML = '';
 
   // Staple meals
-  STAPLE_MEALS.forEach(meal => {
-    const isLogged = log.some(m => m.id === meal.id);
+  STAPLE_MEALS.forEach((meal) => {
+    const isLogged = log.some((m) => m.id === meal.id);
     const item = document.createElement('div');
     item.className = 'meal-item' + (isLogged ? ' logged' : '');
     item.innerHTML = `
@@ -74,10 +78,12 @@ function renderMealDay() {
   });
 
   // Meals added from suggestions
-  log.filter(m => !STAPLE_MEALS.find(s => s.id === m.id)).forEach(meal => {
-    const item = document.createElement('div');
-    item.className = 'meal-item logged';
-    item.innerHTML = `
+  log
+    .filter((m) => !STAPLE_MEALS.find((s) => s.id === m.id))
+    .forEach((meal) => {
+      const item = document.createElement('div');
+      item.className = 'meal-item logged';
+      item.innerHTML = `
       <div class="meal-info">
         <div class="meal-name">${meal.name}</div>
         <div class="meal-desc">Added from suggestions</div>
@@ -85,8 +91,8 @@ function renderMealDay() {
       <div class="meal-cal">${meal.cal}</div>
       <button class="log-meal-btn logged" onclick="removeMeal('${meal.id}')">Remove</button>
     `;
-    list.appendChild(item);
-  });
+      list.appendChild(item);
+    });
 }
 
 // ── Suggested meals ────────────────────────
@@ -95,8 +101,8 @@ function renderSuggestList() {
   const div = document.getElementById('suggestList');
   div.innerHTML = '';
 
-  SUGGESTED_MEALS.forEach(meal => {
-    if (log.some(m => m.id === meal.id)) return;
+  SUGGESTED_MEALS.forEach((meal) => {
+    if (log.some((m) => m.id === meal.id)) return;
     const card = document.createElement('div');
     card.className = 'suggest-card';
     card.innerHTML = `
@@ -114,15 +120,21 @@ function renderSuggestList() {
 function toggleMeal(id, name, cal) {
   if (!state.mealLog[selectedDate]) state.mealLog[selectedDate] = [];
   const log = state.mealLog[selectedDate];
-  const idx = log.findIndex(m => m.id === id);
-  if (idx >= 0) { log.splice(idx, 1); } else { log.push({ id, name, cal }); }
+  const idx = log.findIndex((m) => m.id === id);
+  if (idx >= 0) {
+    log.splice(idx, 1);
+  } else {
+    log.push({ id, name, cal });
+  }
   saveState();
   renderMealDay();
 }
 
 function removeMeal(id) {
   if (!state.mealLog[selectedDate]) return;
-  state.mealLog[selectedDate] = state.mealLog[selectedDate].filter(m => m.id !== id);
+  state.mealLog[selectedDate] = state.mealLog[selectedDate].filter(
+    (m) => m.id !== id,
+  );
   saveState();
   renderMealDay();
   renderSuggestList();
