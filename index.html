@@ -20,6 +20,17 @@
       <div class="logo">FitTrack</div>
       <div class="header-right">
         <div
+          id="headerSessionTimer"
+          style="
+            display: none;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            color: var(--accent);
+          "
+        >
+          0:00
+        </div>
+        <div
           class="week-badge"
           style="display: flex; align-items: center; gap: 8px"
         >
@@ -66,6 +77,75 @@
         </button>
       </div>
     </header>
+    <div
+      id="restTimer"
+      style="
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 12px 20px;
+        z-index: 90;
+        max-width: 480px;
+        margin: 0 auto;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        "
+      >
+        <div style="display: flex; flex-direction: column">
+          <div style="font-size: 13px; font-weight: 600; color: var(--muted)">
+            REST
+          </div>
+        </div>
+        <div
+          id="restTimerCount"
+          style="
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            color: var(--accent);
+          "
+        >
+          60
+        </div>
+        <button
+          onclick="skipRest()"
+          style="
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            cursor: pointer;
+          "
+        >
+          Skip
+        </button>
+      </div>
+      <div style="height: 4px; background: var(--border); border-radius: 2px">
+        <div
+          id="restTimerBar"
+          style="
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 1s linear;
+            width: 100%;
+          "
+        ></div>
+      </div>
+    </div>
 
     <div class="nav">
       <button class="nav-btn active" onclick="showView('workouts')">
@@ -281,6 +361,82 @@
         </div>
       </div>
     </div>
+    <!-- ══ REST TIMER ══ -->
+    <div
+      id="restTimer"
+      style="
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 12px 20px;
+        z-index: 90;
+        max-width: 480px;
+        margin: 0 auto;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        "
+      >
+        <div style="display: flex; flex-direction: column">
+          <div style="font-size: 13px; font-weight: 600; color: var(--muted)">
+            REST
+          </div>
+          <div
+            id="sessionTimerDisplay"
+            style="font-size: 11px; color: var(--muted)"
+          >
+            Session: 0:00
+          </div>
+        </div>
+        <div
+          id="restTimerCount"
+          style="
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            color: var(--accent);
+          "
+        >
+          60
+        </div>
+        <button
+          onclick="skipRest()"
+          style="
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            cursor: pointer;
+          "
+        >
+          Skip
+        </button>
+      </div>
+      <div style="height: 4px; background: var(--border); border-radius: 2px">
+        <div
+          id="restTimerBar"
+          style="
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 1s linear;
+            width: 100%;
+          "
+        ></div>
+      </div>
+    </div>
 
     <div class="toast" id="toast"></div>
 
@@ -292,6 +448,7 @@
     <script src="js/workouts.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/progress.js"></script>
+    <script src="js/timer.js"></script>
     <script>
       // Initialise
       renderWeekOverview();

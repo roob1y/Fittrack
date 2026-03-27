@@ -104,6 +104,8 @@ function getDayProgress(dayId, exercises) {
 
 // ── Day Detail ─────────────────────────────
 function openDay(dayId) {
+  sessionStartTime = Date.now();
+  startSessionTimer();
   currentDayId = dayId;
   const day = PROGRAM.find((d) => d.id === dayId);
 
@@ -130,6 +132,7 @@ function openDay(dayId) {
     : 'SKIP DAY';
   document.getElementById('skipDayBtn').className =
     'skip-day-btn' + (skipped ? ' skipped' : '');
+  document.getElementById('headerSessionTimer').style.display = 'block';
 
   renderExercises(day);
   sessionStartTime = Date.now();
@@ -138,6 +141,8 @@ function openDay(dayId) {
 function goBack() {
   document.getElementById('weekOverview').style.display = '';
   document.getElementById('dayDetail').style.display = 'none';
+  document.getElementById('headerSessionTimer').style.display = 'none';
+  stopSessionTimer();
   renderWeekOverview();
 }
 
@@ -273,6 +278,12 @@ function toggleSet(dayId, ei, si, btn) {
   btn.classList.toggle('done');
   saveState();
 
+  if (state.setData[key].done) {
+    const day = PROGRAM.find((d) => d.id === dayId);
+    const ex = day?.exercises[ei];
+    if (ex) startRestTimer(resolveExercise(ex));
+  }
+
   // Check if logged weight is lower than default
   if (state.setData[key].done) {
     const day = PROGRAM.find((d) => d.id === dayId);
@@ -297,6 +308,7 @@ function toggleSet(dayId, ei, si, btn) {
 
 // ── Complete Day ───────────────────────────
 function saveDay() {
+  const mins = stopSessionTimer();
   if (!currentDayId) return;
   const key = `week${state.weekNum}_${currentDayId}`;
   const alreadyDone = !!state.completedDays[key];
