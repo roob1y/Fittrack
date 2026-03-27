@@ -135,6 +135,11 @@ function getBarWeight(ex) {
   return null;
 }
 
+function hasPBForExercise(name) {
+  if (!state.pbs) return false;
+  return Object.keys(state.pbs).some((k) => k.startsWith(name + '_'));
+}
+
 // ── Exercises ──────────────────────────────
 function renderExercises(day) {
   const list = document.getElementById('exerciseList');
@@ -144,13 +149,14 @@ function renderExercises(day) {
     const resolvedEx = resolveExercise(ex);
     const repsArr = buildRepsArray(resolvedEx);
     const card = document.createElement('div');
-    card.className = 'exercise-card' + (resolvedEx.status === 'unavailable' ? ' unavailable' : '');
+    card.className = 'exercise-card';
+    card.dataset.exerciseIndex = ei;
 
     card.innerHTML = `
   <div class="exercise-header" onclick="toggleEx(this)">
     <div>
       <div class="exercise-name" style="color:${resolvedEx.status === 'unavailable' ? 'var(--muted)' : 'var(--text)'}">
-        ${resolvedEx.name}${resolvedEx.superset ? ' + ' + resolvedEx.superset.name : ''}
+  ${resolvedEx.name}${resolvedEx.superset ? ' + ' + resolvedEx.superset.name : ''}${hasPBForExercise(resolvedEx.name) ? '<span class="pb-badge" style="font-size:11px;font-weight:700;color:#0d0d0f;background:#ffd700;border-radius:6px;padding:2px 6px;margin-left:8px;vertical-align:middle">🏆 PB</span>' : ''}
       </div>
       <div class="exercise-meta">
         ${
@@ -251,18 +257,27 @@ function saveSetData(dayId, ei, si, field, val) {
   saveState();
 }
 
+function checkPB(exName, reps, weight) {
+  if (!weight || !reps) return false;
+  const repNum = parseInt(reps);
+  if (!repNum) return false;
+  const key = `${exName}_${repNum}`;
+  if (!state.pbs) state.pbs = {};
+  const current = state.pbs[key];
+  if (!current || weight > current) {
+    state.pbs[key] = weight;
+    saveState();
+    return true;
+  }
+  return false;
+}
+
 function toggleSet(dayId, ei, si, btn) {
   const key = `${dayId}_${ei}_${si}`;
   if (!state.setData[key]) state.setData[key] = {};
   state.setData[key].done = !state.setData[key].done;
   btn.classList.toggle('done');
   saveState();
-
-  if (state.setData[key].done) {
-    const day = PROGRAM.find((d) => d.id === dayId);
-    const ex = day?.exercises[ei];
-    if (ex) startRestTimer(resolveExercise(ex));
-  }
 
   // Check if logged weight is lower than default
   if (state.setData[key].done) {
@@ -272,6 +287,8 @@ function toggleSet(dayId, ei, si, btn) {
     const resolvedEx = resolveExercise(ex);
     const loggedWeight = parseFloat(state.setData[key].weight);
     const defaultWeight = resolvedEx.defaultWeight;
+
+    // Weight update prompt
     if (loggedWeight && defaultWeight && loggedWeight < defaultWeight) {
       showModal(
         'UPDATE DEFAULT WEIGHT?',
@@ -283,6 +300,30 @@ function toggleSet(dayId, ei, si, btn) {
         },
       );
     }
+
+    // PB check
+    const reps = parseInt(state.setData[key].reps);
+    if (checkPB(resolvedEx.name, reps, loggedWeight)) {
+      showToast(`🏆 New PB on ${resolvedEx.name}! ${loggedWeight}kg x ${reps}`);
+      markExerciseAsPB(dayId, ei);
+    }
+
+    // Start rest timer
+    startRestTimer(resolvedEx);
+  }
+}
+function markExerciseAsPB(dayId, ei) {
+  const card = document.querySelector(`.exercise-card[data-exercise-index="${ei}"]`);
+  if (!card) return;
+  const nameEl = card.querySelector('.exercise-name');
+  if (!nameEl) return;
+  if (!card.querySelector('.pb-badge')) {
+    const badge = document.createElement('span');
+    badge.className = 'pb-badge';
+    badge.textContent = '🏆 PB';
+    badge.style.cssText =
+      'font-size:11px;font-weight:700;color:#0d0d0f;background:#ffd700;border-radius:6px;padding:2px 6px;margin-left:8px;vertical-align:middle';
+    nameEl.appendChild(badge);
   }
 }
 
