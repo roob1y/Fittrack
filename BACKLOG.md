@@ -10,9 +10,14 @@
 - [x] Notes field per workout day
 - [x] Skip day with reason
 - [x] Equipment summary shown at the top of each day
-- [ ] Record how long each day's workout took
-- [ ] Reorder exercises in Day 3 — front squats before hip thrusts
-- [ ] Reorder exercises in Day 4 — shoulder press before lateral raises
+- [x] Record how long each day's workout took
+- [x] Reorder exercises in Day 3 — front squats before hip thrusts
+- [x] Reorder exercises in Day 4 — shoulder press before lateral raises
+
+## v1.2 Bundle — Planned
+
+- [ ] Make session timer visible on screen during workout
+- [ ] Skipping a day should auto-complete it and hide the complete button
 
 ---
 
