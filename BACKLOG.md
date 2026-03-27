@@ -48,11 +48,11 @@
   - Factor bar weight into total weight displayed
   - Show as reminder on relevant exercises
 
-- [x] **If a user logs a lower weight than recommended, ask if they want to update the default**
+- [x] ~~If a user logs a lower weight than recommended, ask if they want to update the default~~
   - Prompt user when logged weight is lower than the exercise default
   - Allow them to update the default for future sessions
 
-- [x] **Rest timer / full session timer**
+- [x] ~~Rest timer / full session timer~~
   - Countdown timer between sets
   - 60-90 seconds for isolation exercises
   - 2-3 minutes for heavy compounds (deadlifts, squats, bench press)
@@ -61,17 +61,7 @@
   - Compare actual time vs estimated time at end of session
   - Over time learns user's average rest periods to improve estimates
 
-- [ ] **Equipment profile on setup** ← required before equipment notes and warmup
-  - User sets available equipment on first open
-  - Each exercise tagged with required equipment
-  - Exercises swapped or replaced with bodyweight alternatives if unavailable
-
-- [ ] **Equipment notes / barbell weights** ← depends on equipment profile
-  - Store personal equipment details (e.g. 5ft barbell = 7.5kg, 7ft barbell = 10kg)
-  - Factor bar weight into total weight displayed
-  - Show as reminder on relevant exercises
-
-- [ ] **Body weight tracker**
+- [x] ~~Body weight tracker~~
   - Daily weight logging
   - Trend graph over time
   - Feeds into BodyTrack when that app is built
