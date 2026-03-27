@@ -118,8 +118,7 @@ function renderWeekGrid() {
   grid.innerHTML = '';
 
   const row = document.createElement('div');
-  row.style.cssText =
-    'display:grid;grid-template-columns:repeat(7,1fr);gap:6px';
+  row.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:6px';
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(startOfWeek);
@@ -148,11 +147,7 @@ function renderWeekGrid() {
 
 function renderMonthGrid() {
   const today = new Date();
-  const month = new Date(
-    today.getFullYear(),
-    today.getMonth() + calendarOffset,
-    1,
-  );
+  const month = new Date(today.getFullYear(), today.getMonth() + calendarOffset, 1);
   const label = document.getElementById('calendarPeriodLabel');
   label.textContent = month.toLocaleDateString('en-GB', {
     month: 'long',
@@ -164,27 +159,20 @@ function renderMonthGrid() {
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const headerRow = document.createElement('div');
-  headerRow.style.cssText =
-    'display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px';
+  headerRow.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px';
   days.forEach((d) => {
     const cell = document.createElement('div');
-    cell.style.cssText =
-      'text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:4px 0';
+    cell.style.cssText = 'text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:4px 0';
     cell.textContent = d;
     headerRow.appendChild(cell);
   });
   grid.appendChild(headerRow);
 
   const monthGrid = document.createElement('div');
-  monthGrid.style.cssText =
-    'display:grid;grid-template-columns:repeat(7,1fr);gap:4px';
+  monthGrid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:4px';
 
   const firstDay = month.getDay();
-  const daysInMonth = new Date(
-    month.getFullYear(),
-    month.getMonth() + 1,
-    0,
-  ).getDate();
+  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
 
   for (let i = 0; i < firstDay; i++) {
     const empty = document.createElement('div');
@@ -221,10 +209,8 @@ function getDayStatus(dateStr) {
   for (const day of PROGRAM) {
     for (let week = 1; week <= 52; week++) {
       const key = `week${week}_${day.id}`;
-      if (state.completedDays?.[key] && state.workoutDates?.[key] === dateStr)
-        return 'trained';
-      if (state.skippedDays?.[key] && state.workoutDates?.[key] === dateStr)
-        return 'skipped';
+      if (state.completedDays?.[key] && state.workoutDates?.[key] === dateStr) return 'trained';
+      if (state.skippedDays?.[key] && state.workoutDates?.[key] === dateStr) return 'skipped';
     }
   }
   return null;
@@ -293,9 +279,5 @@ function formatWeekLabel(startOfWeek) {
   const end = new Date(startOfWeek);
   end.setDate(startOfWeek.getDate() + 6);
   const opts = { day: 'numeric', month: 'short' };
-  return (
-    startOfWeek.toLocaleDateString('en-GB', opts) +
-    ' — ' +
-    end.toLocaleDateString('en-GB', opts)
-  );
+  return startOfWeek.toLocaleDateString('en-GB', opts) + ' — ' + end.toLocaleDateString('en-GB', opts);
 }
