@@ -1,6 +1,6 @@
 # FitTrack Backlog
 
-## v1.1 Bundle — Done
+## v1.1 Bundle — Complete ✓
 
 - [x] No way to undo marking a day complete
 - [x] Update Day 1 data — push-ups reduced to 1 set to failure as a chest finisher
@@ -13,96 +13,110 @@
 - [x] Record how long each day's workout took
 - [x] Reorder exercises in Day 3 — front squats before hip thrusts
 - [x] Reorder exercises in Day 4 — shoulder press before lateral raises
-- [x] Make session timer visible on screen during workout
 
-## v1.2 Bundle | Android Polish— In Progress
+---
 
-- [ ] Pinch-to-zoom still possible — disable stretching on Android
+## v1.2 Bundle — Simple Fixes (Vanilla JS)
+
+- [ ] Logo updated to FitTRACK — two tone, "Fit" in lime green, "TRACK" in white
+- [ ] Warmup section redesign:
+  - Two types of warmup cards — timed and rep-based
+  - Timed card — movement name, description, countdown timer only
+  - Rep card — movement name, description, rep target, tick when done
+  - Light loading movements show clear weight guidance
+  - Remove sets concept from warmups entirely
+  - Review and rewrite all warmup data across all 5 days
+- [ ] Day cards layout — single full-width column on mobile, 2 columns on desktop
+- [ ] Skipped day cards not updating colour on week overview
+- [ ] Reset data confirmation — replace browser confirm() with in-app modal
+- [ ] Session timer not resetting correctly when switching between days
+- [ ] Warmup timer cannot be stopped or reset once started
+- [ ] Weight tracker save button overflows outside its container
 - [ ] App icon — replace default Android icon with FitTrack branding
 - [ ] Splash screen — replace plain white with branded screen
-- [ ] Back button behaviour — Android back button should navigate within the app not exit it
-- [ ] Keyboard behaviour — input fields push content up awkwardly when typing weights
+- [ ] Remove meals logged and avg daily kcal stats from Progress tab
+- [ ] Show original exercise name on substituted exercise cards
 
-## v1.3 Bundle — Planned
+---
 
-- [ ] Skipping a day should auto-complete it and hide the complete button
+## v1.3 — React + Capacitor Migration
+
+- [ ] Migrate to React + Capacitor stack
+- [ ] Convert all JS modules to React components
+- [ ] Implement proper state management (React Context or Zustand)
+- [ ] Shared component library for use across all ecosystem apps
+- [ ] No new features — migration only
+- [ ] Ensure all v1.2 functionality works identically after migration
+
+---
+
+## v1.4 — Complex Features (Post React Migration)
+
+- [ ] Modal/bottom sheet for calendar — replaces calendar tab,
+  opens from header week badge
+- [ ] Modal/bottom sheet for settings — replaces current settings view
+- [ ] Weekly completion meter — animated circular arc gauge on Progress tab
+- [ ] Motivational quotes and nudges:
+  - Daily quote shown on week overview
+  - Pre-workout nudge if not yet trained today
+  - Full screen celebration moment when marking a day complete
+  - Streak motivation if no workout logged in 2+ days
+  - Tone setting in settings (Hardcore, Positive, Stoic, Off)
+- [ ] Equipment selection UI redesign:
+  - Add icons/emojis next to each equipment item
+  - Group equipment by type (Barbells, Dumbbells, Machines, Accessories)
+  - Add preset options (Full home gym, Dumbbells only, Full commercial gym)
+  - Select all / deselect all option
+- [ ] Background timer support — rest and session timers continue
+  when app is backgrounded
+- [ ] Push notifications for rest timer completion
+- [ ] Keep screen awake during workout session
+- [ ] Haptic feedback when ticking a set done
+- [ ] Sound option — beep when rest timer finishes
+- [ ] Back button behaviour — Android back button navigates within
+  the app not exit it
+- [ ] Android pinch-to-zoom — prevent stretching the view
+- [ ] SVG muscle group icons for day cards — body silhouette SVGs
+  with relevant muscle groups highlighted in lime green
 
 ---
 
 ## Ship Alone — In Priority Order
 
 - [x] ~~Calendar view~~
-  - Map workout days to real calendar dates
-  - User can start Day 1 on any weekday
-  - See which days were trained each week
-  - View full training history by date
-  - Flag if too long left between sessions
-  - Eventually warn if muscle groups trained too close together
-
-- [x] ~~Review and trim Day 4 to fit within 60 minute target~~
-  - Day 4 currently ~66 mins
-
-- [x] ~~Review and trim Day 5 to fit within 60 minute target~~
-  - Day 5 currently ~69 mins
-
-- [x] ~~Equipment profile on setup~~ ← top priority, required before most other features
-  - User sets available equipment on first open
-  - Each exercise tagged with required equipment
-  - Exercises swapped or replaced with bodyweight alternatives if unavailable
-  - Robbie's equipment: squat rack, 7ft barbell (10kg), 5ft barbell (7.5kg), dumbbells, flat bench, weight plates
-
-- [x] ~~Equipment notes / barbell weights~~ ← depends on equipment profile
-  - Store personal equipment details (e.g. 5ft barbell = 7.5kg, 7ft barbell = 10kg)
-  - Factor bar weight into total weight displayed
-  - Show as reminder on relevant exercises
-
+- [x] ~~Review and trim Day 4 and Day 5 to fit within 60 minute target~~
+- [x] ~~Equipment profile on setup~~
+- [x] ~~Equipment notes / barbell weights~~
 - [x] ~~If a user logs a lower weight than recommended, ask if they want to update the default~~
-  - Prompt user when logged weight is lower than the exercise default
-  - Allow them to update the default for future sessions
-
 - [x] ~~Rest timer / full session timer~~
-  - Countdown timer between sets
-  - 60-90 seconds for isolation exercises
-  - 2-3 minutes for heavy compounds (deadlifts, squats, bench press)
-  - Rest after both exercises for supersets
-  - Total session timer running in background
-  - Compare actual time vs estimated time at end of session
-  - Over time learns user's average rest periods to improve estimates
-
 - [x] ~~Body weight tracker~~
-  - Daily weight logging
-  - Trend graph over time
-  - Feeds into BodyTrack when that app is built
+- [x] ~~Personal bests / PB alerts~~
+- [x] ~~Strength progress graphs per body part~~
+- [x] ~~Fix setData week-awareness~~
+- [x] ~~Targeted warmup per muscle group~~
 
-- [x] ~~Personal bests / PB alerts~~ ← depends on body weight tracker
-  - Automatically detect when a new weight record is set on any exercise
-  - Celebrate with a notification or visual indicator
-
-- [x] ~~Strength progress graphs per body part~~ ← depends on body weight tracker and PB alerts
-  - Graph showing weight progression over time per exercise
-  - Grouped by muscle group / body part
-
-- [x]~~Strength progress graphs pt 2~~
-  - Fix setData week-awareness — setData keys need to include week number so weight history is tracked per week rather than shared across all weeks. Required for strength graphs to show accurate progression.
-  - Touches workouts.js in multiple places so dont break functionality.
-
-- [x]~~Targeted warmup per muscle group~~ ← depends on equipment profile
-  - Short specific warmup shown before each day
-  - Based on muscles being trained that day
-  - Filtered by available equipment
-  - Bodyweight alternatives always available as fallback
-
-- [ ] **Warmup exercise demonstrations** —
-  - Diagrams, GIFs or short videos showing correct form for each warmup movement
+- [ ] **Warmup exercise demonstrations** — diagrams, GIFs or short
+  videos showing correct form for each warmup movement
+- [ ] **Quick log** — one tap set counter per exercise
+- [ ] **Plate calculator** — enter total weight, shows plates needed per side
+- [ ] **Export data** — CSV or PDF workout history
+- [ ] **Workout summary screen** on day completion
+- [ ] **Dark/light mode toggle**
+- [ ] **First time user onboarding guide**
 
 ---
 
 ## Future Considerations
 
-- AI coaching — plateau detection, progression suggestions, recovery advice
-- Session timer that learns user's average rest periods over time
+- On-device AI coaching using WebLLM with Llama 3.2 3B — free, offline,
+  downloads once over WiFi. Plateau detection, progression suggestions,
+  recovery advice. Target device S23 (Snapdragon 8 Gen 2)
+- Exercise database API (e.g. wger.de)
+- User selectable exercise alternatives
 - Deload week suggestions after every 4-6 weeks
-- Integration with MindTrack recovery score to suggest lighter sessions
-- Integration with NutriTrack to adjust calorie targets based on training day
-- Exercise database API (e.g. wger.de) — full library of exercises tagged by muscle group, equipment and type (compound/isolation), allowing user to choose from a list of alternatives filtered by available equipment
-- User selectable exercise alternatives — when equipment is unavailable show filtered list of swaps rather than hardcoded presets
+- Integration with MindTrack, NutriTrack, BodyTrack
+- Dashboard tying all ecosystem apps together
+- Programme customisation — edit sets and reps per exercise
+- Session timer that learns average rest periods over time
+- Play Store release — signed APK, screenshots, privacy policy
+- iOS version via Capacitor
