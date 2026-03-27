@@ -17,6 +17,7 @@ function showToast(msg) {
 var currentView = 'workouts';
 
 function showView(v) {
+  settingsOpen = false;
   currentView = v;
   document
     .querySelectorAll('.view')
@@ -25,9 +26,9 @@ function showView(v) {
     .querySelectorAll('.nav-btn')
     .forEach((el) => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
-  document.querySelectorAll('.nav-btn')[
-    ['workouts', 'calendar', 'progress'].indexOf(v)
-  ];
+  document
+    .querySelectorAll('.nav-btn')
+    [['workouts', 'calendar', 'progress'].indexOf(v)].classList.add('active');
 
   if (v === 'workouts') renderWeekOverview();
   if (v === 'calendar') renderCalendar();
