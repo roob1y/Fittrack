@@ -34,3 +34,17 @@ function showView(v) {
   if (v === 'calendar') renderCalendar();
   if (v === 'progress') renderProgress();
 }
+
+function showModal(title, body, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('modalConfirm').onclick = () => {
+    onConfirm();
+    closeModal();
+  };
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
