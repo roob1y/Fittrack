@@ -23,59 +23,59 @@
 
 ## Ship Alone — In Priority Order
 
-1. **Review and trim Day 4 and Day 5 to fit within 60 minute target**
-   - Day 4 currently ~66 mins
-   - Day 5 currently ~69 mins
+- [x] ~~Calendar view~~
+  - Map workout days to real calendar dates
+  - User can start Day 1 on any weekday
+  - See which days were trained each week
+  - View full training history by date
+  - Flag if too long left between sessions
+  - Eventually warn if muscle groups trained too close together
 
-2. **If a user logs a lower weight than recommended, ask if they want to update the default**
-   - Prompt user when logged weight is lower than the exercise default
-   - Allow them to update the default for future sessions
+- [ ] **Review and trim Day 4 and Day 5 to fit within 60 minute target**
+  - Day 4 currently ~66 mins
+  - Day 5 currently ~69 mins
 
-3. **Rest timer / full session timer**
-   - Countdown timer between sets
-   - 60-90 seconds for isolation exercises
-   - 2-3 minutes for heavy compounds (deadlifts, squats, bench press)
-   - Rest after both exercises for supersets
-   - Total session timer running in background
-   - Compare actual time vs estimated time at end of session
-   - Over time learns user's average rest periods to improve estimates
+- [ ] **If a user logs a lower weight than recommended, ask if they want to update the default**
+  - Prompt user when logged weight is lower than the exercise default
+  - Allow them to update the default for future sessions
 
-4. **Calendar view**
-   - Map workout days to real calendar dates
-   - User can start Day 1 on any weekday
-   - See which days were trained each week
-   - View full training history by date
-   - Flag if too long left between sessions
-   - Eventually warn if muscle groups trained too close together
+- [ ] **Rest timer / full session timer**
+  - Countdown timer between sets
+  - 60-90 seconds for isolation exercises
+  - 2-3 minutes for heavy compounds (deadlifts, squats, bench press)
+  - Rest after both exercises for supersets
+  - Total session timer running in background
+  - Compare actual time vs estimated time at end of session
+  - Over time learns user's average rest periods to improve estimates
 
-5. **Equipment profile on setup** ← required before items 6 and 9
-   - User sets available equipment on first open
-   - Each exercise tagged with required equipment
-   - Exercises swapped or replaced with bodyweight alternatives if equipment unavailable
+- [ ] **Equipment profile on setup** ← required before equipment notes and warmup
+  - User sets available equipment on first open
+  - Each exercise tagged with required equipment
+  - Exercises swapped or replaced with bodyweight alternatives if unavailable
 
-6. **Equipment notes / barbell weights** ← depends on equipment profile
-   - Store personal equipment details (e.g. 5ft barbell = 7.5kg, 7ft barbell = 10kg)
-   - Factor bar weight into total weight displayed
-   - Show as reminder on relevant exercises
+- [ ] **Equipment notes / barbell weights** ← depends on equipment profile
+  - Store personal equipment details (e.g. 5ft barbell = 7.5kg, 7ft barbell = 10kg)
+  - Factor bar weight into total weight displayed
+  - Show as reminder on relevant exercises
 
-7. **Body weight tracker**
-   - Daily weight logging
-   - Trend graph over time
-   - Feeds into BodyTrack when that app is built
+- [ ] **Body weight tracker**
+  - Daily weight logging
+  - Trend graph over time
+  - Feeds into BodyTrack when that app is built
 
-8. **Personal bests / PB alerts** ← depends on weight logging being stable
-   - Automatically detect when a new weight record is set on any exercise
-   - Celebrate with a notification or visual indicator
+- [ ] **Personal bests / PB alerts** ← depends on body weight tracker
+  - Automatically detect when a new weight record is set on any exercise
+  - Celebrate with a notification or visual indicator
 
-9. **Strength progress graphs per body part** ← depends on items 7 and 8
-   - Graph showing weight progression over time per exercise
-   - Grouped by muscle group / body part
+- [ ] **Strength progress graphs per body part** ← depends on body weight tracker and PB alerts
+  - Graph showing weight progression over time per exercise
+  - Grouped by muscle group / body part
 
-10. **Targeted warmup per muscle group** ← depends on equipment profile (item 5)
-    - Short specific warmup shown before each day
-    - Based on muscles being trained that day
-    - Filtered by available equipment
-    - Bodyweight alternatives always available as fallback
+- [ ] **Targeted warmup per muscle group** ← depends on equipment profile
+  - Short specific warmup shown before each day
+  - Based on muscles being trained that day
+  - Filtered by available equipment
+  - Bodyweight alternatives always available as fallback
 
 ---
 
