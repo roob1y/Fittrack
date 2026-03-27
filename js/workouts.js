@@ -74,7 +74,7 @@ function renderWeekOverview() {
       <div class="day-focus">${day.focus} · ~${estimateDuration(day)} mins</div>
       <div class="day-bar"><div class="day-bar-fill" style="width:${progress}%"></div></div>
     `;
-    card.onclick = () => openDay(day.id);
+    card.onclick = () => openWarmup(day.id);
     grid.appendChild(card);
   });
 }
@@ -90,6 +90,104 @@ function getDayProgress(dayId, exercises) {
     }
   });
   return total ? Math.round((done / total) * 100) : 0;
+}
+
+let warmupTimerInterval = null;
+
+function openWarmup(dayId) {
+  const day = PROGRAM.find((d) => d.id === dayId);
+  const warmups = WARMUPS[dayId] || [];
+  const available = warmups.filter((w) => hasEquipment(w.equipment));
+
+  document.getElementById('weekOverview').style.display = 'none';
+  document.getElementById('dayDetail').style.display = '';
+  document.getElementById('detailTitle').textContent = 'WARM UP';
+  document.getElementById('detailFocus').textContent = day.focus + ' · ' + available.length + ' movements';
+  document.getElementById('equipmentList').innerHTML = '';
+  document.getElementById('dayNotes').value = '';
+  document.getElementById('saveDayBtn').style.display = 'none';
+  document.getElementById('skipDayBtn').style.display = 'none';
+  document.getElementById('headerSessionTimer').style.display = 'none';
+  document.getElementById('dayNotes').style.display = 'none';
+
+  const list = document.getElementById('exerciseList');
+  list.innerHTML = '';
+
+  available.forEach((warmup, wi) => {
+    const card = document.createElement('div');
+    card.className = 'exercise-card';
+    card.id = `warmup-card-${wi}`;
+    card.innerHTML = `
+      <div style="padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div class="exercise-name">${warmup.name}</div>
+            <div class="exercise-meta">${warmup.sets} sets · ${warmup.reps}</div>
+          </div>
+          <button onclick="markWarmupDone(${wi}, this)"
+            style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+            background:var(--surface);cursor:pointer;font-size:16px;
+            display:flex;align-items:center;justify-content:center;color:var(--muted)">✓</button>
+        </div>
+        <button onclick="startWarmupTimer(${wi}, ${warmup.duration})"
+          style="width:100%;padding:8px;background:var(--surface);border:1px solid var(--border);
+          border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+          color:var(--muted);cursor:pointer" id="warmup-timer-btn-${wi}">
+          ▶ Start ${warmup.duration}s timer
+        </button>
+        <div id="warmup-timer-${wi}" style="display:none;margin-top:8px">
+          <div style="height:4px;background:var(--border);border-radius:2px">
+            <div id="warmup-timer-bar-${wi}" style="height:100%;background:var(--accent);border-radius:2px;width:100%;transition:width 1s linear"></div>
+          </div>
+          <div id="warmup-timer-count-${wi}" style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);margin-top:4px">${warmup.duration}</div>
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  // Start workout button
+  const startBtn = document.createElement('button');
+  startBtn.className = 'save-day-btn';
+  startBtn.textContent = 'START WORKOUT';
+  startBtn.onclick = () => {
+    clearInterval(warmupTimerInterval);
+    document.getElementById('saveDayBtn').style.display = '';
+    document.getElementById('skipDayBtn').style.display = '';
+    openDay(dayId);
+  };
+  list.appendChild(startBtn);
+}
+
+function startWarmupTimer(wi, duration) {
+  clearInterval(warmupTimerInterval);
+  let seconds = duration;
+  const bar = document.getElementById(`warmup-timer-bar-${wi}`);
+  const count = document.getElementById(`warmup-timer-count-${wi}`);
+  const timerEl = document.getElementById(`warmup-timer-${wi}`);
+  const btn = document.getElementById(`warmup-timer-btn-${wi}`);
+
+  timerEl.style.display = 'block';
+  btn.style.display = 'none';
+
+  warmupTimerInterval = setInterval(() => {
+    seconds--;
+    count.textContent = seconds;
+    bar.style.width = (seconds / duration) * 100 + '%';
+    if (seconds <= 0) {
+      clearInterval(warmupTimerInterval);
+      count.textContent = 'Done!';
+      showToast('Rest complete — next movement!');
+    }
+  }, 1000);
+}
+
+function markWarmupDone(wi, btn) {
+  btn.style.background = 'var(--accent)';
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.color = '#0d0d0f';
+  const card = document.getElementById(`warmup-card-${wi}`);
+  if (card) card.style.opacity = '0.6';
 }
 
 // ── Day Detail ─────────────────────────────
@@ -116,6 +214,7 @@ function openDay(dayId) {
   document.getElementById('skipDayBtn').textContent = skipped ? 'UNSKIP DAY ' + `(${skipped})` : 'SKIP DAY';
   document.getElementById('skipDayBtn').className = 'skip-day-btn' + (skipped ? ' skipped' : '');
   document.getElementById('headerSessionTimer').style.display = 'block';
+  document.getElementById('dayNotes').style.display = '';
 
   renderExercises(day);
   sessionStartTime = Date.now();
