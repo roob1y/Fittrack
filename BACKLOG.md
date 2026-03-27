@@ -52,7 +52,7 @@
   - Prompt user when logged weight is lower than the exercise default
   - Allow them to update the default for future sessions
 
-- [ ] **Rest timer / full session timer**
+- [x] **Rest timer / full session timer**
   - Countdown timer between sets
   - 60-90 seconds for isolation exercises
   - 2-3 minutes for heavy compounds (deadlifts, squats, bench press)
