@@ -8,10 +8,7 @@ function renderProgress() {
   const doneCount = Object.keys(state.completedDays).length;
   const mealDays = Object.values(state.mealLog);
   const totalMeals = mealDays.reduce((s, d) => s + d.length, 0);
-  const totalCals = mealDays.reduce(
-    (s, d) => s + d.reduce((a, m) => a + m.cal, 0),
-    0,
-  );
+  const totalCals = mealDays.reduce((s, d) => s + d.reduce((a, m) => a + m.cal, 0), 0);
   const avgCal = mealDays.length ? Math.round(totalCals / mealDays.length) : 0;
 
   document.getElementById('statWorkouts').textContent = doneCount;

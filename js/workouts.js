@@ -11,13 +11,9 @@ let sessionTimer = null;
 function estimateDuration(day) {
   let minutes = 0;
   day.exercises.forEach((ex) => {
-    const isCompound = [
-      'Deadlifts',
-      'Squats',
-      'Bench Press',
-      'Front Barbell Squat',
-      'Straight-Legged Deadlifts',
-    ].some((name) => ex.name.includes(name));
+    const isCompound = ['Deadlifts', 'Squats', 'Bench Press', 'Front Barbell Squat', 'Straight-Legged Deadlifts'].some(
+      (name) => ex.name.includes(name),
+    );
     const restTime = isCompound ? 3 : 1.25; // minutes between sets
     const setTime = 0.75; // minutes per set
     const transitionTime = 1.5; // minutes to set up and move to next exercise
@@ -40,19 +36,13 @@ function changeWeek(direction) {
   saveState();
   document.getElementById('weekBadge').textContent = 'Week ' + state.weekNum;
   if (currentDayId) {
-    document.getElementById('dayNotes').value =
-      state.notes?.[`week${state.weekNum}_${currentDayId}`] || '';
-    document.getElementById('saveDayBtn').textContent = state.completedDays[
-      `week${state.weekNum}_${currentDayId}`
-    ]
+    document.getElementById('dayNotes').value = state.notes?.[`week${state.weekNum}_${currentDayId}`] || '';
+    document.getElementById('saveDayBtn').textContent = state.completedDays[`week${state.weekNum}_${currentDayId}`]
       ? 'UNDO COMPLETE'
       : 'MARK DAY COMPLETE';
     const skipped = state.skippedDays?.[`week${state.weekNum}_${currentDayId}`];
-    document.getElementById('skipDayBtn').textContent = skipped
-      ? 'UNSKIP DAY'
-      : 'SKIP DAY';
-    document.getElementById('skipDayBtn').className =
-      'skip-day-btn' + (skipped ? ' skipped' : '');
+    document.getElementById('skipDayBtn').textContent = skipped ? 'UNSKIP DAY' : 'SKIP DAY';
+    document.getElementById('skipDayBtn').className = 'skip-day-btn' + (skipped ? ' skipped' : '');
   } else {
     renderWeekOverview();
   }
@@ -112,26 +102,19 @@ function openDay(dayId) {
   document.getElementById('weekOverview').style.display = 'none';
   document.getElementById('dayDetail').style.display = '';
   document.getElementById('detailTitle').textContent = day.focus.toUpperCase();
-  document.getElementById('detailFocus').textContent =
-    day.label + ' · ' + day.exercises.length + ' exercises';
+  document.getElementById('detailFocus').textContent = day.label + ' · ' + day.exercises.length + ' exercises';
   document.getElementById('equipmentList').innerHTML = day.equipment
     .map((e) => `<span class="equip-tag">${e}</span>`)
     .join('');
-  document.getElementById('saveDayBtn').textContent = state.completedDays[
-    `week${state.weekNum}_${dayId}`
-  ]
+  document.getElementById('saveDayBtn').textContent = state.completedDays[`week${state.weekNum}_${dayId}`]
     ? 'UNDO COMPLETE'
     : 'MARK DAY COMPLETE';
 
-  document.getElementById('dayNotes').value =
-    state.notes?.[`week${state.weekNum}_${dayId}`] || '';
+  document.getElementById('dayNotes').value = state.notes?.[`week${state.weekNum}_${dayId}`] || '';
 
   const skipped = state.skippedDays?.[`week${state.weekNum}_${dayId}`];
-  document.getElementById('skipDayBtn').textContent = skipped
-    ? 'UNSKIP DAY ' + `(${skipped})`
-    : 'SKIP DAY';
-  document.getElementById('skipDayBtn').className =
-    'skip-day-btn' + (skipped ? ' skipped' : '');
+  document.getElementById('skipDayBtn').textContent = skipped ? 'UNSKIP DAY ' + `(${skipped})` : 'SKIP DAY';
+  document.getElementById('skipDayBtn').className = 'skip-day-btn' + (skipped ? ' skipped' : '');
   document.getElementById('headerSessionTimer').style.display = 'block';
 
   renderExercises(day);
@@ -161,9 +144,7 @@ function renderExercises(day) {
     const resolvedEx = resolveExercise(ex);
     const repsArr = buildRepsArray(resolvedEx);
     const card = document.createElement('div');
-    card.className =
-      'exercise-card' +
-      (resolvedEx.status === 'unavailable' ? ' unavailable' : '');
+    card.className = 'exercise-card' + (resolvedEx.status === 'unavailable' ? ' unavailable' : '');
 
     card.innerHTML = `
   <div class="exercise-header" onclick="toggleEx(this)">
@@ -251,8 +232,7 @@ function buildRepsArray(ex) {
   const parts = ex.reps.split('/');
   if (parts.length >= ex.sets) return parts.slice(0, ex.sets);
   const arr = [];
-  for (let i = 0; i < ex.sets; i++)
-    arr.push(parts[i] || parts[parts.length - 1]);
+  for (let i = 0; i < ex.sets; i++) arr.push(parts[i] || parts[parts.length - 1]);
   return arr;
 }
 
@@ -344,9 +324,7 @@ function skipDay() {
   }
 
   const reasons = ['Rest day', 'Illness', 'No time', 'Other'];
-  const reason = prompt(
-    'Reason for skipping?\n\n1. Rest day\n2. Illness\n3. No time\n4. Other',
-  );
+  const reason = prompt('Reason for skipping?\n\n1. Rest day\n2. Illness\n3. No time\n4. Other');
   if (!reason) return;
   const reasonText = reasons[parseInt(reason) - 1] || 'Other';
   if (!state.workoutDates) state.workoutDates = {};

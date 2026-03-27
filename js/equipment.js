@@ -15,9 +15,7 @@ function checkEquipmentProfile() {
 }
 
 function showEquipmentSetup() {
-  document
-    .querySelectorAll('.view')
-    .forEach((el) => el.classList.remove('active'));
+  document.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
   document.getElementById('view-settings').classList.add('active');
   document.getElementById('view-settings').innerHTML = `
     <div>
@@ -120,11 +118,7 @@ function editEquipmentProfile() {
 }
 
 function resetApp() {
-  if (
-    confirm(
-      'Are you sure? This will delete all your data and cannot be undone.',
-    )
-  ) {
+  if (confirm('Are you sure? This will delete all your data and cannot be undone.')) {
     localStorage.removeItem('fittrack_v1');
     location.reload();
   }
@@ -139,8 +133,6 @@ function showSettings() {
   settingsOpen = true;
   previousView = currentView;
   restoreSettingsHTML();
-  document
-    .querySelectorAll('.view')
-    .forEach((el) => el.classList.remove('active'));
+  document.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
   document.getElementById('view-settings').classList.add('active');
 }

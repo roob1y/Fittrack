@@ -19,19 +19,16 @@ var currentView = 'workouts';
 function showView(v) {
   settingsOpen = false;
   currentView = v;
-  document
-    .querySelectorAll('.view')
-    .forEach((el) => el.classList.remove('active'));
-  document
-    .querySelectorAll('.nav-btn')
-    .forEach((el) => el.classList.remove('active'));
+  document.querySelectorAll('.view').forEach((el) => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach((el) => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
   document
     .querySelectorAll('.nav-btn')
-    [['workouts', 'calendar', 'progress'].indexOf(v)].classList.add('active');
+    [['workouts', 'calendar', 'weight', 'progress'].indexOf(v)].classList.add('active');
 
   if (v === 'workouts') renderWeekOverview();
   if (v === 'calendar') renderCalendar();
+  if (v === 'weight') renderWeight();
   if (v === 'progress') renderProgress();
 }
 
