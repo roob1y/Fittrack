@@ -272,6 +272,27 @@ function toggleSet(dayId, ei, si, btn) {
   state.setData[key].done = !state.setData[key].done;
   btn.classList.toggle('done');
   saveState();
+
+  // Check if logged weight is lower than default
+  if (state.setData[key].done) {
+    const day = PROGRAM.find((d) => d.id === dayId);
+    const ex = day?.exercises[ei];
+    if (!ex) return;
+    const resolvedEx = resolveExercise(ex);
+    const loggedWeight = parseFloat(state.setData[key].weight);
+    const defaultWeight = resolvedEx.defaultWeight;
+    if (loggedWeight && defaultWeight && loggedWeight < defaultWeight) {
+      showModal(
+        'UPDATE DEFAULT WEIGHT?',
+        `You logged ${loggedWeight}kg but the default is ${defaultWeight}kg. Update the default to ${loggedWeight}kg?`,
+        () => {
+          ex.defaultWeight = loggedWeight;
+          showToast(`Default updated to ${loggedWeight}kg`);
+          openDay(dayId);
+        },
+      );
+    }
+  }
 }
 
 // ── Complete Day ───────────────────────────
