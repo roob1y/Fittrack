@@ -85,7 +85,7 @@ function getDayProgress(dayId, exercises) {
   exercises.forEach((ex, ei) => {
     for (let s = 0; s < ex.sets; s++) {
       total++;
-      const key = `${dayId}_${ei}_${s}`;
+      const key = `week${state.weekNum}_${dayId}_${ei}_${s}`;
       if (state.setData[key]?.done) done++;
     }
   });
@@ -183,9 +183,9 @@ function renderExercises(day) {
 </div>
       ${repsArr
         .map((rep, si) => {
-          const key = `${day.id}_${ei}_${si}`;
+          const key = `week${state.weekNum}_${day.id}_${ei}_${si}`;
           const saved = state.setData[key] || {};
-          const ssKey = `${day.id}_${ei}_${si}_ss`;
+          const ssKey = `week${state.weekNum}_${day.id}_${ei}_${si}_ss`;
           const ssSaved = state.setData[ssKey] || {};
           return `
         <div class="set-row" style="${resolvedEx.superset ? 'margin-bottom:4px' : ''}">
@@ -251,7 +251,7 @@ function toggleEx(header) {
 
 // ── Set Tracking ───────────────────────────
 function saveSetData(dayId, ei, si, field, val) {
-  const key = `${dayId}_${ei}_${si}`;
+  const key = `week${state.weekNum}_${dayId}_${ei}_${si}`;
   if (!state.setData[key]) state.setData[key] = {};
   state.setData[key][field] = val;
   saveState();
@@ -273,13 +273,12 @@ function checkPB(exName, reps, weight) {
 }
 
 function toggleSet(dayId, ei, si, btn) {
-  const key = `${dayId}_${ei}_${si}`;
+  const key = `week${state.weekNum}_${dayId}_${ei}_${si}`;
   if (!state.setData[key]) state.setData[key] = {};
   state.setData[key].done = !state.setData[key].done;
   btn.classList.toggle('done');
   saveState();
 
-  // Check if logged weight is lower than default
   if (state.setData[key].done) {
     const day = PROGRAM.find((d) => d.id === dayId);
     const ex = day?.exercises[ei];
@@ -288,7 +287,6 @@ function toggleSet(dayId, ei, si, btn) {
     const loggedWeight = parseFloat(state.setData[key].weight);
     const defaultWeight = resolvedEx.defaultWeight;
 
-    // Weight update prompt
     if (loggedWeight && defaultWeight && loggedWeight < defaultWeight) {
       showModal(
         'UPDATE DEFAULT WEIGHT?',
@@ -308,10 +306,10 @@ function toggleSet(dayId, ei, si, btn) {
       markExerciseAsPB(dayId, ei);
     }
 
-    // Start rest timer
     startRestTimer(resolvedEx);
   }
 }
+
 function markExerciseAsPB(dayId, ei) {
   const card = document.querySelector(`.exercise-card[data-exercise-index="${ei}"]`);
   if (!card) return;

@@ -162,7 +162,7 @@ function getExerciseProgressData(dayId, ei, exName, days) {
 
     let maxWeight = 0;
     for (let si = 0; si < 10; si++) {
-      const setKey = `${dayId}_${ei}_${si}`;
+      const setKey = `week${week}_${dayId}_${ei}_${si}`;
       const w = parseFloat(state.setData?.[setKey]?.weight);
       if (w > maxWeight) maxWeight = w;
     }
@@ -264,8 +264,9 @@ function calcStreak() {
   let streak = 0;
   const d = new Date();
   for (let i = 0; i < 30; i++) {
-    const str = d.toISOString().slice(0, 10);
-    if (state.mealLog[str] && state.mealLog[str].length > 0) {
+    const dateStr = d.toISOString().slice(0, 10);
+    const hasWorkout = Object.values(state.workoutDates || {}).some((date) => date === dateStr);
+    if (hasWorkout) {
       streak++;
       d.setDate(d.getDate() - 1);
     } else {
