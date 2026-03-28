@@ -76,8 +76,8 @@ function renderWeight() {
           style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;
           color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;padding:12px;text-align:center">
         <button onclick="logWeight()"
-          style="padding:12px 20px;background:var(--accent);border:none;border-radius:8px;
-          font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#0d0d0f;cursor:pointer">
+          style="flex-shrink:0;padding:12px 20px;background:var(--accent);border:none;border-radius:8px;
+          font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:#0d0d0f;cursor:pointer"?>
           SAVE
         </button>
       </div>
