@@ -19,7 +19,7 @@
 ## v1.2 Bundle — Simple Fixes (Vanilla JS)
 
 - [ ] Logo updated to FitTRACK — two tone, "Fit" in lime green, "TRACK" in white
-- [ ] Warmup section redesign:
+- [x] Warmup section redesign:
   - Two types of warmup cards — timed and rep-based
   - Timed card — movement name, description, countdown timer only
   - Rep card — movement name, description, rep target, tick when done
