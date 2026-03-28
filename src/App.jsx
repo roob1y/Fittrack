@@ -13,6 +13,16 @@ export default function App() {
   const weekNum = useStore((s) => s.weekNum);
   const saveWeekNum = useStore((s) => s.saveWeekNum);
   const equipment = useStore((s) => s.equipment);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarClosing, setCalendarClosing] = useState(false);
+
+  function closeCalendar() {
+    setCalendarClosing(true);
+    setTimeout(() => {
+      setCalendarOpen(false);
+      setCalendarClosing(false);
+    }, 280);
+  }
 
   if (!equipment && !settingsOpen) {
     return (
@@ -41,7 +51,7 @@ export default function App() {
           <span style={{ color: 'var(--accent)' }}>Fit</span>
           <span style={{ color: 'var(--text)' }}>TRACK</span>
         </div>
-        <div className="header-right">
+        <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             id="headerSessionTimer"
             style={{
@@ -53,34 +63,12 @@ export default function App() {
           >
             0:00
           </div>
-          <div className="week-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              onClick={() => changeWeek(-1)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--accent)',
-                fontSize: '16px',
-                cursor: 'pointer',
-                padding: 0,
-              }}
-            >
-              ‹
-            </button>
-            <span>Week {weekNum}</span>
-            <button
-              onClick={() => changeWeek(1)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--accent)',
-                fontSize: '16px',
-                cursor: 'pointer',
-                padding: 0,
-              }}
-            >
-              ›
-            </button>
+          <div
+            className="week-badge"
+            onClick={() => setCalendarOpen(true)}
+            style={{ cursor: 'pointer', padding: '10px 20px', fontSize: '15px', fontWeight: 600 }}
+          >
+            Week {weekNum}
           </div>
           <button
             onClick={() => setSettingsOpen(true)}
@@ -88,18 +76,31 @@ export default function App() {
               background: 'none',
               border: 'none',
               color: 'var(--muted)',
-              fontSize: '20px',
               cursor: 'pointer',
-              padding: 0,
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            ⚙
+            <svg
+              width="34"
+              height="34"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
           </button>
         </div>
       </header>
-
       <div className="nav">
-        {['workouts', 'calendar', 'weight', 'progress'].map((view) => (
+        {['workouts', 'weight', 'progress'].map((view) => (
           <button
             key={view}
             className={`nav-btn${currentView === view ? ' active' : ''}`}
@@ -112,7 +113,6 @@ export default function App() {
 
       <div className="view active">
         {currentView === 'workouts' && <WorkoutsView />}
-        {currentView === 'calendar' && <CalendarView />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
       </div>
@@ -152,6 +152,43 @@ export default function App() {
               }}
             />
             <SettingsView onEquipmentSaved={() => setSettingsOpen(false)} />
+          </div>
+        </>
+      )}
+      {calendarOpen && (
+        <>
+          <div
+            onClick={closeCalendar}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 80 }}
+          />
+          <div
+            className={`bottom-sheet${calendarClosing ? ' closing' : ''}`}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'var(--surface)',
+              borderTop: '1px solid var(--border)',
+              borderRadius: '20px 20px 0 0',
+              zIndex: 90,
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              padding: '0 20px 40px',
+              maxWidth: '480px',
+              margin: '0 auto',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '4px',
+                background: 'var(--border)',
+                borderRadius: '2px',
+                margin: '12px auto 20px',
+              }}
+            />
+            <CalendarView />
           </div>
         </>
       )}

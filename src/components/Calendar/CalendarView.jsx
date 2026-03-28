@@ -57,14 +57,43 @@ function StartDatePicker({ onConfirm }) {
   const [value, setValue] = useState(todayStr());
   return (
     <div>
-      <div className="section-title" style={{ marginTop: '4px' }}>WHEN DO YOU START?</div>
+      <div className="section-title" style={{ marginTop: '4px' }}>
+        WHEN DO YOU START?
+      </div>
       <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '24px' }}>
         Pick the date you want to begin your programme. This is used to map your workouts to real calendar dates.
       </p>
-      <input type="date" value={value} onChange={(e) => setValue(e.target.value)}
-        style={{ width: '100%', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', color: 'var(--text)', fontFamily: "'DM Sans', sans-serif", fontSize: '16px', padding: '14px', marginBottom: '16px' }} />
-      <button onClick={() => onConfirm(value)}
-        style={{ width: '100%', padding: '16px', background: 'var(--accent)', border: 'none', borderRadius: 'var(--radius)', fontFamily: "'Bebas Neue', sans-serif", fontSize: '20px', letterSpacing: '1.5px', color: '#0d0d0f', cursor: 'pointer' }}>
+      <input
+        type="date"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        style={{
+          width: '100%',
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          color: 'var(--text)',
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '16px',
+          padding: '14px',
+          marginBottom: '16px',
+        }}
+      />
+      <button
+        onClick={() => onConfirm(value)}
+        style={{
+          width: '100%',
+          padding: '16px',
+          background: 'var(--accent)',
+          border: 'none',
+          borderRadius: 'var(--radius)',
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: '20px',
+          letterSpacing: '1.5px',
+          color: '#0d0d0f',
+          cursor: 'pointer',
+        }}
+      >
         LET'S GO
       </button>
     </div>
@@ -105,13 +134,46 @@ export default function CalendarView() {
       const isToday = str === today;
       const isSelected = str === selectedDate;
       cells.push(
-        <div key={str} className="cal-cell" data-date={str}
+        <div
+          key={str}
+          className="cal-cell"
+          data-date={str}
           onClick={() => handleSelectDate(str)}
-          style={{ background: statusColor(status), border: isSelected ? '2px solid var(--accent2)' : isToday ? '2px solid var(--accent)' : '1px solid var(--border)', borderRadius: '10px', padding: '10px 4px', textAlign: 'center', cursor: 'pointer' }}>
-          <div style={{ fontSize: '11px', color: status ? '#0d0d0f' : 'var(--muted)', fontWeight: 600 }}>{days[d.getDay()]}</div>
-          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', color: status ? '#0d0d0f' : 'var(--text)' }}>{d.getDate()}</div>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: statusDot(status), margin: '4px auto 0' }} />
-        </div>
+          style={{
+            background: statusColor(status),
+            border: isSelected
+              ? '2px solid var(--accent2)'
+              : isToday
+                ? '2px solid var(--accent)'
+                : '1px solid var(--border)',
+            borderRadius: '10px',
+            padding: '10px 4px',
+            textAlign: 'center',
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ fontSize: '11px', color: status ? '#0d0d0f' : 'var(--muted)', fontWeight: 600 }}>
+            {days[d.getDay()]}
+          </div>
+          <div
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: '22px',
+              color: status ? '#0d0d0f' : 'var(--text)',
+            }}
+          >
+            {d.getDate()}
+          </div>
+          <div
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: statusDot(status),
+              margin: '4px auto 0',
+            }}
+          />
+        </div>,
       );
     }
     return (
@@ -119,9 +181,7 @@ export default function CalendarView() {
         <div style={{ fontWeight: 600, fontSize: '15px', textAlign: 'center', marginBottom: '12px' }}>
           {formatWeekLabel(base)}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>
-          {cells}
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px' }}>{cells}</div>
       </>
     );
   }
@@ -145,12 +205,40 @@ export default function CalendarView() {
       const isToday = str === todayStr();
       const isSelected = str === selectedDate;
       cells.push(
-        <div key={str} className="cal-cell" data-date={str}
+        <div
+          key={str}
+          className="cal-cell"
+          data-date={str}
           onClick={() => handleSelectDate(str)}
-          style={{ background: statusColor(status), border: isSelected ? '2px solid var(--accent2)' : isToday ? '2px solid var(--accent)' : '1px solid var(--border)', borderRadius: '8px', padding: '6px 2px', textAlign: 'center', cursor: 'pointer', minHeight: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          style={{
+            background: statusColor(status),
+            border: isSelected
+              ? '2px solid var(--accent2)'
+              : isToday
+                ? '2px solid var(--accent)'
+                : '1px solid var(--border)',
+            borderRadius: '8px',
+            padding: '6px 2px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            minHeight: '44px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <div style={{ fontSize: '13px', color: status ? '#0d0d0f' : 'var(--text)', fontWeight: 500 }}>{d}</div>
-          <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: statusDot(status), marginTop: '3px' }} />
-        </div>
+          <div
+            style={{
+              width: '5px',
+              height: '5px',
+              borderRadius: '50%',
+              background: statusDot(status),
+              marginTop: '3px',
+            }}
+          />
+        </div>,
       );
     }
 
@@ -158,43 +246,150 @@ export default function CalendarView() {
       <>
         <div style={{ fontWeight: 600, fontSize: '15px', textAlign: 'center', marginBottom: '12px' }}>{label}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '4px' }}>
-          {days.map((d) => <div key={d} style={{ textAlign: 'center', fontSize: '11px', color: 'var(--muted)', fontWeight: 600, padding: '4px 0' }}>{d}</div>)}
+          {days.map((d) => (
+            <div
+              key={d}
+              style={{
+                textAlign: 'center',
+                fontSize: '11px',
+                color: 'var(--muted)',
+                fontWeight: 600,
+                padding: '4px 0',
+              }}
+            >
+              {d}
+            </div>
+          ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
-          {cells}
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>{cells}</div>
       </>
     );
   }
 
   const workoutInfo = selectedDate ? getWorkoutForDate(selectedDate, completedDays, skippedDays, workoutDates) : null;
-  const formattedDate = selectedDate ? new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) : null;
+  const formattedDate = selectedDate
+    ? new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+    : null;
+
+  const weekNum = useStore((s) => s.weekNum);
+  const saveWeekNum = useStore((s) => s.saveWeekNum);
+
+  function changeWeek(direction) {
+    saveWeekNum(Math.max(1, weekNum + direction));
+  }
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', marginTop: '4px' }}>
-        <div className="section-title" style={{ marginBottom: 0 }}>CALENDAR</div>
+      {/* Week number controls */}
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}
+      >
+        <button
+          onClick={() => changeWeek(-1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--accent)',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          ‹
+        </button>
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', letterSpacing: '1px' }}>
+          Week {weekNum}
+        </span>
+        <button
+          onClick={() => changeWeek(1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--accent)',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Week / Month toggle */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div className="section-title" style={{ marginBottom: 0 }}>
+          CALENDAR
+        </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           {['week', 'month'].map((m) => (
-            <button key={m} onClick={() => { setMode(m); setOffset(0); }}
-              style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--border)', background: mode === m ? 'var(--accent)' : 'var(--card)', color: mode === m ? '#0d0d0f' : 'var(--muted)', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+            <button
+              key={m}
+              onClick={() => {
+                setMode(m);
+                setOffset(0);
+              }}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+                background: mode === m ? 'var(--accent)' : 'var(--card)',
+                color: mode === m ? '#0d0d0f' : 'var(--muted)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
               {m.charAt(0).toUpperCase() + m.slice(1)}
             </button>
           ))}
         </div>
       </div>
 
+      {/* Calendar nav */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <button onClick={() => setOffset((o) => o - 1)}
-          style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--accent)', fontSize: '20px', padding: '6px 14px', cursor: 'pointer' }}>‹</button>
-        <button onClick={() => setOffset((o) => o + 1)}
-          style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--accent)', fontSize: '20px', padding: '6px 14px', cursor: 'pointer' }}>›</button>
+        <button
+          onClick={() => setOffset((o) => o - 1)}
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            color: 'var(--accent)',
+            fontSize: '20px',
+            padding: '6px 14px',
+            cursor: 'pointer',
+          }}
+        >
+          ‹
+        </button>
+        <button
+          onClick={() => setOffset((o) => o + 1)}
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            color: 'var(--accent)',
+            fontSize: '20px',
+            padding: '6px 14px',
+            cursor: 'pointer',
+          }}
+        >
+          ›
+        </button>
       </div>
 
       {mode === 'week' ? renderWeekGrid() : renderMonthGrid()}
 
       {selectedDate && (
-        <div style={{ marginTop: '20px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
+        <div
+          style={{
+            marginTop: '20px',
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            padding: '16px',
+          }}
+        >
           <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>{formattedDate}</div>
           {workoutInfo ? (
             <>

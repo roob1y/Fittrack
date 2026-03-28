@@ -59,7 +59,7 @@ header {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .week-badge {
   background: var(--card);
@@ -76,6 +76,7 @@ header {
   display: flex;
   padding: 16px 20px 0;
   gap: 6px;
+  width: 100%;
 }
 .nav-btn {
   flex: 1;
