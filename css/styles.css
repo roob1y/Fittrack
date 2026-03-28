@@ -116,7 +116,7 @@ header {
 /* ── Week Grid ── */
 .week-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 .day-card {
@@ -674,5 +674,8 @@ header {
   }
   .cal-goal {
     font-size: 16px;
+  }
+  .week-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
