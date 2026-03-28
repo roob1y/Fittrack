@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import useStore from '../../store/useStore';
 import { EQUIPMENT_LIST } from '../../data/program';
+import { exportCSV } from '../../utils/exportCSV';
+import { exportPDF } from '../../utils/exportPDF';
 
 const EQUIPMENT_GROUPS = [
   {
@@ -239,6 +241,15 @@ export default function SettingsView({ onEquipmentSaved }) {
 
   const [editing, setEditing] = useState(!equipment);
   const [showResetModal, setShowResetModal] = useState(false);
+  const state = useStore((s) => s);
+
+  function handleExportCSV() {
+    exportCSV(state);
+  }
+
+  function handleExportPDF() {
+    exportPDF(state);
+  }
 
   function handleSave(selected) {
     if (selected.length === 0) return;
@@ -321,6 +332,49 @@ export default function SettingsView({ onEquipmentSaved }) {
                 {tone}
               </button>
             ))}
+          </div>
+        </div>
+        {/* Export */}
+        <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Export Data</div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '14px' }}>
+            Download your workouts, sessions and body weight
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={handleExportCSV}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--text)',
+                cursor: 'pointer',
+              }}
+            >
+              Export CSV
+            </button>
+            <button
+              onClick={handleExportPDF}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'var(--accent)',
+                border: 'none',
+                borderRadius: 'var(--radius)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#0d0d0f',
+                cursor: 'pointer',
+              }}
+            >
+              Export PDF
+            </button>
           </div>
         </div>
         <div
