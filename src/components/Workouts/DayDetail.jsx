@@ -2,7 +2,19 @@ import React, { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 
+function useToast() {
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  return showToast;
+}
+
 function ExerciseCard({ ex, ei, dayId }) {
+  const showToast = useToast();
   const [open, setOpen] = useState(false);
   const weekNum = useStore((s) => s.weekNum);
   const setData = useStore((s) => s.setData);
@@ -60,7 +72,7 @@ function ExerciseCard({ ex, ei, dayId }) {
       const weight = parseFloat(setData[key]?.weight);
       const reps = parseInt(setData[key]?.reps);
       if (checkPB(resolvedEx.name, reps, weight)) {
-        alert(`🏆 New PB on ${resolvedEx.name}! ${weight}kg x ${reps}`);
+        showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg x ${reps}`);
       }
     }
   }
