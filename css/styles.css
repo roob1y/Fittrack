@@ -144,6 +144,10 @@ header {
   font-size: 16px;
   font-weight: 700;
 }
+.day-card.skipped {
+  border-color: var(--red);
+  opacity: 0.6;
+}
 .day-label {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 18px;

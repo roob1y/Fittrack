@@ -68,7 +68,8 @@ function renderWeekOverview() {
     const done = !!state.completedDays[`week${state.weekNum}_${day.id}`];
     const progress = getDayProgress(day.id, day.exercises);
     const card = document.createElement('div');
-    card.className = 'day-card' + (done ? ' done' : '');
+    const skipped = !!state.skippedDays?.[`week${state.weekNum}_${day.id}`];
+    card.className = 'day-card' + (done ? ' done' : skipped ? ' skipped' : '');
     card.innerHTML = `
       <div class="day-label">${day.label}</div>
       <div class="day-focus">${day.focus} · ~${estimateDuration(day)} mins</div>
@@ -270,7 +271,6 @@ function markWarmupCardDone(wi) {
 
 // ── Day Detail ─────────────────────────────
 function openDay(dayId) {
-  sessionStartTime = Date.now();
   startSessionTimer();
   currentDayId = dayId;
   const day = PROGRAM.find((d) => d.id === dayId);
