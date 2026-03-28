@@ -4,6 +4,7 @@ import useStore from './store/useStore';
 import WorkoutsView from './components/Workouts/WorkoutsView';
 import ProgressView from './components/Progress/ProgressView';
 import WeightView from './components/Weight/WeightView';
+import CalendarView from './components/Calendar/CalendarView';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
@@ -92,10 +93,7 @@ export default function App() {
 
       <div className="view active">
         {currentView === 'workouts' && <WorkoutsView />}
-
-        {currentView === 'calendar' && (
-          <div style={{ color: 'var(--muted)', padding: '20px' }}>Calendar coming soon</div>
-        )}
+        {currentView === 'calendar' && <CalendarView />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
         {currentView === 'settings' && (
