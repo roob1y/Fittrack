@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import CelebrationScreen from './CelebrationScreen';
+import RestTimer, { getRestDuration } from './RestTimer';
+import { hapticsImpact } from '../../hooks/useHaptics';
 
 function useToast() {
   function showToast(msg) {
@@ -14,7 +16,7 @@ function useToast() {
   return showToast;
 }
 
-function ExerciseCard({ ex, ei, dayId }) {
+function ExerciseCard({ ex, ei, dayId, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
   const weekNum = useStore((s) => s.weekNum);
@@ -64,17 +66,23 @@ function ExerciseCard({ ex, ei, dayId }) {
     return false;
   }
 
-  function toggleSet(si) {
+  async function toggleSet(si) {
     const key = `week${weekNum}_${dayId}_${ei}_${si}`;
     const current = setData[key]?.done;
     saveSetData(key, 'done', !current);
 
     if (!current) {
+      // Haptic feedback on tick
+      await hapticsImpact();
+
       const weight = parseFloat(setData[key]?.weight);
       const reps = parseInt(setData[key]?.reps);
       if (checkPB(resolvedEx.name, reps, weight)) {
         showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg x ${reps}`);
       }
+
+      // Trigger rest timer
+      onSetTicked(resolvedEx.name);
     }
   }
 
@@ -184,7 +192,7 @@ function ExerciseCard({ ex, ei, dayId }) {
   );
 }
 
-export default function DayDetail({ dayId, onBack, onComplete }) {
+export default function DayDetail({ dayId, onBack }) {
   const weekNum = useStore((s) => s.weekNum);
   const completedDays = useStore((s) => s.completedDays);
   const skippedDays = useStore((s) => s.skippedDays);
@@ -196,19 +204,28 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
   const removeSkippedDay = useStore((s) => s.removeSkippedDay);
   const saveWorkoutDate = useStore((s) => s.saveWorkoutDate);
   const saveSessionTime = useStore((s) => s.saveSessionTime);
-  const [celebrating, setCelebrating] = useState(false);
-  const [celebMins, setCelebMins] = useState(0);
   const quoteTone = useStore((s) => s.quoteTone);
 
-  const [sessionStart] = useState(Date.now());
+  const [celebrating, setCelebrating] = useState(false);
+  const [celebMins, setCelebMins] = useState(0);
+
+  // Rest timer state
+  const [restTimer, setRestTimer] = useState(null); // { exerciseName, duration } | null
+
+  const sessionStartRef = useRef(Date.now());
   const day = PROGRAM.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
   const isSkipped = skippedDays?.[key];
-  const sessionTime = Math.round((Date.now() - sessionStart) / 60000);
 
   function todayStr() {
     return new Date().toISOString().slice(0, 10);
+  }
+
+  // Called by ExerciseCard when a set is ticked done
+  function handleSetTicked(exerciseName) {
+    const duration = getRestDuration(exerciseName);
+    setRestTimer({ exerciseName, duration });
   }
 
   function handleComplete() {
@@ -217,7 +234,7 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
       onBack();
       return;
     }
-    const mins = Math.round((Date.now() - sessionStart) / 60000);
+    const mins = Math.round((Date.now() - sessionStartRef.current) / 60000);
     saveCompletedDay(key);
     saveWorkoutDate(key, todayStr());
     saveSessionTime(key, mins);
@@ -253,6 +270,17 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
           }}
         />
       )}
+
+      {/* Rest timer bottom sheet */}
+      {restTimer && (
+        <RestTimer
+          exerciseName={restTimer.exerciseName}
+          duration={restTimer.duration}
+          onComplete={() => setRestTimer(null)}
+          onSkip={() => setRestTimer(null)}
+        />
+      )}
+
       <div className="day-header">
         <h2>{day.focus.toUpperCase()}</h2>
         <p>
@@ -268,7 +296,7 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
       </div>
 
       {day.exercises.map((ex, ei) => (
-        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} />
+        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} onSetTicked={handleSetTicked} />
       ))}
 
       <textarea

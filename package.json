@@ -26,9 +26,12 @@
     "vite": "^8.0.3"
   },
   "dependencies": {
+    "@capacitor-community/keep-awake": "^8.0.0",
     "@capacitor/android": "^8.3.0",
+    "@capacitor/app": "^8.1.0",
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
+    "@capacitor/haptics": "^8.0.2",
     "react": "^19.2.4",
     "react-body-highlighter": "^2.0.5",
     "react-dom": "^19.2.4",
