@@ -197,6 +197,77 @@ function StrengthGraph({ dayId, ei, exName }) {
   );
 }
 
+function CompletionMeter({ completed, total }) {
+  const radius = 70;
+  const stroke = 8;
+  const normalised = radius - stroke / 2;
+  const circumference = 2 * Math.PI * normalised;
+  const progress = total ? (completed / total) * circumference : 0;
+
+  return (
+    <div
+      style={{
+        width: '170px',
+        margin: '0 auto 24px',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <svg width="170" height="170" style={{ transform: 'rotate(-90deg)' }}>
+        {Array.from({ length: total }).map((_, i) => {
+          const segmentAngle = circumference / total;
+          const gap = 12;
+          const segmentLength = segmentAngle - gap;
+          const offset = circumference - i * segmentAngle;
+          const filled = i < completed;
+
+          return (
+            <circle
+              key={i}
+              cx="85"
+              cy="85"
+              r={normalised}
+              fill="none"
+              stroke={filled ? 'var(--accent)' : 'var(--border)'}
+              strokeWidth={stroke}
+              strokeDasharray={`${segmentLength} ${circumference - segmentLength}`}
+              strokeDashoffset={offset}
+              strokeLinecap="square"
+              style={{ transition: 'stroke 0.4s ease' }}
+            />
+          );
+        })}
+      </svg>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '170px',
+          height: '170px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '40px', color: 'var(--accent)', lineHeight: 1 }}
+        >
+          {completed}/{total}
+        </div>
+        <div
+          style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600, marginTop: '6px', letterSpacing: '0.5px' }}
+        >
+          DAYS THIS WEEK
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ProgressView() {
   const weekNum = useStore((s) => s.weekNum);
   const completedDays = useStore((s) => s.completedDays);
@@ -207,11 +278,14 @@ export default function ProgressView() {
   const doneCount = Object.keys(completedDays || {}).length;
   const streak = calcStreak(workoutDates);
 
+  const weeklyDone = PROGRAM.filter((day) => !!completedDays?.[`week${weekNum}_${day.id}`]).length;
+
   return (
     <div>
       <div className="section-title" style={{ marginTop: '4px' }}>
         YOUR PROGRESS
       </div>
+      <CompletionMeter completed={weeklyDone} total={PROGRAM.length} />
 
       <div className="progress-grid">
         <div className="stat-card">

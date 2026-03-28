@@ -1,0 +1,684 @@
+/* ══════════════════════════════════════════
+   styles.css
+   All visual styles for FitTrack.
+   Variables at the top — edit these to retheme.
+══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0d0d0f;
+  --surface: #16161a;
+  --card: #1e1e24;
+  --border: #2a2a35;
+  --accent: #c8f135;
+  --accent2: #5b8dee;
+  --red: #ff4d6d;
+  --text: #f0f0f5;
+  --muted: #7a7a8c;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(13, 13, 15, 0.92);
+  backdrop-filter: blur(12px);
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.week-badge {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ── Nav tabs ── */
+.nav {
+  display: flex;
+  padding: 16px 20px 0;
+  gap: 6px;
+}
+.nav-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.nav-btn.active {
+  background: var(--accent);
+  color: #0d0d0f;
+  border-color: var(--accent);
+}
+
+/* ── Views ── */
+.view {
+  display: none;
+  padding: 20px;
+}
+.view.active {
+  display: block;
+}
+
+/* ── Section title ── */
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+/* ── Week Grid ── */
+.week-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.day-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.day-card:active {
+  transform: scale(0.97);
+}
+.day-card.done {
+  border-color: var(--accent);
+}
+.day-card.done::after {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 700;
+}
+.day-card.skipped {
+  border-color: var(--red);
+  opacity: 0.6;
+}
+.day-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.day-focus {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.day-bar {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 14px;
+}
+.day-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s;
+}
+
+/* ── Workout Detail ── */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 0;
+}
+.day-header {
+  margin-bottom: 24px;
+}
+.day-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 2px;
+}
+.day-header p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.exercise-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.exercise-card.unavailable {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.exercise-header {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.exercise-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+.exercise-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.exercise-toggle {
+  color: var(--accent);
+  font-size: 20px;
+  transition: transform 0.2s;
+}
+.exercise-toggle.open {
+  transform: rotate(45deg);
+}
+
+.sets-table {
+  padding: 0 16px 16px;
+  display: none;
+}
+.sets-table.open {
+  display: block;
+}
+.set-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 44px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.set-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.set-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 8px 10px;
+  width: 100%;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.set-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.set-input::placeholder {
+  color: var(--muted);
+  font-size: 12px;
+}
+.check-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+.check-btn.done {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0d0d0f;
+}
+.col-header {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 6px;
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 44px;
+  gap: 8px;
+  padding: 0;
+}
+
+.save-day-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  color: #0d0d0f;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.save-day-btn:active {
+  opacity: 0.85;
+}
+
+.skip-day-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px;
+  background: none;
+  border: 1px solid var(--muted);
+  border-radius: var(--radius);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.skip-day-btn:active {
+  opacity: 0.85;
+}
+.skip-day-btn.skipped {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.equip-tag {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ── Meals View ── */
+.date-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+}
+.date-strip::-webkit-scrollbar {
+  display: none;
+}
+.date-chip {
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.date-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0d0d0f;
+}
+.date-chip .chip-day {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.date-chip.active .chip-day {
+  color: #0d0d0f;
+}
+.date-chip .chip-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+}
+
+.calorie-bar-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.cal-total {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--accent);
+}
+.cal-goal {
+  font-size: 13px;
+  color: var(--muted);
+}
+.cal-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+}
+.cal-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.5s;
+  max-width: 100%;
+}
+.cal-fill.over {
+  background: var(--red);
+}
+
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.meal-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.meal-item.logged {
+  border-color: var(--accent2);
+}
+.meal-info {
+  flex: 1;
+}
+.meal-name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+.meal-desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+.meal-cal {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--accent2);
+  margin-right: 12px;
+}
+.log-meal-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.log-meal-btn.logged {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #fff;
+}
+
+/* ── Suggested Meals ── */
+.suggest-section {
+  margin-top: 24px;
+}
+.suggest-title {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.suggest-card {
+  background: var(--card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.suggest-info .suggest-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.suggest-info .suggest-cal {
+  font-size: 12px;
+  color: var(--muted);
+}
+.add-suggest-btn {
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--accent);
+  color: #0d0d0f;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 24px;
+  border-radius: 30px;
+  z-index: 200;
+  transition: transform 0.3s;
+  white-space: nowrap;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Progress View ── */
+.progress-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.stat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+.week-log {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.week-log-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.week-log-row:last-child {
+  border-bottom: none;
+}
+.wl-day {
+  font-weight: 600;
+  font-size: 14px;
+}
+.wl-focus {
+  font-size: 12px;
+  color: var(--muted);
+}
+.wl-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.wl-badge.done {
+  background: rgba(200, 241, 53, 0.15);
+  color: var(--accent);
+}
+.wl-badge.skip {
+  background: rgba(122, 122, 140, 0.1);
+  color: var(--muted);
+}
+.wl-badge.skipped {
+  background: rgba(255, 77, 109, 0.1);
+  color: var(--red);
+}
+
+@media (min-width: 768px) {
+  body {
+    font-size: 20px;
+    max-width: 620px;
+  }
+
+  .logo {
+    font-size: 42px;
+  }
+  .section-title {
+    font-size: 32px;
+  }
+  .day-header h2 {
+    font-size: 56px;
+  }
+  .cal-total {
+    font-size: 56px;
+  }
+  .stat-val {
+    font-size: 52px;
+  }
+  .nav-btn {
+    font-size: 18px;
+    padding: 16px;
+  }
+  .day-card {
+    padding: 28px 24px;
+  }
+  .day-label {
+    font-size: 24px;
+  }
+  .day-focus {
+    font-size: 15px;
+  }
+  .exercise-name {
+    font-size: 20px;
+  }
+  .exercise-meta {
+    font-size: 15px;
+  }
+  .set-input {
+    font-size: 18px;
+    padding: 12px;
+  }
+  .save-day-btn {
+    font-size: 26px;
+    padding: 20px;
+  }
+  .meal-name {
+    font-size: 18px;
+  }
+  .meal-cal {
+    font-size: 28px;
+  }
+  .cal-goal {
+    font-size: 16px;
+  }
+  .week-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
