@@ -138,7 +138,6 @@ header {
   border-color: var(--accent);
 }
 .day-card.done::after {
-  content: '✓';
   position: absolute;
   top: 12px;
   right: 14px;
@@ -678,6 +677,8 @@ header {
     font-size: 16px;
   }
   .week-grid {
-    grid-template-columns: 1fr 1fr;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
