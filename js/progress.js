@@ -13,8 +13,6 @@ function renderProgress() {
     <div class="progress-grid" style="margin-bottom:20px">
       <div class="stat-card"><div class="stat-val" id="statWorkouts">0</div><div class="stat-label">Workouts done</div></div>
       <div class="stat-card"><div class="stat-val" id="statStreak">0</div><div class="stat-label">Day streak</div></div>
-      <div class="stat-card"><div class="stat-val" id="statMeals">0</div><div class="stat-label">Meals logged</div></div>
-      <div class="stat-card"><div class="stat-val" id="statCal">—</div><div class="stat-label">Avg daily kcal</div></div>
     </div>
 
     <!-- Week log -->

@@ -333,7 +333,7 @@ function renderExercises(day) {
   <div class="exercise-header" onclick="toggleEx(this)">
     <div>
       <div class="exercise-name" style="color:${resolvedEx.status === 'unavailable' ? 'var(--muted)' : 'var(--text)'}">
-  ${resolvedEx.name}${resolvedEx.superset ? ' + ' + resolvedEx.superset.name : ''}${hasPBForExercise(resolvedEx.name) ? '<span class="pb-badge" style="font-size:11px;font-weight:700;color:#0d0d0f;background:#ffd700;border-radius:6px;padding:2px 6px;margin-left:8px;vertical-align:middle">🏆 PB</span>' : ''}
+        ${resolvedEx.name}${resolvedEx.superset ? ' + ' + resolvedEx.superset.name : ''}${resolvedEx.status === 'alternative' ? `<span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:6px">(sub for ${ex.name})</span>` : ''}${hasPBForExercise(resolvedEx.name) ? '<span class="pb-badge" style="font-size:11px;font-weight:700;color:#0d0d0f;background:#ffd700;border-radius:6px;padding:2px 6px;margin-left:8px;vertical-align:middle">🏆 PB</span>' : ''}
       </div>
       <div class="exercise-meta">
         ${
