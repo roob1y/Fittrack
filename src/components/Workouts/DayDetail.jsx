@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import CelebrationScreen from './CelebrationScreen';
@@ -212,7 +212,7 @@ export default function DayDetail({ dayId, onBack }) {
   // Rest timer state
   const [restTimer, setRestTimer] = useState(null); // { exerciseName, duration } | null
 
-  const [sessionStart] = useState(Date.now());
+  const sessionStartRef = useRef(Date.now());
   const day = PROGRAM.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
@@ -234,7 +234,7 @@ export default function DayDetail({ dayId, onBack }) {
       onBack();
       return;
     }
-    const mins = Math.round((Date.now() - sessionStart) / 60000);
+    const mins = Math.round((Date.now() - sessionStartRef.current) / 60000);
     saveCompletedDay(key);
     saveWorkoutDate(key, todayStr());
     saveSessionTime(key, mins);
