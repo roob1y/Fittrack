@@ -682,3 +682,28 @@ header {
     gap: 12px;
   }
 }
+.bottom-sheet {
+  transform: translateY(0);
+  animation: slideUp 0.3s ease;
+}
+
+.bottom-sheet.closing {
+  animation: slideDown 0.28s ease forwards;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

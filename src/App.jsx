@@ -1,18 +1,35 @@
 import React, { useState } from 'react';
 import useStore from './store/useStore';
-
 import WorkoutsView from './components/Workouts/WorkoutsView';
-import ProgressView from './components/Progress/ProgressView';
-import WeightView from './components/Weight/WeightView';
 import CalendarView from './components/Calendar/CalendarView';
+import WeightView from './components/Weight/WeightView';
+import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
 
 export default function App() {
+  const [currentView, setCurrentView] = useState('workouts');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsClosing, setSettingsClosing] = useState(false);
   const weekNum = useStore((s) => s.weekNum);
   const saveWeekNum = useStore((s) => s.saveWeekNum);
   const equipment = useStore((s) => s.equipment);
-  const [currentView, setCurrentView] = useState(equipment ? 'workouts' : 'settings');
-  
+
+  if (!equipment && !settingsOpen) {
+    return (
+      <div className="view active">
+        <SettingsView onEquipmentSaved={() => {}} />
+      </div>
+    );
+  }
+
+  function closeSettings() {
+    setSettingsClosing(true);
+    setTimeout(() => {
+      setSettingsOpen(false);
+      setSettingsClosing(false);
+    }, 280);
+  }
+
   function changeWeek(direction) {
     saveWeekNum(Math.max(1, weekNum + direction));
   }
@@ -66,7 +83,7 @@ export default function App() {
             </button>
           </div>
           <button
-            onClick={() => setCurrentView('settings')}
+            onClick={() => setSettingsOpen(true)}
             style={{
               background: 'none',
               border: 'none',
@@ -98,8 +115,46 @@ export default function App() {
         {currentView === 'calendar' && <CalendarView />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
-        {currentView === 'settings' && <SettingsView onEquipmentSaved={() => setCurrentView('workouts')} />}
       </div>
+
+      {/* Settings bottom sheet */}
+      {settingsOpen && (
+        <>
+          <div
+            onClick={() => closeSettings()}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 80 }}
+          />
+          <div
+            className={`bottom-sheet${settingsClosing ? ' closing' : ''}`}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'var(--surface)',
+              borderTop: '1px solid var(--border)',
+              borderRadius: '20px 20px 0 0',
+              zIndex: 90,
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              padding: '0 20px 40px',
+              maxWidth: '480px',
+              margin: '0 auto',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '4px',
+                background: 'var(--border)',
+                borderRadius: '2px',
+                margin: '12px auto 20px',
+              }}
+            />
+            <SettingsView onEquipmentSaved={() => setSettingsOpen(false)} />
+          </div>
+        </>
+      )}
     </>
   );
 }
