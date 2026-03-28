@@ -118,10 +118,14 @@ function editEquipmentProfile() {
 }
 
 function resetApp() {
-  if (confirm('Are you sure? This will delete all your data and cannot be undone.')) {
-    localStorage.removeItem('fittrack_v1');
-    location.reload();
-  }
+  showModal(
+    'RESET ALL DATA?',
+    'This will permanently delete all your workouts, progress and settings. This cannot be undone.',
+    () => {
+      localStorage.removeItem('fittrack_v1');
+      location.reload();
+    },
+  );
 }
 
 function showSettings() {

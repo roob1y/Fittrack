@@ -4,6 +4,8 @@
 //  and mapping workouts to real calendar dates.
 // ══════════════════════════════════════════
 
+let selectedCalendarDate = null;
+
 // ── Entry point ────────────────────────────
 function renderCalendar() {
   checkProgrammeStart();
@@ -128,6 +130,8 @@ function renderWeekGrid() {
     const isToday = str === todayStr();
 
     const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    cell.dataset.date = str;
     cell.style.cssText = `
       background:${statusColor(status)};
       border:${isToday ? '2px solid var(--accent)' : '1px solid var(--border)'};
@@ -163,6 +167,8 @@ function renderMonthGrid() {
   days.forEach((d) => {
     const cell = document.createElement('div');
     cell.style.cssText = 'text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:4px 0';
+    cell.className = 'cal-cell';
+    cell.dataset.date = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     cell.textContent = d;
     headerRow.appendChild(cell);
   });
@@ -230,6 +236,19 @@ function statusDot(status) {
 
 // ── Day detail ─────────────────────────────
 function showDayDetail(dateStr) {
+  selectedCalendarDate = dateStr;
+
+  // Update selected outline on all cells
+  document.querySelectorAll('.cal-cell').forEach((el) => {
+    const isToday = el.dataset.date === todayStr();
+    el.style.border =
+      el.dataset.date === dateStr
+        ? '2px solid var(--accent2)'
+        : isToday
+          ? '2px solid var(--accent)'
+          : '1px solid var(--border)';
+  });
+
   const detail = document.getElementById('calendarDayDetail');
   const workoutInfo = getWorkoutForDate(dateStr);
   const formatted = new Date(dateStr).toLocaleDateString('en-GB', {
