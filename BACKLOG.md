@@ -18,7 +18,7 @@
 
 ## v1.2 Bundle — Simple Fixes (Vanilla JS)
 
-- [ ] Logo updated to FitTRACK — two tone, "Fit" in lime green, "TRACK" in white
+- [x] Logo updated to FitTRACK — two tone, "Fit" in lime green, "TRACK" in white
 - [x] Warmup section redesign:
   - Two types of warmup cards — timed and rep-based
   - Timed card — movement name, description, countdown timer only
@@ -26,59 +26,59 @@
   - Light loading movements show clear weight guidance
   - Remove sets concept from warmups entirely
   - Review and rewrite all warmup data across all 5 days
-- [ ] Day cards layout — single full-width column on mobile, 2 columns on desktop
-- [ ] Skipped day cards not updating colour on week overview
-- [ ] Reset data confirmation — replace browser confirm() with in-app modal
-- [ ] Session timer not resetting correctly when switching between days
-- [ ] Warmup timer cannot be stopped or reset once started
-- [ ] Weight tracker save button overflows outside its container
-- [ ] App icon — replace default Android icon with FitTrack branding
-- [ ] Splash screen — replace plain white with branded screen
-- [ ] Remove meals logged and avg daily kcal stats from Progress tab
-- [ ] Show original exercise name on substituted exercise cards
-- [ ] Calendar day selection — tapping a date doesn't visually
+- [x] Day cards layout — single full-width column on mobile, 2 columns on desktop
+- [x] Skipped day cards not updating colour on week overview
+- [x] Reset data confirmation — replace browser confirm() with in-app modal
+- [x] Session timer not resetting correctly when switching between days
+- [x] Warmup timer cannot be stopped or reset once started
+- [x] Weight tracker save button overflows outside its container
+- [x] App icon — replace default Android icon with FitTrack branding
+- [x] Splash screen — replace plain white with branded screen
+- [x] Remove meals logged and avg daily kcal stats from Progress tab
+- [x] Show original exercise name on substituted exercise cards
+- [x] Calendar day selection — tapping a date doesn't visually
       highlight it with an outline to show it's selected
 
 ---
 
 ## v1.3 — React + Capacitor Migration
 
-- [ ] Migrate to React + Capacitor stack
-- [ ] Convert all JS modules to React components
-- [ ] Implement proper state management (React Context or Zustand)
-- [ ] Shared component library for use across all ecosystem apps
-- [ ] No new features — migration only
-- [ ] Ensure all v1.2 functionality works identically after migration
+- [x] Migrate to React + Capacitor stack
+- [x] Convert all JS modules to React components
+- [x] Implement proper state management (React Context or Zustand)
+- [x] Shared component library for use across all ecosystem apps
+- [x] No new features — migration only
+- [x] Ensure all v1.2 functionality works identically after migration
 
 ---
 
 ## v1.4 — Complex Features (Post React Migration)
 
-- [ ] Modal/bottom sheet for calendar — replaces calendar tab,
+- [x] Modal/bottom sheet for calendar — replaces calendar tab,
       opens from header week badge
-- [ ] Modal/bottom sheet for settings — replaces current settings view
-- [ ] Weekly completion meter — animated circular arc gauge on Progress tab
-- [ ] Motivational quotes and nudges:
+- [x] Modal/bottom sheet for settings — replaces current settings view
+- [x] Weekly completion meter — animated circular arc gauge on Progress tab
+- [x] Motivational quotes and nudges:
   - Daily quote shown on week overview
   - Pre-workout nudge if not yet trained today
   - Full screen celebration moment when marking a day complete
   - Streak motivation if no workout logged in 2+ days
   - Tone setting in settings (Hardcore, Positive, Stoic, Off)
-- [ ] Equipment selection UI redesign:
+- [x] Equipment selection UI redesign:
   - Add icons/emojis next to each equipment item
   - Group equipment by type (Barbells, Dumbbells, Machines, Accessories)
   - Add preset options (Full home gym, Dumbbells only, Full commercial gym)
   - Select all / deselect all option
-- [ ] Background timer support — rest and session timers continue
+- [x] Background timer support — rest and session timers continue
       when app is backgrounded
-- [ ] Push notifications for rest timer completion
-- [ ] Keep screen awake during workout session
-- [ ] Haptic feedback when ticking a set done
-- [ ] Sound option — beep when rest timer finishes
-- [ ] Back button behaviour — Android back button navigates within
+- [x] Push notifications for rest timer completion
+- [x] Keep screen awake during workout session
+- [x] Haptic feedback when ticking a set done
+- [x] Sound option — beep when rest timer finishes
+- [x] Back button behaviour — Android back button navigates within
       the app not exit it
-- [ ] Android pinch-to-zoom — prevent stretching the view
-- [ ] SVG muscle group icons for day cards — body silhouette SVGs
+- [x] Android pinch-to-zoom — prevent stretching the view
+- [x] SVG muscle group icons for day cards — body silhouette SVGs
       with relevant muscle groups highlighted in lime green
 
 ---
