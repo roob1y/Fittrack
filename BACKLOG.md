@@ -36,6 +36,8 @@
 - [ ] Splash screen — replace plain white with branded screen
 - [ ] Remove meals logged and avg daily kcal stats from Progress tab
 - [ ] Show original exercise name on substituted exercise cards
+- [ ] Calendar day selection — tapping a date doesn't visually
+      highlight it with an outline to show it's selected
 
 ---
 
@@ -53,7 +55,7 @@
 ## v1.4 — Complex Features (Post React Migration)
 
 - [ ] Modal/bottom sheet for calendar — replaces calendar tab,
-  opens from header week badge
+      opens from header week badge
 - [ ] Modal/bottom sheet for settings — replaces current settings view
 - [ ] Weekly completion meter — animated circular arc gauge on Progress tab
 - [ ] Motivational quotes and nudges:
@@ -68,16 +70,16 @@
   - Add preset options (Full home gym, Dumbbells only, Full commercial gym)
   - Select all / deselect all option
 - [ ] Background timer support — rest and session timers continue
-  when app is backgrounded
+      when app is backgrounded
 - [ ] Push notifications for rest timer completion
 - [ ] Keep screen awake during workout session
 - [ ] Haptic feedback when ticking a set done
 - [ ] Sound option — beep when rest timer finishes
 - [ ] Back button behaviour — Android back button navigates within
-  the app not exit it
+      the app not exit it
 - [ ] Android pinch-to-zoom — prevent stretching the view
 - [ ] SVG muscle group icons for day cards — body silhouette SVGs
-  with relevant muscle groups highlighted in lime green
+      with relevant muscle groups highlighted in lime green
 
 ---
 
@@ -96,7 +98,7 @@
 - [x] ~~Targeted warmup per muscle group~~
 
 - [ ] **Warmup exercise demonstrations** — diagrams, GIFs or short
-  videos showing correct form for each warmup movement
+      videos showing correct form for each warmup movement
 - [ ] **Quick log** — one tap set counter per exercise
 - [ ] **Plate calculator** — enter total weight, shows plates needed per side
 - [ ] **Export data** — CSV or PDF workout history
