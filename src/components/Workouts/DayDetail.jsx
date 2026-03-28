@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import CelebrationScreen from './CelebrationScreen';
+import WorkoutSummaryScreen from './WorkoutSummaryScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
 import { getCurrentWeek } from '../../utils/week';
@@ -207,6 +208,7 @@ export default function DayDetail({ dayId, onBack }) {
   const weekNum = getCurrentWeek(programmeStartDate);
 
   const [celebrating, setCelebrating] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [celebMins, setCelebMins] = useState(0);
   const [restTimer, setRestTimer] = useState(null);
 
@@ -263,6 +265,18 @@ export default function DayDetail({ dayId, onBack }) {
           tone={quoteTone}
           onDismiss={() => {
             setCelebrating(false);
+            setShowSummary(true);
+          }}
+        />
+      )}
+
+      {showSummary && (
+        <WorkoutSummaryScreen
+          dayId={dayId}
+          weekNum={weekNum}
+          mins={celebMins}
+          onDismiss={() => {
+            setShowSummary(false);
             onBack();
           }}
         />
