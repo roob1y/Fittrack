@@ -4,6 +4,8 @@
    Variables at the top — edit these to retheme.
 ══════════════════════════════════════════ */
 
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
 :root {
   --bg: #0d0d0f;
   --surface: #16161a;
