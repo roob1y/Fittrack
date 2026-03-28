@@ -24,6 +24,16 @@ export default function App() {
   const weekNum = getCurrentWeek(programmeStartDate);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    function handleChange() {
+      // Force a re-render by toggling a class on the root
+      document.documentElement.setAttribute('data-theme', mediaQuery.matches ? 'dark' : 'light');
+    }
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  useEffect(() => {
     StatusBar.getInfo()
       .then((info) => {
         console.log('raw height:', info.height, 'dpr:', window.devicePixelRatio);

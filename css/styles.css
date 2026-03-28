@@ -709,3 +709,18 @@ header {
     transform: translateY(0);
   }
 }
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f0eb;
+    --surface: #ede8e3;
+    --card: #ffffff;
+    --border: #d6cfc8;
+    --text: #1a1a1a;
+    --muted: #7a7060;
+    --red: #e03050;
+  }
+
+  header {
+    background: rgba(245, 240, 235, 0.92);
+  }
+}
