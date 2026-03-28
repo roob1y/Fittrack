@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
+import CelebrationScreen from './CelebrationScreen';
 
 function useToast() {
   function showToast(msg) {
@@ -195,6 +196,9 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
   const removeSkippedDay = useStore((s) => s.removeSkippedDay);
   const saveWorkoutDate = useStore((s) => s.saveWorkoutDate);
   const saveSessionTime = useStore((s) => s.saveSessionTime);
+  const [celebrating, setCelebrating] = useState(false);
+  const [celebMins, setCelebMins] = useState(0);
+  const quoteTone = useStore((s) => s.quoteTone);
 
   const [sessionStart] = useState(Date.now());
   const day = PROGRAM.find((d) => d.id === dayId);
@@ -210,13 +214,15 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
   function handleComplete() {
     if (isDone) {
       removeCompletedDay(key);
-    } else {
-      const mins = Math.round((Date.now() - sessionStart) / 60000);
-      saveCompletedDay(key);
-      saveWorkoutDate(key, todayStr());
-      saveSessionTime(key, mins);
+      onBack();
+      return;
     }
-    onBack();
+    const mins = Math.round((Date.now() - sessionStart) / 60000);
+    saveCompletedDay(key);
+    saveWorkoutDate(key, todayStr());
+    saveSessionTime(key, mins);
+    setCelebMins(mins);
+    setCelebrating(true);
   }
 
   function handleSkip() {
@@ -236,6 +242,17 @@ export default function DayDetail({ dayId, onBack, onComplete }) {
 
   return (
     <div>
+      {celebrating && (
+        <CelebrationScreen
+          mins={celebMins}
+          dayFocus={day.focus}
+          tone={quoteTone}
+          onDismiss={() => {
+            setCelebrating(false);
+            onBack();
+          }}
+        />
+      )}
       <div className="day-header">
         <h2>{day.focus.toUpperCase()}</h2>
         <p>

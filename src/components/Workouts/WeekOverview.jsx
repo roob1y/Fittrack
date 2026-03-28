@@ -2,12 +2,15 @@ import React from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import MuscleIcon from './MuscleIcon';
+import { getDailyQuote } from '../../data/quotes';
 
 export default function WeekOverview({ onSelectDay }) {
   const weekNum = useStore((s) => s.weekNum);
   const completedDays = useStore((s) => s.completedDays);
   const skippedDays = useStore((s) => s.skippedDays);
   const setData = useStore((s) => s.setData);
+  const quoteTone = useStore((s) => s.quoteTone);
+  const workoutDates = useStore((s) => s.workoutDates);
 
   function getDayProgress(dayId, exercises) {
     let total = 0,
@@ -47,6 +50,82 @@ export default function WeekOverview({ onSelectDay }) {
 
   return (
     <div>
+      {(() => {
+        const quote = getDailyQuote(quoteTone);
+        if (!quote) return null;
+        return (
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              padding: '16px',
+              marginBottom: '16px',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '11px',
+                color: 'var(--accent)',
+                fontWeight: 600,
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+                marginBottom: '8px',
+              }}
+            >
+              Today's motivation
+            </div>
+            <div style={{ fontSize: '14px', color: 'var(--text)', lineHeight: 1.5, fontStyle: 'italic' }}>
+              "{quote}"
+            </div>
+          </div>
+        );
+      })()}
+      {(() => {
+        const today = new Date();
+        let daysSinceLastWorkout = null;
+
+        for (let i = 1; i <= 30; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const str = d.toISOString().slice(0, 10);
+          const trained = Object.values(workoutDates || {}).some((date) => date === str);
+          if (trained) {
+            daysSinceLastWorkout = i;
+            break;
+          }
+        }
+
+        if (!daysSinceLastWorkout || daysSinceLastWorkout < 2) return null;
+
+        const nudges = {
+          hardcore: `${daysSinceLastWorkout} days without training. Weakness is a choice. Make a different one.`,
+          positive: `It's been ${daysSinceLastWorkout} days — no worries, today is a great day to get back at it!`,
+          stoic: `${daysSinceLastWorkout} days have passed without action. Return to the work. That is all.`,
+          off: null,
+        };
+
+        const nudge = nudges[quoteTone];
+        if (!nudge) return null;
+
+        return (
+          <div
+            style={{
+              background: 'rgba(255,77,109,0.06)',
+              border: '1px solid rgba(255,77,109,0.2)',
+              borderRadius: 'var(--radius)',
+              padding: '14px 16px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <div style={{ fontSize: '20px' }}>🔥</div>
+            <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: 1.5 }}>{nudge}</div>
+          </div>
+        );
+      })()}
       <div className="section-title" style={{ marginTop: '4px' }}>
         THIS WEEK
       </div>

@@ -59,7 +59,7 @@ header {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .week-badge {
   background: var(--card);
@@ -76,6 +76,7 @@ header {
   display: flex;
   padding: 16px 20px 0;
   gap: 6px;
+  width: 100%;
 }
 .nav-btn {
   flex: 1;
@@ -680,5 +681,30 @@ header {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+}
+.bottom-sheet {
+  transform: translateY(0);
+  animation: slideUp 0.3s ease;
+}
+
+.bottom-sheet.closing {
+  animation: slideDown 0.28s ease forwards;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }

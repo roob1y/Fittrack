@@ -234,6 +234,9 @@ export default function SettingsView({ onEquipmentSaved }) {
   const equipment = useStore((s) => s.equipment);
   const setEquipment = useStore((s) => s.setEquipment);
   const resetAll = useStore((s) => s.resetAll);
+  const quoteTone = useStore((s) => s.quoteTone);
+  const setQuoteTone = useStore((s) => s.setQuoteTone);
+
   const [editing, setEditing] = useState(!equipment);
   const [showResetModal, setShowResetModal] = useState(false);
 
@@ -285,6 +288,40 @@ export default function SettingsView({ onEquipmentSaved }) {
             </div>
           </div>
           <div style={{ color: 'var(--accent)', fontSize: '18px' }}>›</div>
+        </div>
+        <div
+          style={{
+            padding: '16px',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <div style={{ fontWeight: 600, fontSize: '15px', flexShrink: 0 }}>Motivation Tone</div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'right' }}>
+            {['positive', 'hardcore', 'stoic', 'off'].map((tone) => (
+              <button
+                key={tone}
+                onClick={() => setQuoteTone(tone)}
+                style={{
+                  padding: '10px 18px',
+                  minHeight: '44px',
+                  borderRadius: '20px',
+                  border: `1px solid ${quoteTone === tone ? 'var(--accent)' : 'var(--border)'}`,
+                  background: quoteTone === tone ? 'var(--accent)' : 'var(--card)',
+                  color: quoteTone === tone ? '#0d0d0f' : 'var(--muted)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {tone}
+              </button>
+            ))}
+          </div>
         </div>
         <div
           onClick={() => setShowResetModal(true)}

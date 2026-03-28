@@ -17,9 +17,12 @@ const useStore = create(
       weightUnit: 'kg',
       programmeStartDate: null,
       equipment: null,
+      quoteTone: 'positive',
 
       // Actions
       saveWeekNum: (num) => set({ weekNum: num }),
+
+      setQuoteTone: (tone) => set({ quoteTone: tone }),
 
       saveCompletedDay: (key) =>
         set((state) => ({
