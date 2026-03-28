@@ -5,12 +5,14 @@ import WorkoutsView from './components/Workouts/WorkoutsView';
 import ProgressView from './components/Progress/ProgressView';
 import WeightView from './components/Weight/WeightView';
 import CalendarView from './components/Calendar/CalendarView';
+import SettingsView from './components/Settings/SettingsView';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('workouts');
   const weekNum = useStore((s) => s.weekNum);
   const saveWeekNum = useStore((s) => s.saveWeekNum);
-
+  const equipment = useStore((s) => s.equipment);
+  const [currentView, setCurrentView] = useState(equipment ? 'workouts' : 'settings');
+  
   function changeWeek(direction) {
     saveWeekNum(Math.max(1, weekNum + direction));
   }
@@ -96,9 +98,7 @@ export default function App() {
         {currentView === 'calendar' && <CalendarView />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
-        {currentView === 'settings' && (
-          <div style={{ color: 'var(--muted)', padding: '20px' }}>Settings coming soon</div>
-        )}
+        {currentView === 'settings' && <SettingsView onEquipmentSaved={() => setCurrentView('workouts')} />}
       </div>
     </>
   );
