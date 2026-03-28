@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useStore from './store/useStore';
 
 import WorkoutsView from './components/Workouts/WorkoutsView';
-
+import ProgressView from './components/Progress/ProgressView';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
@@ -96,9 +96,7 @@ export default function App() {
           <div style={{ color: 'var(--muted)', padding: '20px' }}>Calendar coming soon</div>
         )}
         {currentView === 'weight' && <div style={{ color: 'var(--muted)', padding: '20px' }}>Weight coming soon</div>}
-        {currentView === 'progress' && (
-          <div style={{ color: 'var(--muted)', padding: '20px' }}>Progress coming soon</div>
-        )}
+        {currentView === 'progress' && <ProgressView />}
         {currentView === 'settings' && (
           <div style={{ color: 'var(--muted)', padding: '20px' }}>Settings coming soon</div>
         )}
