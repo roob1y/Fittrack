@@ -114,39 +114,13 @@ function openWarmup(dayId) {
   list.innerHTML = '';
 
   available.forEach((warmup, wi) => {
-    const card = document.createElement('div');
-    card.className = 'exercise-card';
-    card.id = `warmup-card-${wi}`;
-    card.innerHTML = `
-      <div style="padding:14px 16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div>
-            <div class="exercise-name">${warmup.name}</div>
-            <div class="exercise-meta">${warmup.sets} sets · ${warmup.reps}</div>
-          </div>
-          <button onclick="markWarmupDone(${wi}, this)"
-            style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
-            background:var(--surface);cursor:pointer;font-size:16px;
-            display:flex;align-items:center;justify-content:center;color:var(--muted)">✓</button>
-        </div>
-        <button onclick="startWarmupTimer(${wi}, ${warmup.duration})"
-          style="width:100%;padding:8px;background:var(--surface);border:1px solid var(--border);
-          border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
-          color:var(--muted);cursor:pointer" id="warmup-timer-btn-${wi}">
-          ▶ Start ${warmup.duration}s timer
-        </button>
-        <div id="warmup-timer-${wi}" style="display:none;margin-top:8px">
-          <div style="height:4px;background:var(--border);border-radius:2px">
-            <div id="warmup-timer-bar-${wi}" style="height:100%;background:var(--accent);border-radius:2px;width:100%;transition:width 1s linear"></div>
-          </div>
-          <div id="warmup-timer-count-${wi}" style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);margin-top:4px">${warmup.duration}</div>
-        </div>
-      </div>
-    `;
-    list.appendChild(card);
+    if (warmup.type === 'timed') {
+      list.appendChild(buildTimedCard(warmup, wi));
+    } else {
+      list.appendChild(buildRepsCard(warmup, wi));
+    }
   });
 
-  // Start workout button
   const startBtn = document.createElement('button');
   startBtn.className = 'save-day-btn';
   startBtn.textContent = 'START WORKOUT';
@@ -161,14 +135,15 @@ function openWarmup(dayId) {
 
 function startWarmupTimer(wi, duration) {
   clearInterval(warmupTimerInterval);
+
   let seconds = duration;
   const bar = document.getElementById(`warmup-timer-bar-${wi}`);
   const count = document.getElementById(`warmup-timer-count-${wi}`);
   const timerEl = document.getElementById(`warmup-timer-${wi}`);
-  const btn = document.getElementById(`warmup-timer-btn-${wi}`);
+  const startBtn = document.getElementById(`warmup-start-btn-${wi}`);
 
   timerEl.style.display = 'block';
-  btn.style.display = 'none';
+  startBtn.style.display = 'none';
 
   warmupTimerInterval = setInterval(() => {
     seconds--;
@@ -176,18 +151,121 @@ function startWarmupTimer(wi, duration) {
     bar.style.width = (seconds / duration) * 100 + '%';
     if (seconds <= 0) {
       clearInterval(warmupTimerInterval);
-      count.textContent = 'Done!';
-      showToast('Rest complete — next movement!');
+      count.textContent = '✓';
+      bar.style.width = '0%';
+      const stopBtn = timerEl.querySelector('button');
+      if (stopBtn) stopBtn.style.display = 'none';
+      markWarmupCardDone(wi);
+      showToast('Done — next movement!');
     }
   }, 1000);
 }
 
 function markWarmupDone(wi, btn) {
-  btn.style.background = 'var(--accent)';
-  btn.style.borderColor = 'var(--accent)';
-  btn.style.color = '#0d0d0f';
+  const alreadyDone = btn.dataset.done === 'true';
+  if (alreadyDone) {
+    btn.dataset.done = 'false';
+    btn.style.background = 'var(--surface)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--muted)';
+    const card = document.getElementById(`warmup-card-${wi}`);
+    if (card) card.style.opacity = '1';
+  } else {
+    btn.dataset.done = 'true';
+    markWarmupCardDone(wi);
+  }
+}
+
+function buildTimedCard(warmup, wi) {
+  const card = document.createElement('div');
+  card.className = 'exercise-card';
+  card.id = `warmup-card-${wi}`;
+  card.innerHTML = `
+    <div style="padding:14px 16px">
+      <div style="margin-bottom:10px">
+        <div class="exercise-name">${warmup.name}</div>
+        <div class="exercise-meta" style="margin-top:4px;line-height:1.5">${warmup.description}</div>
+        ${warmup.weightNote ? `<div style="margin-top:6px;font-size:12px;color:var(--accent);font-weight:600">🏋️ ${warmup.weightNote}</div>` : ''}
+      </div>
+      <button
+        id="warmup-start-btn-${wi}"
+        onclick="startWarmupTimer(${wi}, ${warmup.duration})"
+        style="width:100%;padding:10px;background:var(--surface);border:1px solid var(--border);
+        border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+        color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <span>▶</span> Start ${warmup.duration}s timer
+      </button>
+      <div id="warmup-timer-${wi}" style="display:none;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div id="warmup-timer-count-${wi}"
+            style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent);line-height:1">
+            ${warmup.duration}
+          </div>
+          <button
+            onclick="stopWarmupTimer(${wi})"
+            style="background:none;border:1px solid var(--border);border-radius:8px;
+            color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;
+            font-weight:600;padding:6px 12px;cursor:pointer">
+            Stop
+          </button>
+        </div>
+        <div style="height:4px;background:var(--border);border-radius:2px">
+          <div id="warmup-timer-bar-${wi}"
+            style="height:100%;background:var(--accent);border-radius:2px;width:100%;transition:width 1s linear">
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function buildRepsCard(warmup, wi) {
+  const card = document.createElement('div');
+  card.className = 'exercise-card';
+  card.id = `warmup-card-${wi}`;
+  card.innerHTML = `
+    <div style="padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="flex:1">
+          <div class="exercise-name">${warmup.name}</div>
+          <div class="exercise-meta" style="margin-top:4px;line-height:1.5">${warmup.description}</div>
+          ${warmup.weightNote ? `<div style="margin-top:6px;font-size:12px;color:var(--accent);font-weight:600">🏋️ ${warmup.weightNote}</div>` : ''}
+          <div style="margin-top:8px;font-size:13px;font-weight:600;color:var(--text)">${warmup.reps} reps</div>
+        </div>
+        <button
+          id="warmup-check-${wi}"
+          onclick="markWarmupDone(${wi}, this)"
+          style="flex-shrink:0;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);
+          background:var(--surface);cursor:pointer;font-size:18px;
+          display:flex;align-items:center;justify-content:center;color:var(--muted);
+          transition:all 0.15s;margin-top:2px">
+          ✓
+        </button>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function stopWarmupTimer(wi) {
+  clearInterval(warmupTimerInterval);
+  const timerEl = document.getElementById(`warmup-timer-${wi}`);
+  const startBtn = document.getElementById(`warmup-start-btn-${wi}`);
+  if (timerEl) timerEl.style.display = 'none';
+  if (startBtn) startBtn.style.display = 'flex';
+}
+
+function markWarmupCardDone(wi) {
+  const btn = document.getElementById(`warmup-check-${wi}`);
+  if (btn) {
+    btn.dataset.done = 'true';
+    btn.style.background = 'var(--accent)';
+    btn.style.borderColor = 'var(--accent)';
+    btn.style.color = '#0d0d0f';
+  }
   const card = document.getElementById(`warmup-card-${wi}`);
-  if (card) card.style.opacity = '0.6';
+  if (card) card.style.opacity = '0.55';
 }
 
 // ── Day Detail ─────────────────────────────
