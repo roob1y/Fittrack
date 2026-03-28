@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useStore from './store/useStore';
 import WorkoutsView from './components/Workouts/WorkoutsView';
 import CalendarView from './components/Calendar/CalendarView';
 import WeightView from './components/Weight/WeightView';
 import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
+import { registerBackButton } from './hooks/useBackButton';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
@@ -15,6 +16,39 @@ export default function App() {
   const equipment = useStore((s) => s.equipment);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarClosing, setCalendarClosing] = useState(false);
+  const [sessionStart, setSessionStart] = useState(null);
+  const [sessionDisplay, setSessionDisplay] = useState('0:00');
+
+  // Top-level back button — close open sheets, otherwise do nothing (no app exit)
+  useEffect(() => {
+    const cleanup = registerBackButton(() => {
+      if (settingsOpen) {
+        closeSettings();
+        return;
+      }
+      if (calendarOpen) {
+        closeCalendar();
+        return;
+      }
+      // On main views, swallow the back button — WorkoutsView handles its own
+    });
+    return cleanup;
+  }, [settingsOpen, calendarOpen]);
+
+  useEffect(() => {
+    if (!sessionStart) {
+      setSessionDisplay('0:00');
+      return;
+    }
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const mins = Math.floor((elapsed % 3600) / 60);
+      const secs = String(elapsed % 60).padStart(2, '0');
+      setSessionDisplay(hours > 0 ? `${hours}:${String(mins).padStart(2, '0')}:${secs}` : `${mins}:${secs}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sessionStart]);
 
   function closeCalendar() {
     setCalendarClosing(true);
@@ -52,17 +86,17 @@ export default function App() {
           <span style={{ color: 'var(--text)' }}>TRACK</span>
         </div>
         <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            id="headerSessionTimer"
-            style={{
-              display: 'none',
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: '24px',
-              color: 'var(--accent)',
-            }}
-          >
-            0:00
-          </div>
+          {sessionStart && (
+            <div
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: '32px',
+                color: 'var(--accent)',
+              }}
+            >
+              {sessionDisplay}
+            </div>
+          )}
           <div
             className="week-badge"
             onClick={() => setCalendarOpen(true)}
@@ -112,7 +146,7 @@ export default function App() {
       </div>
 
       <div className="view active">
-        {currentView === 'workouts' && <WorkoutsView />}
+        {currentView === 'workouts' && <WorkoutsView onSessionStart={setSessionStart} />}{' '}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
       </div>

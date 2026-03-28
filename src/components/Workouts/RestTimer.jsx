@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { hapticsNotification } from '../../hooks/useHaptics';
+import { playRestComplete } from '../../hooks/useSound';
 
 // Exercises treated as compound — get 90s rest.
 // Everything else gets 60s.
@@ -30,34 +31,61 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
   const [closing, setClosing] = useState(false);
   const intervalRef = useRef(null);
   const totalRef = useRef(duration);
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-          hapticsNotification();
-          // slight delay so user sees 0 before sheet closes
-          setTimeout(() => handleComplete(), 400);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(intervalRef.current);
-  }, []);
+  // Record wall-clock start time so we can resync after backgrounding
+  const startTimeRef = useRef(Date.now());
+  const completedRef = useRef(false);
 
   function handleComplete() {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    clearInterval(intervalRef.current);
+    hapticsNotification();
+    playRestComplete();
     setClosing(true);
     setTimeout(onComplete, 280);
   }
 
   function handleSkip() {
+    if (completedRef.current) return;
+    completedRef.current = true;
     clearInterval(intervalRef.current);
     setClosing(true);
     setTimeout(onSkip, 280);
   }
+
+  // Tick interval — uses wall clock to stay accurate after backgrounding
+  useEffect(() => {
+    function tick() {
+      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      const remaining = Math.max(0, duration - elapsed);
+      setSeconds(remaining);
+      if (remaining <= 0) {
+        clearInterval(intervalRef.current);
+        // slight delay so user sees 0
+        setTimeout(() => handleComplete(), 400);
+      }
+    }
+
+    intervalRef.current = setInterval(tick, 500); // poll every 500ms for accuracy
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  // Resync timer when app comes back to foreground
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible' && !completedRef.current) {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        const remaining = Math.max(0, duration - elapsed);
+        setSeconds(remaining);
+        if (remaining <= 0) {
+          handleComplete();
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const progress = seconds / totalRef.current; // 1 → 0
   const radius = 54;
@@ -100,7 +128,7 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
           alignItems: 'center',
         }}
       >
-        {/* Drag handle — decorative only, no dismiss on tap */}
+        {/* Drag handle — decorative only */}
         <div
           style={{
             width: '40px',
@@ -143,7 +171,6 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
             height="140"
             style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}
           >
-            {/* Track */}
             <circle
               cx="70"
               cy="70"
@@ -152,7 +179,6 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
               stroke="var(--border)"
               strokeWidth="8"
             />
-            {/* Progress arc */}
             <circle
               cx="70"
               cy="70"
@@ -163,11 +189,10 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={dashOffset}
-              style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
+              style={{ transition: 'stroke-dashoffset 0.5s linear, stroke 0.3s' }}
             />
           </svg>
 
-          {/* Countdown number */}
           <div
             style={{
               position: 'absolute',
@@ -196,13 +221,7 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
         </div>
 
         {/* Type badge */}
-        <div
-          style={{
-            fontSize: '12px',
-            color: 'var(--muted)',
-            marginBottom: '24px',
-          }}
-        >
+        <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '24px' }}>
           {duration === 90 ? 'Compound · 90s rest' : 'Isolation · 60s rest'}
         </div>
 
