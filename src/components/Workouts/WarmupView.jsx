@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import useStore from '../../store/useStore';
-import { PROGRAM, WARMUPS } from '../../data/program';
+import { PROGRAM } from '../../data/program';
+import { WARMUPS } from '../../data/warmups';
 
-function TimedCard({ warmup, wi }) {
+function TimedCard({ warmup }) {
   const [running, setRunning] = useState(false);
   const [seconds, setSeconds] = useState(warmup.duration);
   const [done, setDone] = useState(false);
+  const [cuesOpen, setCuesOpen] = useState(false);
   const intervalRef = useRef(null);
   const weightUnit = useStore((s) => s.weightUnit);
 
@@ -44,6 +46,8 @@ function TimedCard({ warmup, wi }) {
             </div>
           )}
         </div>
+
+
         {!running && !done && (
           <button
             onClick={start}
@@ -119,6 +123,71 @@ function TimedCard({ warmup, wi }) {
             ✓
           </div>
         )}
+
+        {/* Form cues toggle */}
+        {warmup.cues && (
+          <div style={{ marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setCuesOpen((o) => !o)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--accent)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '0',
+                  paddingTop: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                {cuesOpen ? 'Hide form cues ▲' : 'Show form cues ▼'}
+              </button>
+            </div>
+            {cuesOpen && (
+              <div
+                style={{
+                  marginTop: '10px',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  padding: '12px 14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
+                {warmup.cues.map((cue, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <div
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        borderRadius: '50%',
+                        background: 'var(--accent)',
+                        color: '#0d0d0f',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        marginTop: '1px',
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: 1.5 }}>{cue}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -126,6 +195,7 @@ function TimedCard({ warmup, wi }) {
 
 function RepsCard({ warmup }) {
   const [done, setDone] = useState(false);
+  const [cuesOpen, setCuesOpen] = useState(false);
   const weightUnit = useStore((s) => s.weightUnit);
 
   return (
@@ -168,6 +238,71 @@ function RepsCard({ warmup }) {
             ✓
           </button>
         </div>
+
+        {/* Form cues toggle */}
+        {warmup.cues && (
+          <div style={{ marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setCuesOpen((o) => !o)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--accent)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '0',
+                  paddingTop: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                {cuesOpen ? 'Hide form cues ▲' : 'Show form cues ▼'}
+              </button>
+            </div>
+            {cuesOpen && (
+              <div
+                style={{
+                  marginTop: '10px',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  padding: '12px 14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
+                {warmup.cues.map((cue, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <div
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        borderRadius: '50%',
+                        background: 'var(--accent)',
+                        color: '#0d0d0f',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        marginTop: '1px',
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text)', lineHeight: 1.5 }}>{cue}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -194,11 +329,7 @@ export default function WarmupView({ dayId, onStartWorkout }) {
         </p>
       </div>
       {available.map((warmup, wi) =>
-        warmup.type === 'timed' ? (
-          <TimedCard key={wi} warmup={warmup} wi={wi} />
-        ) : (
-          <RepsCard key={wi} warmup={warmup} wi={wi} />
-        ),
+        warmup.type === 'timed' ? <TimedCard key={wi} warmup={warmup} /> : <RepsCard key={wi} warmup={warmup} />,
       )}
       <button className="save-day-btn" onClick={onStartWorkout}>
         START WORKOUT
