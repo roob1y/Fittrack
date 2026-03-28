@@ -4,8 +4,13 @@ import WarmupView from './WarmupView';
 import DayDetail from './DayDetail';
 import { keepScreenAwake, allowScreenSleep } from '../../plugins/keepAwake';
 import { registerBackButton } from '../../hooks/useBackButton';
+import { getCurrentWeek } from '../../utils/week';
+import useStore from '../../store/useStore';
+
 
 export default function WorkoutsView({ onSessionStart }) {
+  const completedDays = useStore((s) => s.completedDays);
+  const programmeStartDate = useStore((s) => s.programmeStartDate);
   const [currentDayId, setCurrentDayId] = useState(null);
   const [phase, setPhase] = useState('overview');
 
@@ -47,11 +52,6 @@ export default function WorkoutsView({ onSessionStart }) {
     setPhase('warmup');
   }
 
-  function handleBack() {
-    setCurrentDayId(null);
-    setPhase('overview');
-  }
-
   return (
     <div>
       {phase === 'overview' && <WeekOverview onSelectDay={handleSelectDay} />}
@@ -64,9 +64,12 @@ export default function WorkoutsView({ onSessionStart }) {
             dayId={currentDayId}
             onStartWorkout={() => {
               setPhase('workout');
-              onSessionStart(Date.now()); // start timer
+              const key = `week${getCurrentWeek(programmeStartDate)}_${currentDayId}`;
+              if (!completedDays[key]) {
+                onSessionStart(Date.now());
+              }
             }}
-          />{' '}
+          />
         </>
       )}
       {phase === 'workout' && (
