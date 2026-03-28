@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
+import { getCurrentWeek } from '../../utils/week';
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -34,15 +35,17 @@ function getWorkoutForDate(dateStr, completedDays, skippedDays, workoutDates) {
   return null;
 }
 
-function statusColor(status) {
+function statusColor(status, isStart) {
   if (status === 'trained') return 'var(--accent)';
   if (status === 'skipped') return 'rgba(255,77,109,0.2)';
+  if (isStart) return 'rgba(200,241,53,0.08)';
   return 'var(--card)';
 }
 
-function statusDot(status) {
+function statusDot(status, isStart) {
   if (status === 'trained') return '#0d0d0f';
   if (status === 'skipped') return 'var(--red)';
+  if (isStart) return 'var(--accent)';
   return 'transparent';
 }
 
@@ -61,7 +64,8 @@ function StartDatePicker({ onConfirm }) {
         WHEN DO YOU START?
       </div>
       <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '24px' }}>
-        Pick the date you want to begin your programme. This is used to map your workouts to real calendar dates.
+        Pick the date you want to begin your programme. This is used to calculate your current week and map workouts to
+        real calendar dates.
       </p>
       <input
         type="date"
@@ -100,6 +104,93 @@ function StartDatePicker({ onConfirm }) {
   );
 }
 
+function MonthGrid({
+  offset,
+  today,
+  programmeStartDate,
+  completedDays,
+  skippedDays,
+  workoutDates,
+  selectedDate,
+  onSelectDate,
+  days,
+}) {
+  const now = new Date();
+  const monthDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  const label = monthDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const firstDayOfWeek = monthDate.getDay();
+  const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+
+  const cells = [];
+
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    cells.push(<div key={`sp-${i}`} />);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(monthDate.getFullYear(), monthDate.getMonth(), d);
+    const str = date.toISOString().slice(0, 10);
+    const status = getDayStatus(str, completedDays, skippedDays, workoutDates);
+    const isToday = str === today;
+    const isSelected = str === selectedDate;
+    const isStart = str === programmeStartDate;
+
+    cells.push(
+      <div
+        key={str}
+        onClick={() => onSelectDate(str)}
+        style={{
+          background: statusColor(status, isStart),
+          border: isSelected
+            ? '2px solid var(--accent2)'
+            : isToday
+              ? '2px solid var(--accent)'
+              : isStart
+                ? '1px dashed var(--accent)'
+                : '1px solid var(--border)',
+          borderRadius: '8px',
+          padding: '6px 2px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          minHeight: '44px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div style={{ fontSize: '13px', color: status ? '#0d0d0f' : 'var(--text)', fontWeight: 500 }}>{d}</div>
+        <div
+          style={{
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
+            background: statusDot(status, isStart),
+            marginTop: '3px',
+          }}
+        />
+      </div>,
+    );
+  }
+
+  return (
+    <>
+      <div style={{ fontWeight: 600, fontSize: '15px', textAlign: 'center', marginBottom: '12px' }}>{label}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '4px' }}>
+        {days.map((d) => (
+          <div
+            key={d}
+            style={{ textAlign: 'center', fontSize: '11px', color: 'var(--muted)', fontWeight: 600, padding: '4px 0' }}
+          >
+            {d}
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>{cells}</div>
+    </>
+  );
+}
+
 export default function CalendarView() {
   const programmeStartDate = useStore((s) => s.programmeStartDate);
   const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
@@ -115,12 +206,9 @@ export default function CalendarView() {
     return <StartDatePicker onConfirm={setProgrammeStartDate} />;
   }
 
+  const weekNum = getCurrentWeek(programmeStartDate);
   const today = todayStr();
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  function handleSelectDate(dateStr) {
-    setSelectedDate(dateStr);
-  }
 
   function renderWeekGrid() {
     const base = new Date();
@@ -133,19 +221,20 @@ export default function CalendarView() {
       const status = getDayStatus(str, completedDays, skippedDays, workoutDates);
       const isToday = str === today;
       const isSelected = str === selectedDate;
+      const isStart = str === programmeStartDate;
       cells.push(
         <div
           key={str}
-          className="cal-cell"
-          data-date={str}
-          onClick={() => handleSelectDate(str)}
+          onClick={() => setSelectedDate(str)}
           style={{
-            background: statusColor(status),
+            background: statusColor(status, isStart),
             border: isSelected
               ? '2px solid var(--accent2)'
               : isToday
                 ? '2px solid var(--accent)'
-                : '1px solid var(--border)',
+                : isStart
+                  ? '1px dashed var(--accent)'
+                  : '1px solid var(--border)',
             borderRadius: '10px',
             padding: '10px 4px',
             textAlign: 'center',
@@ -169,7 +258,7 @@ export default function CalendarView() {
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              background: statusDot(status),
+              background: statusDot(status, isStart),
               margin: '4px auto 0',
             }}
           />
@@ -186,136 +275,23 @@ export default function CalendarView() {
     );
   }
 
-  function renderMonthGrid() {
-    const today = new Date();
-    const month = new Date(today.getFullYear(), today.getMonth() + offset, 1);
-    const label = month.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-    const firstDay = month.getDay();
-    const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
-    const cells = [];
-
-    for (let i = 0; i < firstDay; i++) {
-      cells.push(<div key={`empty-${i}`} />);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(month.getFullYear(), month.getMonth(), d);
-      const str = date.toISOString().slice(0, 10);
-      const status = getDayStatus(str, completedDays, skippedDays, workoutDates);
-      const isToday = str === todayStr();
-      const isSelected = str === selectedDate;
-      cells.push(
-        <div
-          key={str}
-          className="cal-cell"
-          data-date={str}
-          onClick={() => handleSelectDate(str)}
-          style={{
-            background: statusColor(status),
-            border: isSelected
-              ? '2px solid var(--accent2)'
-              : isToday
-                ? '2px solid var(--accent)'
-                : '1px solid var(--border)',
-            borderRadius: '8px',
-            padding: '6px 2px',
-            textAlign: 'center',
-            cursor: 'pointer',
-            minHeight: '44px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div style={{ fontSize: '13px', color: status ? '#0d0d0f' : 'var(--text)', fontWeight: 500 }}>{d}</div>
-          <div
-            style={{
-              width: '5px',
-              height: '5px',
-              borderRadius: '50%',
-              background: statusDot(status),
-              marginTop: '3px',
-            }}
-          />
-        </div>,
-      );
-    }
-
-    return (
-      <>
-        <div style={{ fontWeight: 600, fontSize: '15px', textAlign: 'center', marginBottom: '12px' }}>{label}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '4px' }}>
-          {days.map((d) => (
-            <div
-              key={d}
-              style={{
-                textAlign: 'center',
-                fontSize: '11px',
-                color: 'var(--muted)',
-                fontWeight: 600,
-                padding: '4px 0',
-              }}
-            >
-              {d}
-            </div>
-          ))}
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>{cells}</div>
-      </>
-    );
-  }
-
   const workoutInfo = selectedDate ? getWorkoutForDate(selectedDate, completedDays, skippedDays, workoutDates) : null;
   const formattedDate = selectedDate
     ? new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
     : null;
 
-  const weekNum = useStore((s) => s.weekNum);
-  const saveWeekNum = useStore((s) => s.saveWeekNum);
-
-  function changeWeek(direction) {
-    saveWeekNum(Math.max(1, weekNum + direction));
-  }
-
   return (
     <div>
-      {/* Week number controls */}
-      <div
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}
-      >
-        <button
-          onClick={() => changeWeek(-1)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--accent)',
-            fontSize: '24px',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          ‹
-        </button>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', letterSpacing: '1px' }}>
           Week {weekNum}
         </span>
-        <button
-          onClick={() => changeWeek(1)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--accent)',
-            fontSize: '24px',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          ›
-        </button>
+        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+          Started{' '}
+          {new Date(programmeStartDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </div>
       </div>
 
-      {/* Week / Month toggle */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <div className="section-title" style={{ marginBottom: 0 }}>
           CALENDAR
@@ -346,7 +322,6 @@ export default function CalendarView() {
         </div>
       </div>
 
-      {/* Calendar nav */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <button
           onClick={() => setOffset((o) => o - 1)}
@@ -378,12 +353,49 @@ export default function CalendarView() {
         </button>
       </div>
 
-      {mode === 'week' ? renderWeekGrid() : renderMonthGrid()}
+      {mode === 'week' ? (
+        renderWeekGrid()
+      ) : (
+        <MonthGrid
+          key={offset}
+          offset={offset}
+          today={today}
+          programmeStartDate={programmeStartDate}
+          completedDays={completedDays}
+          skippedDays={skippedDays}
+          workoutDates={workoutDates}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          days={days}
+        />
+      )}
+
+      <div style={{ display: 'flex', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
+        {[
+          { color: 'var(--accent)', label: 'Trained' },
+          { color: 'var(--red)', label: 'Skipped' },
+          { color: 'var(--accent)', border: '1px dashed var(--accent)', label: 'Programme start' },
+        ].map(({ color, border, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div
+              style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                background: color || 'transparent',
+                border: border,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{label}</span>
+          </div>
+        ))}
+      </div>
 
       {selectedDate && (
         <div
           style={{
-            marginTop: '20px',
+            marginTop: '16px',
             background: 'var(--card)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius)',
@@ -391,6 +403,11 @@ export default function CalendarView() {
           }}
         >
           <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>{formattedDate}</div>
+          {selectedDate === programmeStartDate && (
+            <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 600, marginBottom: '4px' }}>
+              🏁 Programme start date
+            </div>
+          )}
           {workoutInfo ? (
             <>
               <div style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 600 }}>{workoutInfo.focus}</div>

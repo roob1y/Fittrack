@@ -6,35 +6,42 @@ import WeightView from './components/Weight/WeightView';
 import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
 import { registerBackButton } from './hooks/useBackButton';
+import { getCurrentWeek } from './utils/week';
+import { StatusBar } from '@capacitor/status-bar';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsClosing, setSettingsClosing] = useState(false);
-  const weekNum = useStore((s) => s.weekNum);
-  const saveWeekNum = useStore((s) => s.saveWeekNum);
-  const equipment = useStore((s) => s.equipment);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarClosing, setCalendarClosing] = useState(false);
   const [sessionStart, setSessionStart] = useState(null);
   const [sessionDisplay, setSessionDisplay] = useState('0:00');
 
-  // Top-level back button — close open sheets, otherwise do nothing (no app exit)
-  useEffect(() => {
-    const cleanup = registerBackButton(() => {
-      if (settingsOpen) {
-        closeSettings();
-        return;
-      }
-      if (calendarOpen) {
-        closeCalendar();
-        return;
-      }
-      // On main views, swallow the back button — WorkoutsView handles its own
-    });
-    return cleanup;
-  }, [settingsOpen, calendarOpen]);
+  const equipment = useStore((s) => s.equipment);
+  const programmeStartDate = useStore((s) => s.programmeStartDate);
 
+  const weekNum = getCurrentWeek(programmeStartDate);
+
+  useEffect(() => {
+    StatusBar.getInfo()
+      .then((info) => {
+        console.log('raw height:', info.height, 'dpr:', window.devicePixelRatio);
+        document.documentElement.style.setProperty('--sat', `${info.height}px`);
+        document.documentElement.style.setProperty('--sab', '80px');
+        console.log(
+          'screen height:',
+          window.screen.height,
+          'inner height:',
+          window.innerHeight,
+          'outer height:',
+          window.outerHeight,
+        );
+      })
+      .catch((e) => console.error('statusbar error:', e.message));
+  }, []);
+
+  // Session timer
   useEffect(() => {
     if (!sessionStart) {
       setSessionDisplay('0:00');
@@ -50,20 +57,27 @@ export default function App() {
     return () => clearInterval(interval);
   }, [sessionStart]);
 
+  // Top-level back button
+  useEffect(() => {
+    const cleanup = registerBackButton(() => {
+      if (settingsOpen) {
+        closeSettings();
+        return;
+      }
+      if (calendarOpen) {
+        closeCalendar();
+        return;
+      }
+    });
+    return cleanup;
+  }, [settingsOpen, calendarOpen]);
+
   function closeCalendar() {
     setCalendarClosing(true);
     setTimeout(() => {
       setCalendarOpen(false);
       setCalendarClosing(false);
     }, 280);
-  }
-
-  if (!equipment && !settingsOpen) {
-    return (
-      <div className="view active">
-        <SettingsView onEquipmentSaved={() => {}} />
-      </div>
-    );
   }
 
   function closeSettings() {
@@ -74,8 +88,12 @@ export default function App() {
     }, 280);
   }
 
-  function changeWeek(direction) {
-    saveWeekNum(Math.max(1, weekNum + direction));
+  if (!equipment && !settingsOpen) {
+    return (
+      <div className="view active">
+        <SettingsView onEquipmentSaved={() => {}} />
+      </div>
+    );
   }
 
   return (
@@ -90,7 +108,7 @@ export default function App() {
             <div
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '32px',
+                fontSize: '28px',
                 color: 'var(--accent)',
               }}
             >
@@ -133,6 +151,7 @@ export default function App() {
           </button>
         </div>
       </header>
+
       <div className="nav">
         {['workouts', 'weight', 'progress'].map((view) => (
           <button
@@ -146,7 +165,7 @@ export default function App() {
       </div>
 
       <div className="view active">
-        {currentView === 'workouts' && <WorkoutsView onSessionStart={setSessionStart} />}{' '}
+        {currentView === 'workouts' && <WorkoutsView onSessionStart={setSessionStart} />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
       </div>
@@ -155,7 +174,7 @@ export default function App() {
       {settingsOpen && (
         <>
           <div
-            onClick={() => closeSettings()}
+            onClick={closeSettings}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 80 }}
           />
           <div
@@ -171,7 +190,7 @@ export default function App() {
               zIndex: 90,
               maxHeight: '85vh',
               overflowY: 'auto',
-              padding: '0 20px 40px',
+              padding: `0 20px calc(var(--sab, 0px) + 40px)`,
               maxWidth: '480px',
               margin: '0 auto',
             }}
@@ -189,6 +208,8 @@ export default function App() {
           </div>
         </>
       )}
+
+      {/* Calendar bottom sheet */}
       {calendarOpen && (
         <>
           <div
@@ -208,7 +229,7 @@ export default function App() {
               zIndex: 90,
               maxHeight: '85vh',
               overflowY: 'auto',
-              padding: '0 20px 40px',
+              padding: `0 20px calc(var(--sab, 0px) + 40px)`,
               maxWidth: '480px',
               margin: '0 auto',
             }}

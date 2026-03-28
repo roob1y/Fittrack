@@ -1,6 +1,7 @@
 import React from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
+import { getCurrentWeek } from '../../utils/week';
 
 function calcStreak(workoutDates) {
   let streak = 0;
@@ -202,7 +203,6 @@ function CompletionMeter({ completed, total }) {
   const stroke = 8;
   const normalised = radius - stroke / 2;
   const circumference = 2 * Math.PI * normalised;
-  const progress = total ? (completed / total) * circumference : 0;
 
   return (
     <div
@@ -222,7 +222,6 @@ function CompletionMeter({ completed, total }) {
           const segmentLength = segmentAngle - gap;
           const offset = circumference - i * segmentAngle;
           const filled = i < completed;
-
           return (
             <circle
               key={i}
@@ -254,12 +253,23 @@ function CompletionMeter({ completed, total }) {
         }}
       >
         <div
-          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '40px', color: 'var(--accent)', lineHeight: 1 }}
+          style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: '40px',
+            color: 'var(--accent)',
+            lineHeight: 1,
+          }}
         >
           {completed}/{total}
         </div>
         <div
-          style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600, marginTop: '6px', letterSpacing: '0.5px' }}
+          style={{
+            fontSize: '11px',
+            color: 'var(--muted)',
+            fontWeight: 600,
+            marginTop: '6px',
+            letterSpacing: '0.5px',
+          }}
         >
           DAYS THIS WEEK
         </div>
@@ -269,15 +279,15 @@ function CompletionMeter({ completed, total }) {
 }
 
 export default function ProgressView() {
-  const weekNum = useStore((s) => s.weekNum);
+  const programmeStartDate = useStore((s) => s.programmeStartDate);
   const completedDays = useStore((s) => s.completedDays);
   const skippedDays = useStore((s) => s.skippedDays);
   const sessionTimes = useStore((s) => s.sessionTimes);
   const workoutDates = useStore((s) => s.workoutDates);
 
+  const weekNum = getCurrentWeek(programmeStartDate);
   const doneCount = Object.keys(completedDays || {}).length;
   const streak = calcStreak(workoutDates);
-
   const weeklyDone = PROGRAM.filter((day) => !!completedDays?.[`week${weekNum}_${day.id}`]).length;
 
   return (

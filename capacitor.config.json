@@ -3,7 +3,13 @@
   "appName": "FitTrack",
   "webDir": "dist",
   "android": {
-    "allowMixedContent": true
+    "allowMixedContent": true,
+    "contentInset": "always"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "disable"
+    }
   },
   "server": {
     "androidScheme": "https"

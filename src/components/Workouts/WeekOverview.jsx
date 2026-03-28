@@ -3,18 +3,20 @@ import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import MuscleIcon from './MuscleIcon';
 import { getDailyQuote } from '../../data/quotes';
+import { getCurrentWeek } from '../../utils/week';
 
 export default function WeekOverview({ onSelectDay }) {
-  const weekNum = useStore((s) => s.weekNum);
+  const programmeStartDate = useStore((s) => s.programmeStartDate);
   const completedDays = useStore((s) => s.completedDays);
   const skippedDays = useStore((s) => s.skippedDays);
   const setData = useStore((s) => s.setData);
   const quoteTone = useStore((s) => s.quoteTone);
   const workoutDates = useStore((s) => s.workoutDates);
 
+  const weekNum = getCurrentWeek(programmeStartDate);
+
   function getDayProgress(dayId, exercises) {
-    let total = 0,
-      done = 0;
+    let total = 0, done = 0;
     exercises.forEach((ex, ei) => {
       for (let s = 0; s < ex.sets; s++) {
         total++;
@@ -29,11 +31,7 @@ export default function WeekOverview({ onSelectDay }) {
     let minutes = 0;
     day.exercises.forEach((ex) => {
       const isCompound = [
-        'Deadlifts',
-        'Squats',
-        'Bench Press',
-        'Front Barbell Squat',
-        'Straight-Legged Deadlifts',
+        'Deadlifts', 'Squats', 'Bench Press', 'Front Barbell Squat', 'Straight-Legged Deadlifts',
       ].some((name) => ex.name.includes(name));
       const restTime = isCompound ? 3 : 1.25;
       const setTime = 0.75;
@@ -81,10 +79,10 @@ export default function WeekOverview({ onSelectDay }) {
           </div>
         );
       })()}
+
       {(() => {
         const today = new Date();
         let daysSinceLastWorkout = null;
-
         for (let i = 1; i <= 30; i++) {
           const d = new Date(today);
           d.setDate(today.getDate() - i);
@@ -95,19 +93,15 @@ export default function WeekOverview({ onSelectDay }) {
             break;
           }
         }
-
         if (!daysSinceLastWorkout || daysSinceLastWorkout < 2) return null;
-
         const nudges = {
           hardcore: `${daysSinceLastWorkout} days without training. Weakness is a choice. Make a different one.`,
           positive: `It's been ${daysSinceLastWorkout} days — no worries, today is a great day to get back at it!`,
           stoic: `${daysSinceLastWorkout} days have passed without action. Return to the work. That is all.`,
           off: null,
         };
-
         const nudge = nudges[quoteTone];
         if (!nudge) return null;
-
         return (
           <div
             style={{
@@ -126,6 +120,7 @@ export default function WeekOverview({ onSelectDay }) {
           </div>
         );
       })()}
+
       <div className="section-title" style={{ marginTop: '4px' }}>
         THIS WEEK
       </div>
@@ -166,7 +161,9 @@ export default function WeekOverview({ onSelectDay }) {
                         height: '9px',
                         borderRadius: '50%',
                         background:
-                          i < Math.round((progress / 100) * PROGRAM.length) ? 'var(--accent)' : 'var(--border)',
+                          i < Math.round((progress / 100) * PROGRAM.length)
+                            ? 'var(--accent)'
+                            : 'var(--border)',
                       }}
                     />
                   ))}

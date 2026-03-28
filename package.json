@@ -32,6 +32,7 @@
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
     "@capacitor/haptics": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.2",
     "react": "^19.2.4",
     "react-body-highlighter": "^2.0.5",
     "react-dom": "^19.2.4",

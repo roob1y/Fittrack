@@ -5,7 +5,6 @@ const useStore = create(
   persist(
     (set, get) => ({
       // State
-      weekNum: 1,
       completedDays: {},
       skippedDays: {},
       setData: {},
@@ -20,8 +19,6 @@ const useStore = create(
       quoteTone: 'positive',
 
       // Actions
-      saveWeekNum: (num) => set({ weekNum: num }),
-
       setQuoteTone: (tone) => set({ quoteTone: tone }),
 
       saveCompletedDay: (key) =>
@@ -89,7 +86,6 @@ const useStore = create(
 
       resetAll: () =>
         set({
-          weekNum: 1,
           completedDays: {},
           skippedDays: {},
           setData: {},

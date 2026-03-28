@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import CelebrationScreen from './CelebrationScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
+import { getCurrentWeek } from '../../utils/week';
 
 function useToast() {
   function showToast(msg) {
@@ -16,10 +17,9 @@ function useToast() {
   return showToast;
 }
 
-function ExerciseCard({ ex, ei, dayId, onSetTicked }) {
+function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
-  const weekNum = useStore((s) => s.weekNum);
   const setData = useStore((s) => s.setData);
   const saveSetData = useStore((s) => s.saveSetData);
   const savePB = useStore((s) => s.savePB);
@@ -72,7 +72,6 @@ function ExerciseCard({ ex, ei, dayId, onSetTicked }) {
     saveSetData(key, 'done', !current);
 
     if (!current) {
-      // Haptic feedback on tick
       await hapticsImpact();
 
       const weight = parseFloat(setData[key]?.weight);
@@ -81,7 +80,6 @@ function ExerciseCard({ ex, ei, dayId, onSetTicked }) {
         showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg x ${reps}`);
       }
 
-      // Trigger rest timer
       onSetTicked(resolvedEx.name);
     }
   }
@@ -193,7 +191,7 @@ function ExerciseCard({ ex, ei, dayId, onSetTicked }) {
 }
 
 export default function DayDetail({ dayId, onBack }) {
-  const weekNum = useStore((s) => s.weekNum);
+  const programmeStartDate = useStore((s) => s.programmeStartDate);
   const completedDays = useStore((s) => s.completedDays);
   const skippedDays = useStore((s) => s.skippedDays);
   const notes = useStore((s) => s.notes);
@@ -206,11 +204,11 @@ export default function DayDetail({ dayId, onBack }) {
   const saveSessionTime = useStore((s) => s.saveSessionTime);
   const quoteTone = useStore((s) => s.quoteTone);
 
+  const weekNum = getCurrentWeek(programmeStartDate);
+
   const [celebrating, setCelebrating] = useState(false);
   const [celebMins, setCelebMins] = useState(0);
-
-  // Rest timer state
-  const [restTimer, setRestTimer] = useState(null); // { exerciseName, duration } | null
+  const [restTimer, setRestTimer] = useState(null);
 
   const sessionStartRef = useRef(Date.now());
   const day = PROGRAM.find((d) => d.id === dayId);
@@ -222,7 +220,6 @@ export default function DayDetail({ dayId, onBack }) {
     return new Date().toISOString().slice(0, 10);
   }
 
-  // Called by ExerciseCard when a set is ticked done
   function handleSetTicked(exerciseName) {
     const duration = getRestDuration(exerciseName);
     setRestTimer({ exerciseName, duration });
@@ -271,7 +268,6 @@ export default function DayDetail({ dayId, onBack }) {
         />
       )}
 
-      {/* Rest timer bottom sheet */}
       {restTimer && (
         <RestTimer
           exerciseName={restTimer.exerciseName}
@@ -296,7 +292,7 @@ export default function DayDetail({ dayId, onBack }) {
       </div>
 
       {day.exercises.map((ex, ei) => (
-        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} onSetTicked={handleSetTicked} />
+        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} />
       ))}
 
       <textarea
