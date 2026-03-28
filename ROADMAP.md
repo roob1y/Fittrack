@@ -119,7 +119,7 @@ All apps read and write to the same local database (SQLite for now, PostgreSQL w
 | 2     | FitTrack v1.1                               | ✓ Complete     |
 | 3     | FitTrack v1.2                               | ✓ Complete     |
 | 4     | FitTrack v1.3 — React + Capacitor migration | ✓ Complete     |
-| 5     | FitTrack v1.4 — Complex features            | 🔄 In progress |
+| 5     | FitTrack v1.4 — Complex features            | ✓ Complete     |
 | 6     | BodyTrack                                   | Planned        |
 | 7     | MindTrack                                   | Planned        |
 | 8     | NutriTrack                                  | Planned        |
@@ -142,7 +142,7 @@ All apps read and write to the same local database (SQLite for now, PostgreSQL w
 - Calendar as bottom sheet — opens from week badge
 - Motivational quotes and nudges — daily quote, pre-workout nudge, streak nudge, celebration screen, tone setting
 
-### Bundle 3 — Android Native Features ← Next
+### Bundle 3 — Android Native Features ✓ Complete
 
 - Haptic feedback on set tick
 - Keep screen awake during workout

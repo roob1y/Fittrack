@@ -75,12 +75,12 @@
 
 ## v1.4.2 — Complex Features (Post React Migration)
 
-- [ ] Background timer support — rest and session timers continue when app is backgrounded
-- [ ] Push notifications for rest timer completion
-- [ ] Keep screen awake during workout session
-- [ ] Haptic feedback when ticking a set done
-- [ ] Sound option — beep when rest timer finishes
-- [ ] Back button behaviour — Android back button navigates within the app not exit it
+- [x] Background timer support — rest and session timers continue when app is backgrounded
+- [x] Push notifications for rest timer completion
+- [x] Keep screen awake during workout session
+- [x] Haptic feedback when ticking a set done
+- [x] Sound option — beep when rest timer finishes
+- [x] Back button behaviour — Android back button navigates within the app not exit it
 
 ---
 
@@ -98,8 +98,7 @@
 - [x] ~~Fix setData week-awareness~~
 - [x] ~~Targeted warmup per muscle group~~
 
-- [ ] **Warmup exercise demonstrations** — diagrams, GIFs or short
-      videos showing correct form for each warmup movement
+- [ ] **Warmup exercise demonstrations** — diagrams, GIFs or short videos showing correct form for each warmup movement
 - [ ] **Quick log** — one tap set counter per exercise
 - [ ] **Plate calculator** — enter total weight, shows plates needed per side
 - [ ] **Export data** — CSV or PDF workout history
