@@ -98,13 +98,13 @@
 - [x] ~~Fix setData week-awareness~~
 - [x] ~~Targeted warmup per muscle group~~
 
-- [ ] **Warmup exercise demonstrations** — diagrams, GIFs or short videos showing correct form for each warmup movement
-- [ ] **Quick log** — one tap set counter per exercise
-- [ ] **Plate calculator** — enter total weight, shows plates needed per side
-- [ ] **Export data** — CSV or PDF workout history
-- [ ] **Workout summary screen** on day completion
-- [ ] **Dark/light mode toggle**
-- [ ] **First time user onboarding guide**
+- [x] **Warmup exercise demonstrations** — diagrams, GIFs or short videos showing correct form for each warmup movement
+- [x] **Quick log** — one tap set counter per exercise
+- [x] **Plate calculator** — enter total weight, shows plates needed per side
+- [x] **Export data** — CSV or PDF workout history
+- [x] **Workout summary screen** on day completion
+- [x] **Dark/light mode toggle**
+- [x] **First time user onboarding guide**
 
 ---
 
