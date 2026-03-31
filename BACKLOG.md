@@ -1,6 +1,6 @@
 # FitTrack Backlog
 
-## v1.1 Bundle — Complete ✓
+## v1.1 Bundle
 
 - [x] No way to undo marking a day complete
 - [x] Update Day 1 data — push-ups reduced to 1 set to failure as a chest finisher
@@ -98,15 +98,88 @@
 - [x] ~~Fix setData week-awareness~~
 - [x] ~~Targeted warmup per muscle group~~
 
-- [x] **Warmup exercise demonstrations** — diagrams, GIFs or short videos showing correct form for each warmup movement
-- [x] **Quick log** — one tap set counter per exercise
-- [x] **Plate calculator** — enter total weight, shows plates needed per side
-- [x] **Export data** — CSV or PDF workout history
-- [x] **Workout summary screen** on day completion
-- [x] **Dark/light mode toggle**
-- [x] **First time user onboarding guide**
+- [x] ~~Warmup exercise demonstrations~~ — diagrams, GIFs or short videos showing correct form for each warmup movement
+- [x] ~~Quick log~~ — one tap set counter per exercise
+- [x] ~~Plate calculator~~ — enter total weight, shows plates needed per side
+- [x] ~~Export data~~ — CSV or PDF workout history
+- [x] ~~Workout summary screen~~ on day completion
+- [x] ~~Dark/light mode toggle~~
+- [x] ~~First time user onboarding guide~~
 
 ---
+
+## Quick Fixes & Polish
+
+XS
+- [ ] Decrease the size of the settings icon
+- [ ] Remove visible scrollbar on the right when scrolling (hide via CSS)
+- [ ] Fix padding — top and bottom of exercise cards are too big
+- [ ] Weight view — "Log Today / Save" button is outside its container
+- [ ] Circular progress graph — add more space between text and edge of circle
+- [ ] FitTrack version tag in settings — unclickable button at the bottom reading "FitTrack v1.0 / Fitness tracking made easy"
+- [ ] Strength progress section — when no data exists show a friendly empty state instead of just workout names
+
+S
+- [ ] Moving between views — automatically scroll to top on view change
+- [ ] Weight view — move the trend graph to the bottom below all other content
+- [ ] Tapping anywhere to continue on celebration screen — animate opacity pulsing in and out to hint it's tappable
+- [ ] Highlight today's exercise on the workouts screen so the current day is immediately obvious
+
+---
+
+## Bug Fixes
+
+S
+- [ ] Export PDF and CSV not working — investigate and fix
+- [ ] Rest screen — Skip and Done Resting do the same thing, remove one, keep Skip only
+
+M
+- [ ] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
+- [ ] Workout running in background — if a workout has been active for more than 30 minutes notify the user it is still running in the background
+
+---
+
+## UX Improvements
+
+S
+- [ ] Session complete screen — move notes input here, remove it from the main exercise window
+- [ ] First workout detection — remove the "when do you start" screen entirely. Detect the start date automatically when the user completes their first workout. Show a congratulations message on completion.
+
+M
+- [ ] Rest timer — display at the top of the screen instead of sliding up as a bottom sheet
+- [ ] Exercise card — tapping the card opens a dedicated exercise detail view showing equipment tags, description and any relevant info
+- [ ] Add fanfare sound alongside the confetti on the celebration screen
+- [ ] Calendar — move into the Progress view, remove slide-up animation, make it fill the full screen within that view
+- [ ] Timer — move out of the header into a more appropriate position within the workout view
+
+---
+
+## Nav Refactor
+
+L
+- [ ] Full bottom navigation refactor. Workouts, Weight and Progress become persistent overlay buttons at the bottom of the screen, matching the NutriTrack navigation pattern for consistency across the ecosystem. This is a full architectural change
+
+---
+
+## Warmup Refactor
+
+L
+[ ] Redesign the warmup flow:
+- Each warmup exercise becomes its own screen, fast and snappy transitions between them
+- Timed warmups automatically advance to the next screen when complete
+- Each screen shows a simple gif representing the motion
+- Description of the exercise underneath the gif
+- Flow moves automatically through all warmups before the main session begins
+
+---
+
+## Complex / New Features
+
+L
+- [ ] Install an animation library (e.g. Framer Motion or Lottie) to power the celebration screen animations, tappable hint animation, and warmup transitions
+
+XL
+- [ ] Background timer sync — when user is outside the app, timer continues accurately, notification fires on completion with two-beep sound. Requires Capacitor local notifications plugin and background task handling.
 
 ## Future Considerations
 
