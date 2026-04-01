@@ -118,12 +118,21 @@ XS
 - [ ] Circular progress graph — add more space between text and edge of circle
 - [ ] FitTrack version tag in settings — unclickable button at the bottom reading "FitTrack v1.0 / Fitness tracking made easy"
 - [ ] Strength progress section — when no data exists show a friendly empty state instead of just workout names
+- [ ] Improve visual distinction between similar exercises — exercises like Bench Press and Incline Bench Press should be clearly visually differentiated to reduce misclicks, e.g. subtle secondary label, icon or colour tag
+- [ ] Light mode — the lime green accent does not pop sufficiently on the light background. Reassess light mode colour treatment or consider removing light mode entirely in favour of dark only
+- [ ] Confetti on the workout complete screen stops, starts and moves periodically — fix animation to run smoothly and continuously until dismissed
 
 S
 - [ ] Moving between views — automatically scroll to top on view change
 - [ ] Weight view — move the trend graph to the bottom below all other content
 - [ ] Tapping anywhere to continue on celebration screen — animate opacity pulsing in and out to hint it's tappable
 - [ ] Highlight today's exercise on the workouts screen so the current day is immediately obvious
+- [ ] Prevent the user from skipping a day that has already been completed
+- [ ] On the last set of the last exercise in a routine hide the rest timer — the user will not need it after the final set
+
+M
+- [ ] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
+- [ ] Workout running in background — if a workout has been active for more than 30 minutes notify the user it is still running in the background
 
 ---
 
@@ -132,10 +141,9 @@ S
 S
 - [ ] Export PDF and CSV not working — investigate and fix
 - [ ] Rest screen — Skip and Done Resting do the same thing, remove one, keep Skip only
+- [ ] The workouts screen should not be scrollable when the rest timer is on display
+- [ ] Personal best indicator should not trigger when the user logs a weight lower than the default — only show PB when a genuine best is achieved
 
-M
-- [ ] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
-- [ ] Workout running in background — if a workout has been active for more than 30 minutes notify the user it is still running in the background
 
 ---
 
@@ -143,7 +151,12 @@ M
 
 S
 - [ ] Session complete screen — move notes input here, remove it from the main exercise window
+- [ ] Previous week session notes — when starting a new week's session the user can see the notes from the same workout the previous week so they know what happened last time
+- [ ] Undo workout for the day — if the user wants to remove the day's workout entirely show a warning prompt asking them to confirm before deleting
 - [ ] First workout detection — remove the "when do you start" screen entirely. Detect the start date automatically when the user completes their first workout. Show a congratulations message on completion.
+- [ ] Failure sets — allow the user to log the number of reps reached before failure, stored for progress tracking
+- [ ] Unit setting — when the user changes the default unit between kg and lbs all default weight values throughout the app must update accordingly. Prompt the user to confirm whether they want to convert existing values.
+
 
 M
 - [ ] Rest timer — display at the top of the screen instead of sliding up as a bottom sheet
@@ -151,6 +164,7 @@ M
 - [ ] Add fanfare sound alongside the confetti on the celebration screen
 - [ ] Calendar — move into the Progress view, remove slide-up animation, make it fill the full screen within that view
 - [ ] Timer — move out of the header into a more appropriate position within the workout view
+- [ ] Bench press — if no barbell is present in the user's equipment suggest dumbbell bench press as an automatic substitution
 
 ---
 
@@ -158,6 +172,17 @@ M
 
 L
 - [ ] Full bottom navigation refactor. Workouts, Weight and Progress become persistent overlay buttons at the bottom of the screen, matching the NutriTrack navigation pattern for consistency across the ecosystem. This is a full architectural change
+
+---
+
+## Per-Set Weight Refactor 
+
+L
+[ ] Re structure the data model for per set weight logging:
+- Full data model refactor to store weight per individual set rather than a single default weight for the whole day
+- Each set in every exercise stores its own kg value independently
+- The default weight pre-populates each set but the user can adjust per set during the session
+- The timer screen prompts the user to confirm or adjust the weight for the upcoming set
 
 ---
 
@@ -171,12 +196,15 @@ L
 - Description of the exercise underneath the gif
 - Flow moves automatically through all warmups before the main session begins
 
+
 ---
 
 ## Complex / New Features
 
 L
 - [ ] Install an animation library (e.g. Framer Motion or Lottie) to power the celebration screen animations, tappable hint animation, and warmup transitions
+
+- [ ] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
 
 XL
 - [ ] Background timer sync — when user is outside the app, timer continues accurately, notification fires on completion with two-beep sound. Requires Capacitor local notifications plugin and background task handling.
@@ -185,7 +213,7 @@ XL
 
 - On-device AI coaching using WebLLM with Llama 3.2 3B — free, offline,
   downloads once over WiFi. Plateau detection, progression suggestions,
-  recovery advice. Target device S23 (Snapdragon 8 Gen 2)
+  recovery advice. Target device S23 (Snapdragon 8 Gen 2). Could the model be pre downlkoaded into the premium version of this app?
 - Exercise database API (e.g. wger.de)
 - User selectable exercise alternatives
 - Deload week suggestions after every 4-6 weeks
@@ -193,5 +221,6 @@ XL
 - Dashboard tying all ecosystem apps together
 - Programme customisation — edit sets and reps per exercise
 - Session timer that learns average rest periods over time
-- Play Store release — signed APK, screenshots, privacy policy
+- Play Store release like signed APK, screenshots, privacy policy
 - iOS version via Capacitor
+- Social features. Gives ability to connect with other users for motivation, sharing progress and accountability.
