@@ -250,12 +250,14 @@ function CompletionMeter({ completed, total }) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          padding: '24px',
+          textAlign: 'center',
         }}
       >
         <div
           style={{
             fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: '40px',
+            fontSize: '34px',
             color: 'var(--accent)',
             lineHeight: 1,
           }}

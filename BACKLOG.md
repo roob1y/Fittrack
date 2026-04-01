@@ -108,7 +108,7 @@
 
 ---
 
-## Quick Fixes & Polish
+## 1.4.3 Quick Fixes & Polish
 
 XS
 - [ ] Decrease the size of the settings icon

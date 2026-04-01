@@ -471,6 +471,17 @@ export default function SettingsView({ onEquipmentSaved }) {
           </div>
         </div>
       )}
+      <div
+        style={{
+          textAlign: 'center',
+          marginTop: '32px',
+          marginBottom: '8px',
+          color: 'var(--muted)',
+          fontSize: '12px',
+        }}
+      >
+        FitTrack v1.4 · Fitness tracking made easy
+      </div>
     </div>
   );
 }

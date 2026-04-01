@@ -196,6 +196,7 @@ export default function WeightView() {
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius)',
           padding: '16px',
+          overflow: 'hidden',
         }}
       >
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

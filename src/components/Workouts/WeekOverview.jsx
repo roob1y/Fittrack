@@ -16,7 +16,8 @@ export default function WeekOverview({ onSelectDay }) {
   const weekNum = getCurrentWeek(programmeStartDate);
 
   function getDayProgress(dayId, exercises) {
-    let total = 0, done = 0;
+    let total = 0,
+      done = 0;
     exercises.forEach((ex, ei) => {
       for (let s = 0; s < ex.sets; s++) {
         total++;
@@ -31,7 +32,11 @@ export default function WeekOverview({ onSelectDay }) {
     let minutes = 0;
     day.exercises.forEach((ex) => {
       const isCompound = [
-        'Deadlifts', 'Squats', 'Bench Press', 'Front Barbell Squat', 'Straight-Legged Deadlifts',
+        'Deadlifts',
+        'Squats',
+        'Bench Press',
+        'Front Barbell Squat',
+        'Straight-Legged Deadlifts',
       ].some((name) => ex.name.includes(name));
       const restTime = isCompound ? 3 : 1.25;
       const setTime = 0.75;
@@ -136,7 +141,7 @@ export default function WeekOverview({ onSelectDay }) {
               key={day.id}
               className={`day-card${done ? ' done' : skipped ? ' skipped' : ''}`}
               onClick={() => onSelectDay(day.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px 20px 20px 24px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px 30px' }}
             >
               <div
                 style={{
@@ -152,25 +157,22 @@ export default function WeekOverview({ onSelectDay }) {
                 <div className="day-label">{day.label}</div>
                 <div className="day-focus">{day.focus}</div>
                 <div className="day-focus">~{estimateDuration(day)} mins</div>
-                <div style={{ display: 'flex', gap: '5px', marginTop: '10px' }}>
-                  {PROGRAM.map((_, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        width: '9px',
-                        height: '9px',
-                        borderRadius: '50%',
-                        background:
-                          i < Math.round((progress / 100) * PROGRAM.length)
-                            ? 'var(--accent)'
-                            : 'var(--border)',
-                      }}
-                    />
-                  ))}
-                </div>
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <MuscleIcon dayId={day.id} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
+                {PROGRAM.map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: '9px',
+                      height: '9px',
+                      borderRadius: '50%',
+                      background: i < Math.round((progress / 100) * PROGRAM.length) ? 'var(--accent)' : 'var(--border)',
+                    }}
+                  />
+                ))}
               </div>
               {done && (
                 <div
