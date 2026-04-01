@@ -7,7 +7,6 @@ import { registerBackButton } from '../../hooks/useBackButton';
 import { getCurrentWeek } from '../../utils/week';
 import useStore from '../../store/useStore';
 
-
 export default function WorkoutsView({ onSessionStart }) {
   const completedDays = useStore((s) => s.completedDays);
   const programmeStartDate = useStore((s) => s.programmeStartDate);

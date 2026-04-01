@@ -158,7 +158,27 @@ function StrengthGraph({ dayId, ei, exName }) {
         }}
       >
         <div>
-          <div style={{ fontWeight: 600, fontSize: '14px' }}>{exName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '6px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: 'var(--muted)',
+                flexShrink: 0,
+              }}
+            >
+              {ei + 1}
+            </div>
+            <div style={{ fontWeight: 600, fontSize: '14px' }}>{exName}</div>
+          </div>
           <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{data.length} sessions logged</div>
         </div>
         <div style={{ color: 'var(--accent)', fontSize: '20px' }}>{open ? '−' : '+'}</div>
@@ -336,25 +356,58 @@ export default function ProgressView() {
       </div>
 
       <div className="section-title">STRENGTH PROGRESS</div>
-      {PROGRAM.map((day) => (
-        <div key={day.id} style={{ marginBottom: '20px' }}>
-          <div
-            style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: 'var(--muted)',
-              letterSpacing: '0.5px',
-              textTransform: 'uppercase',
-              marginBottom: '10px',
-            }}
-          >
-            {day.focus}
+      {(() => {
+        const hasAnyData = PROGRAM.some((day) =>
+          day.exercises.some((_, ei) => {
+            for (let week = 1; week <= 52; week++) {
+              const key = `week${week}_${day.id}`;
+              if (workoutDates?.[key]) return true;
+            }
+            return false;
+          }),
+        );
+
+        if (!hasAnyData) {
+          return (
+            <div
+              style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: '32px 20px',
+                textAlign: 'center',
+                marginBottom: '24px',
+              }}
+            >
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>📈</div>
+              <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '6px' }}>No data yet</div>
+              <div style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
+                Complete your first workout to start tracking strength progress
+              </div>
+            </div>
+          );
+        }
+
+        return PROGRAM.map((day) => (
+          <div key={day.id} style={{ marginBottom: '20px' }}>
+            <div
+              style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--muted)',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+                marginBottom: '10px',
+              }}
+            >
+              {day.focus}
+            </div>
+            {day.exercises.map((ex, ei) => (
+              <StrengthGraph key={ei} dayId={day.id} ei={ei} exName={ex.name} />
+            ))}
           </div>
-          {day.exercises.map((ex, ei) => (
-            <StrengthGraph key={ei} dayId={day.id} ei={ei} exName={ex.name} />
-          ))}
-        </div>
-      ))}
+        ));
+      })()}
     </div>
   );
 }
