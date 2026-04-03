@@ -20,9 +20,7 @@ const COMPOUND_NAMES = [
 
 export function getRestDuration(exerciseName) {
   if (!exerciseName) return 60;
-  const isCompound = COMPOUND_NAMES.some((name) =>
-    exerciseName.toLowerCase().includes(name.toLowerCase()),
-  );
+  const isCompound = COMPOUND_NAMES.some((name) => exerciseName.toLowerCase().includes(name.toLowerCase()));
   return isCompound ? 90 : 60;
 }
 
@@ -52,6 +50,17 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
     setClosing(true);
     setTimeout(onSkip, 280);
   }
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, []);
 
   // Tick interval — uses wall clock to stay accurate after backgrounding
   useEffect(() => {
@@ -166,19 +175,8 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
 
         {/* Circular countdown */}
         <div style={{ position: 'relative', width: '140px', height: '140px', marginBottom: '28px' }}>
-          <svg
-            width="140"
-            height="140"
-            style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}
-          >
-            <circle
-              cx="70"
-              cy="70"
-              r={radius}
-              fill="none"
-              stroke="var(--border)"
-              strokeWidth="8"
-            />
+          <svg width="140" height="140" style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
+            <circle cx="70" cy="70" r={radius} fill="none" stroke="var(--border)" strokeWidth="8" />
             <circle
               cx="70"
               cy="70"
@@ -214,9 +212,7 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
             >
               {seconds}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.5px' }}>
-              SEC
-            </div>
+            <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.5px' }}>SEC</div>
           </div>
         </div>
 
@@ -226,28 +222,11 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
         </div>
 
         {/* Buttons */}
-        <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-          <button
-            onClick={handleSkip}
-            style={{
-              flex: 1,
-              padding: '14px',
-              background: 'none',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: '18px',
-              letterSpacing: '1px',
-              color: 'var(--muted)',
-              cursor: 'pointer',
-            }}
-          >
-            SKIP REST
-          </button>
+        <div style={{ width: '100%' }}>
           <button
             onClick={handleComplete}
             style={{
-              flex: 1,
+              width: '100%',
               padding: '14px',
               background: 'var(--accent)',
               border: 'none',

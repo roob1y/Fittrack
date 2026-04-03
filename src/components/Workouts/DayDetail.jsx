@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import CelebrationScreen from './CelebrationScreen';
@@ -97,6 +97,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const setData = useStore((s) => s.setData);
   const saveSetData = useStore((s) => s.saveSetData);
   const savePB = useStore((s) => s.savePB);
+  const savePBAchieved = useStore((s) => s.savePBAchieved);
   const pbs = useStore((s) => s.pbs);
   const equipment = useStore((s) => s.equipment);
 
@@ -127,14 +128,13 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     return arr;
   }
 
-  function checkPB(exName, reps, weight) {
+  function checkPB(exName, weight, reps) {
     if (!weight || !reps) return false;
-    const repNum = parseInt(reps);
-    if (!repNum) return false;
-    const key = `${exName}_${repNum}`;
-    const current = pbs[key];
-    if (!current || weight > current) {
-      savePB(key, weight);
+    const e1rm = weight * (1 + reps / 30);
+    const current = useStore.getState().pbs[exName];
+    if (!current) return false;
+    if (e1rm > current) {
+      savePB(exName, e1rm);
       return true;
     }
     return false;
@@ -147,22 +147,39 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 
     if (!current) {
       await hapticsImpact();
-
-      const weight = parseFloat(setData[key]?.weight);
-      const reps = parseInt(setData[key]?.reps);
-      if (checkPB(resolvedEx.name, reps, weight)) {
-        showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg x ${reps}`);
+      const fresh = useStore.getState().setData[key];
+      const weight = parseFloat(fresh?.weight);
+      const reps = parseInt(fresh?.reps);
+      if (weight && reps) {
+        const e1rm = weight * (1 + reps / 30);
+        if (!useStore.getState().pbs[resolvedEx.name]) {
+          savePB(resolvedEx.name, e1rm);
+        } else if (checkPB(resolvedEx.name, weight, reps)) {
+          savePBAchieved(resolvedEx.name);
+          showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg × ${reps}`);
+        }
       }
-
       onSetTicked(resolvedEx.name);
+    } else {
+      // Unticked — recalculate best e1RM across remaining ticked sets
+      const allSetData = useStore.getState().setData;
+      let bestE1rm = 0;
+      for (let s = 0; s < resolvedEx.sets; s++) {
+        if (s === si) continue; // this set is being unticked
+        const k = `week${weekNum}_${dayId}_${ei}_${s}`;
+        const d = allSetData[k];
+        if (!d?.done) continue;
+        if (bestE1rm > 0) savePB(resolvedEx.name, bestE1rm);
+      }
+      savePB(resolvedEx.name, bestE1rm > 0 ? bestE1rm : null);
     }
   }
 
   const resolvedEx = resolveExercise(ex);
   const repsArr = buildRepsArray(resolvedEx);
   const barWeight = getBarWeight(resolvedEx);
-  const hasPB = Object.keys(pbs).some((k) => k.startsWith(resolvedEx.name + '_'));
-
+  const pbsAchieved = useStore((s) => s.pbsAchieved);
+  const hasPB = !!pbsAchieved[resolvedEx.name];
   return (
     <div className="exercise-card">
       <div className="exercise-header" onClick={() => setOpen((o) => !o)}>
@@ -393,12 +410,15 @@ export default function DayDetail({ dayId, onBack }) {
       )}
 
       {restTimer && (
-        <RestTimer
-          exerciseName={restTimer.exerciseName}
-          duration={restTimer.duration}
-          onComplete={() => setRestTimer(null)}
-          onSkip={() => setRestTimer(null)}
-        />
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 110 }} onTouchMove={(e) => e.preventDefault()} />{' '}
+          <RestTimer
+            exerciseName={restTimer.exerciseName}
+            duration={restTimer.duration}
+            onComplete={() => setRestTimer(null)}
+            onSkip={() => setRestTimer(null)}
+          />
+        </>
       )}
 
       <div className="day-header">

@@ -12,6 +12,7 @@ const useStore = create(
       sessionTimes: {},
       workoutDates: {},
       pbs: {},
+      pbsAchieved: {},
       weightLog: {},
       weightUnit: 'kg',
       programmeStartDate: null,
@@ -68,9 +69,17 @@ const useStore = create(
           workoutDates: { ...state.workoutDates, [key]: date },
         })),
 
-      savePB: (key, weight) =>
+      savePB: (key, value) =>
+        set((state) => {
+          const updated = { ...state.pbs };
+          if (value === null) delete updated[key];
+          else updated[key] = value;
+          return { pbs: updated };
+        }),
+
+      savePBAchieved: (key) =>
         set((state) => ({
-          pbs: { ...state.pbs, [key]: weight },
+          pbsAchieved: { ...state.pbsAchieved, [key]: true },
         })),
 
       logWeight: (date, kg) =>
@@ -93,6 +102,7 @@ const useStore = create(
           sessionTimes: {},
           workoutDates: {},
           pbs: {},
+          pbsAchieved: {},
           weightLog: {},
           weightUnit: 'kg',
           programmeStartDate: null,
