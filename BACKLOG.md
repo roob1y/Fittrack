@@ -120,7 +120,7 @@ XS
 - [x] Strength progress section — when no data exists show a friendly empty state instead of just workout names
 - [x] Improve visual distinction between similar exercises — exercises like Bench Press and Incline Bench Press should be clearly visually differentiated to reduce misclicks, e.g. subtle secondary label, icon or colour tag
 - [x] Light mode — the lime green accent does not pop sufficiently on the light background. Reassess light mode colour treatment or consider removing light mode entirely in favour of dark only
-- [x] Confetti on the workout complete screen stops, starts and moves periodically — fix animation to run smoothly and continuously until dismissed
+- [ ] Confetti on the workout complete screen stops, starts and moves periodically — fix animation to run smoothly and continuously until dismissed
 
 S
 - [ ] Moving between views — automatically scroll to top on view change
