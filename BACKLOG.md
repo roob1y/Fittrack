@@ -123,12 +123,12 @@ XS
 - [x] Confetti on the workout complete screen stops, starts and moves periodically — fix animation to run smoothly and continuously until dismissed
 
 S
-- [ ] Moving between views — automatically scroll to top on view change
-- [ ] Weight view — move the trend graph to the bottom below all other content
-- [ ] Tapping anywhere to continue on celebration screen — animate opacity pulsing in and out to hint it's tappable
-- [ ] Highlight today's exercise on the workouts screen so the current day is immediately obvious
-- [ ] Prevent the user from skipping a day that has already been completed
-- [ ] On the last set of the last exercise in a routine hide the rest timer — the user will not need it after the final set
+- [x] Moving between views — automatically scroll to top on view change
+- [x] Weight view — move the trend graph to the bottom below all other content
+- [x] Tapping anywhere to continue on celebration screen — animate opacity pulsing in and out to hint it's tappable
+- [x] Highlight today's exercise on the workouts screen so the current day is immediately obvious
+- [x] Prevent the user from skipping a day that has already been completed
+- [x] On the last set of the last exercise in a routine hide the rest timer — the user will not need it after the final set
 
 M
 - [ ] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
