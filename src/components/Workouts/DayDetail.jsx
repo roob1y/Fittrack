@@ -167,33 +167,53 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     <div className="exercise-card">
       <div className="exercise-header" onClick={() => setOpen((o) => !o)}>
         <div>
-          <div
-            className="exercise-name"
-            style={{ color: resolvedEx.status === 'unavailable' ? 'var(--muted)' : 'var(--text)' }}
-          >
-            {resolvedEx.name}
-            {resolvedEx.superset ? ` + ${resolvedEx.superset.name}` : ''}
-            {resolvedEx.status === 'alternative' && (
-              <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 400, marginLeft: '6px' }}>
-                (sub for {ex.name})
-              </span>
-            )}
-            {hasPB && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#0d0d0f',
-                  background: '#ffd700',
-                  borderRadius: '6px',
-                  padding: '2px 6px',
-                  marginLeft: '8px',
-                  verticalAlign: 'middle',
-                }}
-              >
-                🏆 PB
-              </span>
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+              style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '6px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 700,
+                color: 'var(--muted)',
+                flexShrink: 0,
+              }}
+            >
+              {ei + 1}
+            </div>
+            <div
+              className="exercise-name"
+              style={{ color: resolvedEx.status === 'unavailable' ? 'var(--muted)' : 'var(--text)' }}
+            >
+              {resolvedEx.name}
+              {resolvedEx.superset ? ` + ${resolvedEx.superset.name}` : ''}
+              {resolvedEx.status === 'alternative' && (
+                <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 400, marginLeft: '6px' }}>
+                  (sub for {ex.name})
+                </span>
+              )}
+              {hasPB && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: '#0d0d0f',
+                    background: '#ffd700',
+                    borderRadius: '6px',
+                    padding: '2px 6px',
+                    marginLeft: '8px',
+                    verticalAlign: 'middle',
+                  }}
+                >
+                  🏆 PB
+                </span>
+              )}
+            </div>
           </div>
           <div className="exercise-meta">
             {resolvedEx.status === 'unavailable'
