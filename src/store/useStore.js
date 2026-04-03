@@ -82,6 +82,8 @@ const useStore = create(
           pbsAchieved: { ...state.pbsAchieved, [key]: true },
         })),
 
+      clearAllPBs: () => set({ pbs: {}, pbsAchieved: {} }),
+
       logWeight: (date, kg) =>
         set((state) => ({
           weightLog: { ...state.weightLog, [date]: kg },

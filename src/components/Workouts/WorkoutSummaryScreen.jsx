@@ -32,9 +32,9 @@ export default function WorkoutSummaryScreen({ dayId, weekNum, mins, onDismiss }
       const key = `week${weekNum}_${dayId}_${ei}_${si}`;
       const saved = setData[key];
       if (!saved?.done || !saved?.weight || !saved?.reps) continue;
-      const pbKey = `${ex.name}_${parseInt(saved.reps)}`;
-      const pbWeight = pbs[pbKey];
-      if (pbWeight && parseFloat(saved.weight) >= pbWeight) {
+      const currentE1rm = parseFloat(saved.weight) * (1 + parseInt(saved.reps) / 30);
+      const pbE1rm = pbs[ex.name];
+      if (pbE1rm && currentE1rm >= pbE1rm) {
         if (!sessionPBs.find((p) => p.exercise === ex.name)) {
           sessionPBs.push({
             exercise: ex.name,

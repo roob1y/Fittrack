@@ -7,7 +7,6 @@ import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
 import { registerBackButton } from './hooks/useBackButton';
 import { getCurrentWeek } from './utils/week';
-import { StatusBar } from '@capacitor/status-bar';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
@@ -22,24 +21,6 @@ export default function App() {
   const programmeStartDate = useStore((s) => s.programmeStartDate);
 
   const weekNum = getCurrentWeek(programmeStartDate);
-
-  useEffect(() => {
-    StatusBar.getInfo()
-      .then((info) => {
-        console.log('raw height:', info.height, 'dpr:', window.devicePixelRatio);
-        document.documentElement.style.setProperty('--sat', `${info.height}px`);
-        document.documentElement.style.setProperty('--sab', '80px');
-        console.log(
-          'screen height:',
-          window.screen.height,
-          'inner height:',
-          window.innerHeight,
-          'outer height:',
-          window.outerHeight,
-        );
-      })
-      .catch((e) => console.error('statusbar error:', e.message));
-  }, []);
 
   // Session timer
   useEffect(() => {
