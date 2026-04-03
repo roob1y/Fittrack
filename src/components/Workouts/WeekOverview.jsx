@@ -12,7 +12,15 @@ export default function WeekOverview({ onSelectDay }) {
   const setData = useStore((s) => s.setData);
   const quoteTone = useStore((s) => s.quoteTone);
   const workoutDates = useStore((s) => s.workoutDates);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const trainedToday = Object.values(workoutDates || {}).some((d) => d === todayStr);
 
+  const nextDayId = trainedToday
+    ? null
+    : PROGRAM.find((d) => {
+        const k = `week${weekNum}_${d.id}`;
+        return !completedDays[k] && !skippedDays?.[k];
+      })?.id;
   const weekNum = getCurrentWeek(programmeStartDate);
 
   function getDayProgress(dayId, exercises) {
@@ -135,13 +143,19 @@ export default function WeekOverview({ onSelectDay }) {
           const done = !!completedDays[doneKey];
           const skipped = !!skippedDays?.[doneKey];
           const progress = getDayProgress(day.id, day.exercises);
+          console.log('nextDayId:', nextDayId, 'completedDays:', completedDays, 'skippedDays:', skippedDays);
 
           return (
             <div
               key={day.id}
-              className={`day-card${done ? ' done' : skipped ? ' skipped' : ''}`}
+              className={`day-card${done ? ' done' : skipped ? ' skipped' : day.id === nextDayId ? ' next' : ''}`}
               onClick={() => onSelectDay(day.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '20px 30px' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '20px 30px',
+              }}
             >
               <div
                 style={{

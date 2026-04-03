@@ -38,17 +38,14 @@ export default function WorkoutsView({ onSessionStart }) {
   function handleSelectDay(dayId) {
     setCurrentDayId(dayId);
     setPhase('warmup');
+    window.scrollTo({ top: 0 });
   }
 
   function handleBack() {
     setCurrentDayId(null);
     setPhase('overview');
     onSessionStart(null); // clear timer
-  }
-
-  function handleSelectDay(dayId) {
-    setCurrentDayId(dayId);
-    setPhase('warmup');
+    window.scrollTo({ top: 0 });
   }
 
   return (

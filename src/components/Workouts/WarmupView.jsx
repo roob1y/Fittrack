@@ -47,7 +47,6 @@ function TimedCard({ warmup }) {
           )}
         </div>
 
-
         {!running && !done && (
           <button
             onClick={start}
@@ -331,7 +330,13 @@ export default function WarmupView({ dayId, onStartWorkout }) {
       {available.map((warmup, wi) =>
         warmup.type === 'timed' ? <TimedCard key={wi} warmup={warmup} /> : <RepsCard key={wi} warmup={warmup} />,
       )}
-      <button className="save-day-btn" onClick={onStartWorkout}>
+      <button
+        className="save-day-btn"
+        onClick={() => {
+          window.scrollTo({ top: 0 });
+          onStartWorkout();
+        }}
+      >
         START WORKOUT
       </button>
     </div>

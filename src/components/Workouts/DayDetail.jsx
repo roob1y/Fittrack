@@ -171,6 +171,8 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
         resolvedEx.name,
         `week${weekNum}_${dayId}_${ei}_${si + 1}`,
         getPrevWeekWeight(setData, weekNum, dayId, ei, si + 1) || resolvedEx.defaultWeight || '',
+        ei,
+        si,
       );
     } else {
       // Unticked — recalculate best e1RM across remaining ticked sets
@@ -362,9 +364,13 @@ export default function DayDetail({ dayId, onBack }) {
     return new Date().toISOString().slice(0, 10);
   }
 
-  function handleSetTicked(exerciseName, nextSetKey, nextSetWeight) {
-    const duration = getRestDuration(exerciseName);
-    setRestTimer({ exerciseName, duration, nextSetKey, nextSetWeight });
+  function handleSetTicked(exerciseName, nextKey, prevWeight, ei, si) {
+    const lastExIdx = day.exercises.length - 1;
+    const isLast = ei === lastExIdx && si === day.exercises[lastExIdx].sets - 1;
+    if (!isLast) {
+      const duration = getRestDuration(exerciseName);
+      setRestTimer({ exerciseName, duration });
+    }
   }
 
   function handleComplete() {
@@ -382,6 +388,8 @@ export default function DayDetail({ dayId, onBack }) {
   }
 
   function handleSkip() {
+    if (isDone) return;
+
     if (isSkipped) {
       removeSkippedDay(key);
       onBack();
@@ -483,13 +491,15 @@ export default function DayDetail({ dayId, onBack }) {
       <button className="save-day-btn" onClick={handleComplete}>
         {isDone ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE'}
       </button>
-      <button
-        className={`skip-day-btn${isSkipped ? ' skipped' : ''}`}
-        onClick={handleSkip}
-        style={{ marginBottom: '20px' }}
-      >
-        {isSkipped ? `UNSKIP DAY (${isSkipped})` : 'SKIP DAY'}
-      </button>
+      {!isDone && (
+        <button
+          className={`skip-day-btn${isSkipped ? ' skipped' : ''}`}
+          onClick={handleSkip}
+          style={{ marginBottom: '20px' }}
+        >
+          {isSkipped ? `UNSKIP DAY (${isSkipped})` : 'SKIP DAY'}
+        </button>
+      )}
     </div>
   );
 }

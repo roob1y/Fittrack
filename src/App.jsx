@@ -138,7 +138,10 @@ export default function App() {
           <button
             key={view}
             className={`nav-btn${currentView === view ? ' active' : ''}`}
-            onClick={() => setCurrentView(view)}
+            onClick={() => {
+              setCurrentView(view);
+              window.scrollTo({ top: 0 });
+            }}
           >
             {view.charAt(0).toUpperCase() + view.slice(1)}
           </button>

@@ -309,6 +309,7 @@ export default function CelebrationScreen({ mins, dayFocus, tone, onDismiss }) {
           from { opacity: 0; transform: scale(0.95); }
           to   { opacity: 1; transform: scale(1); }
         }
+        @keyframes tapPulse { 0%,100%{opacity:0} 50%{opacity:1} }
       `}</style>
       <div
         onClick={onDismiss}
@@ -397,7 +398,17 @@ export default function CelebrationScreen({ mins, dayFocus, tone, onDismiss }) {
               </div>
             </div>
           )}
-          <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Tap anywhere to continue</div>
+          <div style={{ marginTop: 'auto', paddingTop: '32px', textAlign: 'center' }}>
+            <div
+              style={{
+                fontSize: '13px',
+                color: 'var(--muted)',
+                animation: 'tapPulse 1.8s ease-in-out infinite',
+              }}
+            >
+              Tap anywhere to continue
+            </div>
+          </div>
         </div>
       </div>
     </>
