@@ -18,6 +18,7 @@ const useStore = create(
       programmeStartDate: null,
       equipment: null,
       quoteTone: 'positive',
+      lastSetLoggedAt: null,
 
       // Actions
       setQuoteTone: (tone) => set({ quoteTone: tone }),
@@ -95,6 +96,8 @@ const useStore = create(
 
       setEquipment: (equipment) => set({ equipment }),
 
+      setLastSetLoggedAt: (ts) => set({ lastSetLoggedAt: ts }),
+
       resetAll: () =>
         set({
           completedDays: {},
@@ -109,6 +112,7 @@ const useStore = create(
           weightUnit: 'kg',
           programmeStartDate: null,
           equipment: null,
+          lastSetLoggedAt: null,
         }),
     }),
     {

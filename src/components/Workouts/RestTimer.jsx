@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { hapticsNotification } from '../../hooks/useHaptics';
 import { playRestComplete } from '../../hooks/useSound';
+import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
 
-// Exercises treated as compound — get 90s rest.
-// Everything else gets 60s.
 const COMPOUND_NAMES = [
   'Deadlifts',
   'Squats',
@@ -28,6 +27,8 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
   const [weight, setWeight] = useState(nextSetWeight || '');
   const [seconds, setSeconds] = useState(duration);
   const [closing, setClosing] = useState(false);
+
+  const notifIdRef = useRef(null);
   const intervalRef = useRef(null);
   const totalRef = useRef(duration);
   // Record wall-clock start time so we can resync after backgrounding
@@ -38,6 +39,10 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
     if (completedRef.current) return;
     completedRef.current = true;
     clearInterval(intervalRef.current);
+    if (notifIdRef.current !== null) {
+      cancelLocalNotification(notifIdRef.current);
+      notifIdRef.current = null;
+    }
     hapticsNotification();
     playRestComplete();
     setClosing(true);
@@ -84,10 +89,32 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
         }
       }
     }
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+
+  // Schedule / cancel background rest notification based on app visibility
+  useEffect(() => {
+    async function handleVisibility() {
+      if (document.visibilityState === 'hidden' && !completedRef.current) {
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        const remaining = Math.max(1, duration - elapsed);
+        const id = Date.now() % 2147483647;
+        notifIdRef.current = id;
+        await scheduleLocalNotification({
+          id,
+          title: 'Rest over — time to lift! 💪',
+          body: `${exerciseName} — next set ready.`,
+          delaySeconds: remaining,
+        });
+      } else if (document.visibilityState === 'visible' && notifIdRef.current !== null) {
+        await cancelLocalNotification(notifIdRef.current);
+        notifIdRef.current = null;
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [duration, exerciseName]);
 
   const progress = seconds / totalRef.current; // 1 → 0
   const radius = 54;

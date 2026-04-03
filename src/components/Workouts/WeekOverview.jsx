@@ -143,7 +143,6 @@ export default function WeekOverview({ onSelectDay }) {
           const done = !!completedDays[doneKey];
           const skipped = !!skippedDays?.[doneKey];
           const progress = getDayProgress(day.id, day.exercises);
-          console.log('nextDayId:', nextDayId, 'completedDays:', completedDays, 'skippedDays:', skippedDays);
 
           return (
             <div
