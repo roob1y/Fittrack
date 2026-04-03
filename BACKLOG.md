@@ -178,7 +178,7 @@ L
 ## Per-Set Weight Refactor 
 
 L
-[ ] Re structure the data model for per set weight logging:
+[x] Re structure the data model for per set weight logging:
 - Full data model refactor to store weight per individual set rather than a single default weight for the whole day
 - Each set in every exercise stores its own kg value independently
 - The default weight pre-populates each set but the user can adjust per set during the session

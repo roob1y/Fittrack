@@ -24,7 +24,8 @@ export function getRestDuration(exerciseName) {
   return isCompound ? 90 : 60;
 }
 
-export default function RestTimer({ exerciseName, duration, onComplete, onSkip }) {
+export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetWeight, onComplete, onSkip }) {
+  const [weight, setWeight] = useState(nextSetWeight || '');
   const [seconds, setSeconds] = useState(duration);
   const [closing, setClosing] = useState(false);
   const intervalRef = useRef(null);
@@ -40,15 +41,7 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
     hapticsNotification();
     playRestComplete();
     setClosing(true);
-    setTimeout(onComplete, 280);
-  }
-
-  function handleSkip() {
-    if (completedRef.current) return;
-    completedRef.current = true;
-    clearInterval(intervalRef.current);
-    setClosing(true);
-    setTimeout(onSkip, 280);
+    setTimeout(() => onComplete(w), 280);
   }
 
   useEffect(() => {
@@ -221,10 +214,44 @@ export default function RestTimer({ exerciseName, duration, onComplete, onSkip }
           {duration === 90 ? 'Compound · 90s rest' : 'Isolation · 60s rest'}
         </div>
 
+        {nextSetKey && (
+          <div style={{ width: '100%', marginBottom: '16px' }}>
+            <div
+              style={{
+                fontSize: '11px',
+                color: 'var(--muted)',
+                fontWeight: 600,
+                letterSpacing: '0.5px',
+                marginBottom: '6px',
+              }}
+            >
+              NEXT SET WEIGHT (KG)
+            </div>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                color: 'var(--text)',
+                fontSize: '20px',
+                fontWeight: 700,
+                textAlign: 'center',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+        )}
+
         {/* Buttons */}
         <div style={{ width: '100%' }}>
           <button
-            onClick={handleComplete}
+            onClick={() => handleComplete(weight)}
             style={{
               width: '100%',
               padding: '14px',
