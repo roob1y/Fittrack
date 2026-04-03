@@ -176,19 +176,6 @@ export default function WeightView() {
         </div>
       </div>
 
-      <div className="section-title">TREND</div>
-      <div
-        style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius)',
-          padding: '16px',
-          marginBottom: '20px',
-        }}
-      >
-        <WeightGraph entries={entries} unit={weightUnit} />
-      </div>
-
       <div className="section-title">LOG TODAY</div>
       <div
         style={{
@@ -242,6 +229,18 @@ export default function WeightView() {
             {weightUnit} — enter a new value to update
           </div>
         )}
+      </div>
+      <div className="section-title">TREND</div>
+      <div
+        style={{
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          padding: '16px',
+          marginBottom: '20px',
+        }}
+      >
+        <WeightGraph entries={entries} unit={weightUnit} />
       </div>
     </div>
   );
