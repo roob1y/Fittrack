@@ -6,6 +6,9 @@ import WorkoutSummaryScreen from './WorkoutSummaryScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
 import { getCurrentWeek } from '../../utils/week';
+import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
+
+const THIRTY_MINS = 30 * 60 * 1000;
 
 // Available plate sizes in kg — largest first for greedy algorithm
 const PLATES = [20, 15, 10, 7.5, 5, 2.5, 1.25];
@@ -104,8 +107,13 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const saveSetData = useStore((s) => s.saveSetData);
   const savePB = useStore((s) => s.savePB);
   const savePBAchieved = useStore((s) => s.savePBAchieved);
-  const pbs = useStore((s) => s.pbs);
   const equipment = useStore((s) => s.equipment);
+  const pbsAchieved = useStore((s) => s.pbsAchieved);
+
+  const resolvedEx = resolveExercise(ex);
+  const repsArr = buildRepsArray(resolvedEx);
+  const barWeight = getBarWeight(resolvedEx);
+  const hasPB = !!pbsAchieved[resolvedEx.name];
 
   function hasEquipment(required) {
     if (!required || required.length === 0) return true;
@@ -190,11 +198,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     }
   }
 
-  const resolvedEx = resolveExercise(ex);
-  const repsArr = buildRepsArray(resolvedEx);
-  const barWeight = getBarWeight(resolvedEx);
-  const pbsAchieved = useStore((s) => s.pbsAchieved);
-  const hasPB = !!pbsAchieved[resolvedEx.name];
   return (
     <div className="exercise-card">
       <div className="exercise-header" onClick={() => setOpen((o) => !o)}>
@@ -346,30 +349,84 @@ export default function DayDetail({ dayId, onBack }) {
   const saveWorkoutDate = useStore((s) => s.saveWorkoutDate);
   const saveSessionTime = useStore((s) => s.saveSessionTime);
   const quoteTone = useStore((s) => s.quoteTone);
-
-  const weekNum = getCurrentWeek(programmeStartDate);
+  const setLastSetLoggedAt = useStore((s) => s.setLastSetLoggedAt);
+  const saveSetData = useStore((s) => s.saveSetData);
+  const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
 
   const [celebrating, setCelebrating] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [celebMins, setCelebMins] = useState(0);
   const [restTimer, setRestTimer] = useState(null);
 
+  const workoutNotifIdRef = useRef(null);
   const sessionStartRef = useRef(Date.now());
+
+  const weekNum = getCurrentWeek(programmeStartDate);
   const day = PROGRAM.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
   const isSkipped = skippedDays?.[key];
+
+  useEffect(() => {
+    if (!lastSetLoggedAt) return;
+    if (workoutNotifIdRef.current !== null) {
+      cancelLocalNotification(workoutNotifIdRef.current);
+      workoutNotifIdRef.current = null;
+    }
+    if (document.visibilityState !== 'hidden') return;
+    const schedule = async () => {
+      const elapsed = Date.now() - lastSetLoggedAt;
+      const delay = Math.max(1, THIRTY_MINS - elapsed);
+      const id = (Date.now() + 1) % 2147483647;
+      workoutNotifIdRef.current = id;
+      await scheduleLocalNotification({
+        id,
+        title: 'Still working out? 🏋️',
+        body: 'Your FitTrack session is still running.',
+        delaySeconds: Math.floor(delay / 1000),
+      });
+    };
+    schedule();
+  }, [lastSetLoggedAt]);
+
+  useEffect(() => {
+    async function handleVisibility() {
+      if (!lastSetLoggedAt) return;
+      if (document.visibilityState === 'hidden') {
+        if (workoutNotifIdRef.current !== null) {
+          await cancelLocalNotification(workoutNotifIdRef.current);
+          workoutNotifIdRef.current = null;
+        }
+        const elapsed = Date.now() - lastSetLoggedAt;
+        const delay = Math.max(1, THIRTY_MINS - elapsed);
+        const id = (Date.now() + 2) % 2147483647;
+        workoutNotifIdRef.current = id;
+        await scheduleLocalNotification({
+          id,
+          title: 'Still working out? 🏋️',
+          body: 'Your FitTrack session is still running.',
+          delaySeconds: Math.floor(delay / 1000),
+        });
+      } else if (document.visibilityState === 'visible' && workoutNotifIdRef.current !== null) {
+        await cancelLocalNotification(workoutNotifIdRef.current);
+        workoutNotifIdRef.current = null;
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [lastSetLoggedAt]);
 
   function todayStr() {
     return new Date().toISOString().slice(0, 10);
   }
 
   function handleSetTicked(exerciseName, nextKey, prevWeight, ei, si) {
+    setLastSetLoggedAt(Date.now());
     const lastExIdx = day.exercises.length - 1;
     const isLast = ei === lastExIdx && si === day.exercises[lastExIdx].sets - 1;
     if (!isLast) {
       const duration = getRestDuration(exerciseName);
-      setRestTimer({ exerciseName, duration });
+      setRestTimer({ exerciseName, duration, nextSetKey: nextKey, nextSetWeight: prevWeight });
     }
   }
 
@@ -385,6 +442,11 @@ export default function DayDetail({ dayId, onBack }) {
     saveSessionTime(key, mins);
     setCelebMins(mins);
     setCelebrating(true);
+    if (workoutNotifIdRef.current !== null) {
+      cancelLocalNotification(workoutNotifIdRef.current);
+      workoutNotifIdRef.current = null;
+    }
+    setLastSetLoggedAt(null);
   }
 
   function handleSkip() {
