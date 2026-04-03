@@ -91,6 +91,12 @@ function useToast() {
   return showToast;
 }
 
+function getPrevWeekWeight(setData, weekNum, dayId, ei, si) {
+  if (weekNum < 1) return null;
+  const prevKey = `week${weekNum - 1}_${dayId}_${ei}_${si}`;
+  return setData[prevKey]?.weight || null;
+}
+
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
@@ -161,7 +167,11 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
           showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg × ${reps}`);
         }
       }
-      onSetTicked(resolvedEx.name);
+      onSetTicked(
+        resolvedEx.name,
+        `week${weekNum}_${dayId}_${ei}_${si + 1}`,
+        getPrevWeekWeight(setData, weekNum, dayId, ei, si + 1) || resolvedEx.defaultWeight || '',
+      );
     } else {
       // Unticked — recalculate best e1RM across remaining ticked sets
       const allSetData = useStore.getState().setData;
@@ -292,7 +302,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
                     className="set-input"
                     type="number"
                     inputMode="decimal"
-                    placeholder={resolvedEx.defaultWeight || 'kg'}
+                    placeholder={getPrevWeekWeight(setData, weekNum, dayId, ei, si) || resolvedEx.defaultWeight || 'kg'}
                     value={saved.weight || ''}
                     onChange={(e) => saveSetData(key, 'weight', e.target.value)}
                   />
@@ -352,9 +362,9 @@ export default function DayDetail({ dayId, onBack }) {
     return new Date().toISOString().slice(0, 10);
   }
 
-  function handleSetTicked(exerciseName) {
+  function handleSetTicked(exerciseName, nextSetKey, nextSetWeight) {
     const duration = getRestDuration(exerciseName);
-    setRestTimer({ exerciseName, duration });
+    setRestTimer({ exerciseName, duration, nextSetKey, nextSetWeight });
   }
 
   function handleComplete() {
@@ -418,8 +428,16 @@ export default function DayDetail({ dayId, onBack }) {
           <RestTimer
             exerciseName={restTimer.exerciseName}
             duration={restTimer.duration}
-            onComplete={() => setRestTimer(null)}
-            onSkip={() => setRestTimer(null)}
+            nextSetKey={restTimer.nextSetKey}
+            nextSetWeight={restTimer.nextSetWeight}
+            onComplete={(weight) => {
+              if (weight && restTimer.nextSetKey) saveSetData(restTimer.nextSetKey, 'weight', weight);
+              setRestTimer(null);
+            }}
+            onSkip={(weight) => {
+              if (weight && restTimer.nextSetKey) saveSetData(restTimer.nextSetKey, 'weight', weight);
+              setRestTimer(null);
+            }}
           />
         </>
       )}
