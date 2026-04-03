@@ -1,46 +1,69 @@
 // exportPDF.js
-// Generates a branded PDF report using jsPDF.
-
 import { jsPDF } from 'jspdf';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
 import { PROGRAM } from '../data/program';
+import { Share } from '@capacitor/share';
 
-const ACCENT = [200, 241, 53];    // #c8f135
-const DARK = [13, 13, 15];        // #0d0d0f
-const SURFACE = [22, 22, 26];     // #16161a
-const CARD = [30, 30, 36];        // #1e1e24
-const BORDER = [42, 42, 53];      // #2a2a35
-const TEXT = [240, 240, 245];     // #f0f0f5
-const MUTED = [122, 122, 140];    // #7a7a8c
+const ACCENT = [200, 241, 53];
+const DARK = [13, 13, 15];
+const SURFACE = [22, 22, 26];
+const CARD = [30, 30, 36];
+const TEXT = [240, 240, 245];
+const MUTED = [122, 122, 140];
 const WHITE = [255, 255, 255];
 
 function convertWeight(kg, unit) {
   if (unit === 'lbs') return Math.round(kg * 2.2046 * 10) / 10;
   return Math.round(kg * 10) / 10;
 }
-
 function setFill(doc, rgb) {
   doc.setFillColor(rgb[0], rgb[1], rgb[2]);
 }
-
 function setTextColor(doc, rgb) {
   doc.setTextColor(rgb[0], rgb[1], rgb[2]);
 }
 
-function setDrawColor(doc, rgb) {
-  doc.setDrawColor(rgb[0], rgb[1], rgb[2]);
+function showToast(msg) {
+  const existing = document.getElementById('export-toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'export-toast';
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position: 'fixed',
+    bottom: '100px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#1e1e24',
+    color: '#f0f0f5',
+    padding: '12px 20px',
+    borderRadius: '12px',
+    fontSize: '13px',
+    fontWeight: '600',
+    zIndex: '9999',
+    border: '1px solid #2a2a35',
+    whiteSpace: 'normal',
+    textAlign: 'center',
+    maxWidth: '280px',
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
 }
 
-export function exportPDF(store) {
+export async function exportPDF(store) {
   const { setData, workoutDates, sessionTimes, weightLog, weightUnit } = store;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const pageW = 210;
-  const pageH = 297;
-  const margin = 16;
+  const pageW = 210,
+    pageH = 297,
+    margin = 16;
   const contentW = pageW - margin * 2;
   let y = 0;
 
   function newPage() {
     doc.addPage();
+    setFill(doc, DARK);
+    doc.rect(0, 0, pageW, pageH, 'F');
     y = margin;
     drawPageHeader();
   }
@@ -50,16 +73,15 @@ export function exportPDF(store) {
   }
 
   function drawPageHeader() {
-    // Top bar
     setFill(doc, DARK);
     doc.rect(0, 0, pageW, 12, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     setTextColor(doc, ACCENT);
     doc.text('Fit', margin, 8);
-    const fitWidth = doc.getTextWidth('Fit');
+    const fitW = doc.getTextWidth('Fit');
     setTextColor(doc, WHITE);
-    doc.text('TRACK', margin + fitWidth, 8);
+    doc.text('TRACK', margin + fitW, 8);
     setTextColor(doc, MUTED);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
@@ -109,51 +131,30 @@ export function exportPDF(store) {
       doc.text(String(values[i] ?? ''), x, y + 4.2);
       x += width;
     });
-    // Bottom border
-    setDrawColor(doc, BORDER);
-    doc.setLineWidth(0.2);
-    doc.line(margin, y + 6, margin + contentW, y + 6);
     y += 6;
   }
 
   // ── Cover page ───────────────────────────────────────
   setFill(doc, DARK);
   doc.rect(0, 0, pageW, pageH, 'F');
+  drawPageHeader();
 
-  // Accent bar
   setFill(doc, ACCENT);
-  doc.rect(0, 0, 6, pageH, 'F');
-
-  // Logo
+  doc.rect(0, 60, pageW, 1, 'F');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(52);
+  doc.setFontSize(36);
   setTextColor(doc, ACCENT);
-  doc.text('Fit', 24, 80);
-  const fitW = doc.getTextWidth('Fit');
+  doc.text('Fit', margin, 52);
+  const fw = doc.getTextWidth('Fit');
   setTextColor(doc, WHITE);
-  doc.text('TRACK', 24 + fitW, 80);
-
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'normal');
+  doc.text('TRACK', margin + fw, 52);
+  doc.setFontSize(13);
   setTextColor(doc, MUTED);
-  doc.text('Workout & Progress Report', 24, 94);
+  doc.text('WORKOUT REPORT', margin, 58);
 
-  // Date range
-  const allDates = Object.values(workoutDates || {}).filter(Boolean).sort();
-  const firstDate = allDates[0]
-    ? new Date(allDates[0]).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-    : '—';
-  const lastDate = allDates[allDates.length - 1]
-    ? new Date(allDates[allDates.length - 1]).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-    : '—';
-
-  doc.setFontSize(10);
-  setTextColor(doc, TEXT);
-  doc.text(`${firstDate} — ${lastDate}`, 24, 106);
-
-  // Stats summary on cover
-  let totalWorkouts = 0;
-  let totalSets = 0;
+  // Stats
+  let totalWorkouts = 0,
+    totalSets = 0;
   for (let week = 1; week <= 52; week++) {
     for (const day of PROGRAM) {
       const key = `week${week}_${day.id}`;
@@ -161,8 +162,7 @@ export function exportPDF(store) {
       totalWorkouts++;
       day.exercises.forEach((ex, ei) => {
         for (let si = 0; si < ex.sets; si++) {
-          const setKey = `week${week}_${day.id}_${ei}_${si}`;
-          if (setData?.[setKey]?.done) totalSets++;
+          if (setData?.[`week${week}_${day.id}_${ei}_${si}`]?.done) totalSets++;
         }
       });
     }
@@ -218,13 +218,17 @@ export function exportPDF(store) {
       const date = workoutDates?.[dateKey];
       if (!date) continue;
       day.exercises.forEach((ex, ei) => {
+        const repTargets = ex.reps.split('/');
         for (let si = 0; si < ex.sets; si++) {
           const setKey = `week${week}_${day.id}_${ei}_${si}`;
           const saved = setData?.[setKey];
           if (!saved?.done) continue;
+          const repTarget = repTargets[si] ?? repTargets[repTargets.length - 1] ?? ex.reps;
+          const displayReps = saved.reps || repTarget || '—';
+          const displayWeight = saved.weight || (ex.defaultWeight != null ? ex.defaultWeight : '—');
           tableRow(
             wCols,
-            [date, day.label, day.focus, ex.name, `S${si + 1}`, saved.reps || '—', saved.weight || '—'],
+            [date, day.label, day.focus, ex.name, `S${si + 1}`, displayReps, displayWeight],
             rowCount % 2 === 1,
           );
           rowCount++;
@@ -272,6 +276,24 @@ export function exportPDF(store) {
     rowCount++;
   }
 
-  // Save
-  doc.save(`fittrack-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+  // ── Save ─────────────────────────────────────────────
+  const filename = `fittrack-report-${new Date().toISOString().slice(0, 10)}.pdf`;
+
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const pdfBase64 = doc.output('datauristring').split(',')[1];
+      await Filesystem.writeFile({
+        path: filename,
+        data: pdfBase64,
+        directory: Directory.Cache,
+      });
+      const { uri } = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
+      await Share.share({ title: filename, url: uri, dialogTitle: 'Save or share your report' });
+    } catch (e) {
+      showToast('Export failed — storage permission may be needed');
+      console.error('PDF export error:', e);
+    }
+  } else {
+    doc.save(filename);
+  }
 }

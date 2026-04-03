@@ -139,10 +139,10 @@ M
 ## Bug Fixes
 
 S
-- [ ] Export PDF and CSV not working — investigate and fix
-- [ ] Rest screen — Skip and Done Resting do the same thing, remove one, keep Skip only
-- [ ] The workouts screen should not be scrollable when the rest timer is on display
-- [ ] Personal best indicator should not trigger when the user logs a weight lower than the default — only show PB when a genuine best is achieved
+- [x] Export PDF and CSV not working — investigate and fix
+- [x] Rest screen — Skip and Done Resting do the same thing, remove one, keep Skip only
+- [x] The workouts screen should not be scrollable when the rest timer is on display
+- [x] Personal best indicator should not trigger when the user logs a weight lower than the default — only show PB when a genuine best is achieved
 
 
 ---
