@@ -8,7 +8,7 @@ import { hapticsImpact } from '../../hooks/useHaptics';
 import { getCurrentWeek } from '../../utils/week';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
 
-const THIRTY_MINS = 0.1 * 60 * 1000;
+const THIRTY_MINS = 30 * 60 * 1000;
 
 // Available plate sizes in kg — largest first for greedy algorithm
 const PLATES = [20, 15, 10, 7.5, 5, 2.5, 1.25];
