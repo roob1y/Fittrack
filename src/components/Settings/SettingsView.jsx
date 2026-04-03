@@ -399,33 +399,6 @@ export default function SettingsView({ onEquipmentSaved }) {
         </div>
       </div>
 
-      {/* Temporary PB seed — remove after testing */}
-      <div
-        onClick={() => {
-          const exercises = [
-            { name: 'Deadlifts', weight: 62, reps: 10 },
-            { name: 'Bent Over Rows', weight: 35, reps: 12 },
-            { name: 'Power Shrug', weight: 62, reps: 12 },
-            { name: 'Chest Supported Row', weight: 17.5, reps: 12 },
-          ];
-          exercises.forEach(({ name, weight, reps }) => {
-            const e1rm = weight * (1 + reps / 30);
-            savePB(name, e1rm);
-          });
-          console.log('Seeded PBs:', JSON.stringify(useStore.getState().pbs));
-        }}
-        style={{
-          padding: '16px',
-          borderTop: '1px solid var(--border)',
-          cursor: 'pointer',
-        }}
-      >
-        <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--accent)' }}>[DEV] Seed Back Day PBs</div>
-        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>
-          Tap once to seed baseline, then test beating them
-        </div>
-      </div>
-
       {showResetModal && (
         <div
           style={{

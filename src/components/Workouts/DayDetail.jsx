@@ -133,6 +133,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     const e1rm = weight * (1 + reps / 30);
     const current = useStore.getState().pbs[exName];
     if (!current) return false;
+
     if (e1rm > current) {
       savePB(exName, e1rm);
       return true;
@@ -140,7 +141,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     return false;
   }
 
-  async function toggleSet(si) {
+  async function toggleSet(si, rep) {
     const key = `week${weekNum}_${dayId}_${ei}_${si}`;
     const current = setData[key]?.done;
     saveSetData(key, 'done', !current);
@@ -148,8 +149,9 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     if (!current) {
       await hapticsImpact();
       const fresh = useStore.getState().setData[key];
-      const weight = parseFloat(fresh?.weight);
-      const reps = parseInt(fresh?.reps);
+      const weight = parseFloat(fresh?.weight) || parseFloat(resolvedEx.defaultWeight) || 0;
+      const reps = parseInt(fresh?.reps) || parseInt(rep); // rep = repsArr[si], the placeholder for this set
+
       if (weight && reps) {
         const e1rm = weight * (1 + reps / 30);
         if (!useStore.getState().pbs[resolvedEx.name]) {
@@ -165,11 +167,12 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
       const allSetData = useStore.getState().setData;
       let bestE1rm = 0;
       for (let s = 0; s < resolvedEx.sets; s++) {
-        if (s === si) continue; // this set is being unticked
+        if (s === si) continue; // skip the set being unticked
         const k = `week${weekNum}_${dayId}_${ei}_${s}`;
         const d = allSetData[k];
-        if (!d?.done) continue;
-        if (bestE1rm > 0) savePB(resolvedEx.name, bestE1rm);
+        if (!d?.done || !d?.weight || !d?.reps) continue;
+        const e1rm = parseFloat(d.weight) * (1 + parseInt(d.reps) / 30);
+        if (e1rm > bestE1rm) bestE1rm = e1rm;
       }
       savePB(resolvedEx.name, bestE1rm > 0 ? bestE1rm : null);
     }
@@ -293,7 +296,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
                     value={saved.weight || ''}
                     onChange={(e) => saveSetData(key, 'weight', e.target.value)}
                   />
-                  <button className={`check-btn${saved.done ? ' done' : ''}`} onClick={() => toggleSet(si)}>
+                  <button className={`check-btn${saved.done ? ' done' : ''}`} onClick={() => toggleSet(si, rep)}>
                     ✓
                   </button>
                 </div>
