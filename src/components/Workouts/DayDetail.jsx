@@ -360,6 +360,7 @@ export default function DayDetail({ dayId, onBack }) {
   const [restTimer, setRestTimer] = useState(null);
   const [prevNoteOpen, setPrevNoteOpen] = useState(false);
   const [showUndoModal, setShowUndoModal] = useState(false);
+  const [sessionDisplay, setSessionDisplay] = useState('0:00');
 
   const workoutNotifIdRef = useRef(null);
   const sessionStartRef = useRef(Date.now());
@@ -418,6 +419,17 @@ export default function DayDetail({ dayId, onBack }) {
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [lastSetLoggedAt]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const mins = Math.floor((elapsed % 3600) / 60);
+      const secs = String(elapsed % 60).padStart(2, '0');
+      setSessionDisplay(hours > 0 ? `${hours}:${String(mins).padStart(2, '0')}:${secs}` : `${mins}:${secs}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   function todayStr() {
     return new Date().toISOString().slice(0, 10);
@@ -602,12 +614,28 @@ export default function DayDetail({ dayId, onBack }) {
         <p>
           {day.label} · {day.exercises.length} exercises
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
-          {day.equipment.map((e) => (
-            <span key={e} className="equip-tag">
-              {e}
-            </span>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {day.equipment.map((e) => (
+              <span key={e} className="equip-tag">
+                {e}
+              </span>
+            ))}
+          </div>
+          {!isDone && (
+            <div
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: '20px',
+                color: 'var(--muted)',
+                letterSpacing: '1px',
+                flexShrink: 0,
+                marginLeft: '12px',
+              }}
+            >
+              {sessionDisplay}
+            </div>
+          )}
         </div>
       </div>
 

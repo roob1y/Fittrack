@@ -7,7 +7,7 @@ import { registerBackButton } from '../../hooks/useBackButton';
 import { getCurrentWeek } from '../../utils/week';
 import useStore from '../../store/useStore';
 
-export default function WorkoutsView({ onSessionStart }) {
+export default function WorkoutsView() {
   const completedDays = useStore((s) => s.completedDays);
   const programmeStartDate = useStore((s) => s.programmeStartDate);
   const [currentDayId, setCurrentDayId] = useState(null);
@@ -44,7 +44,6 @@ export default function WorkoutsView({ onSessionStart }) {
   function handleBack() {
     setCurrentDayId(null);
     setPhase('overview');
-    onSessionStart(null); // clear timer
     window.scrollTo({ top: 0 });
   }
 
@@ -60,10 +59,7 @@ export default function WorkoutsView({ onSessionStart }) {
             dayId={currentDayId}
             onStartWorkout={() => {
               setPhase('workout');
-              const key = `week${getCurrentWeek(programmeStartDate)}_${currentDayId}`;
-              if (!completedDays[key]) {
-                onSessionStart(Date.now());
-              }
+              // session timer now handled inside DayDetail
             }}
           />
         </>
