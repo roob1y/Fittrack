@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 
-export default function WorkoutSummaryScreen({ dayId, weekNum, mins, onDismiss }) {
+export default function WorkoutSummaryScreen({ dayId, weekNum, mins, noteKey, onDismiss }) {
   const [visible, setVisible] = useState(false);
   const setData = useStore((s) => s.setData);
   const pbs = useStore((s) => s.pbs);
+  const notes = useStore((s) => s.notes);
+  const saveNote = useStore((s) => s.saveNote);
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
@@ -255,6 +257,38 @@ export default function WorkoutSummaryScreen({ dayId, weekNum, mins, onDismiss }
             ))}
           </div>
         )}
+
+        {/* Session notes */}
+        <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '24px' }}>
+          <div
+            style={{
+              fontSize: '11px',
+              color: 'var(--muted)',
+              fontWeight: 600,
+              letterSpacing: '0.5px',
+              marginBottom: '8px',
+            }}
+          >
+            SESSION NOTES
+          </div>
+          <textarea
+            placeholder="How did you feel? Anything to remember for next time..."
+            value={notes[noteKey] || ''}
+            onChange={(e) => saveNote(noteKey, e.target.value)}
+            style={{
+              width: '100%',
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              color: 'var(--text)',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px',
+              padding: '14px',
+              resize: 'none',
+              height: '90px',
+            }}
+          />
+        </div>
 
         {/* Dismiss */}
         <style>{`

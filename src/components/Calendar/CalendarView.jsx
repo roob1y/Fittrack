@@ -56,50 +56,39 @@ function formatWeekLabel(startOfWeek) {
   return startOfWeek.toLocaleDateString('en-GB', opts) + ' — ' + end.toLocaleDateString('en-GB', opts);
 }
 
-function StartDatePicker({ onConfirm }) {
-  const [value, setValue] = useState(todayStr());
+function WelcomeScreen() {
   return (
-    <div>
-      <div className="section-title" style={{ marginTop: '4px' }}>
-        WHEN DO YOU START?
-      </div>
-      <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '24px' }}>
-        Pick the date you want to begin your programme. This is used to calculate your current week and map workouts to
-        real calendar dates.
-      </p>
-      <input
-        type="date"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+    <div style={{ padding: '8px 0' }}>
+      <div
         style={{
-          width: '100%',
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: '36px',
+          letterSpacing: '2px',
+          color: 'var(--accent)',
+          lineHeight: 1,
+          marginBottom: '12px',
+        }}
+      >
+        WELCOME TO
+        <br />
+        FITTRACK
+      </div>
+      <p style={{ color: 'var(--muted)', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
+        Your programme starts automatically when you complete your first workout. Head to the Workouts tab to begin.
+      </p>
+      <div
+        style={{
           background: 'var(--card)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius)',
-          color: 'var(--text)',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '16px',
-          padding: '14px',
-          marginBottom: '16px',
-        }}
-      />
-      <button
-        onClick={() => onConfirm(value)}
-        style={{
-          width: '100%',
           padding: '16px',
-          background: 'var(--accent)',
-          border: 'none',
-          borderRadius: 'var(--radius)',
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: '20px',
-          letterSpacing: '1.5px',
-          color: '#0d0d0f',
-          cursor: 'pointer',
+          fontSize: '14px',
+          color: 'var(--muted)',
+          lineHeight: 1.5,
         }}
       >
-        LET'S GO
-      </button>
+        💡 Complete any day to lock in your start date and begin tracking progress.
+      </div>
     </div>
   );
 }
@@ -203,7 +192,7 @@ export default function CalendarView() {
   const [selectedDate, setSelectedDate] = useState(null);
 
   if (!programmeStartDate) {
-    return <StartDatePicker onConfirm={setProgrammeStartDate} />;
+    if (!programmeStartDate) return <WelcomeScreen />;
   }
 
   const weekNum = getCurrentWeek(programmeStartDate);

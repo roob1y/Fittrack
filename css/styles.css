@@ -289,6 +289,12 @@ header {
   color: var(--muted);
   font-size: 12px;
 }
+.set-input.failure-set {
+  border-color: var(--red);
+}
+.set-input.failure-set::placeholder {
+  color: var(--red);
+}
 .check-btn {
   width: 36px;
   height: 36px;

@@ -150,13 +150,11 @@ S
 ## UX Improvements
 
 S
-- [ ] Session complete screen — move notes input here, remove it from the main exercise window
-- [ ] Previous week session notes — when starting a new week's session the user can see the notes from the same workout the previous week so they know what happened last time
-- [ ] Undo workout for the day — if the user wants to remove the day's workout entirely show a warning prompt asking them to confirm before deleting
-- [ ] First workout detection — remove the "when do you start" screen entirely. Detect the start date automatically when the user completes their first workout. Show a congratulations message on completion.
-- [ ] Failure sets — allow the user to log the number of reps reached before failure, stored for progress tracking
-- [ ] Unit setting — when the user changes the default unit between kg and lbs all default weight values throughout the app must update accordingly. Prompt the user to confirm whether they want to convert existing values.
-
+- [x] Session complete screen — move notes input here, remove it from the main exercise window
+- [x] Previous week session notes — when starting a new week's session the user can see the notes from the same workout the previous week so they know what happened last time
+- [x] Undo workout for the day — if the user wants to remove the day's workout entirely show a warning prompt asking them to confirm before deleting
+- [x] First workout detection — remove the "when do you start" screen entirely. Detect the start date automatically when the user completes their first workout. Show a congratulations message on completion.
+- [x] Failure sets — allow the user to log the number of reps reached before failure, stored for progress tracking
 
 M
 - [ ] Rest timer — display at the top of the screen instead of sliding up as a bottom sheet
@@ -165,6 +163,10 @@ M
 - [ ] Calendar — move into the Progress view, remove slide-up animation, make it fill the full screen within that view. Actually might have a button dedicated to the calendar somewhere else. The calendar isnt neccesary for the user to see perhaps?
 - [ ] Timer — move out of the header into a more appropriate position within the workout view
 - [ ] Bench press — if no barbell is present in the user's equipment suggest dumbbell bench press as an automatic substitution
+
+L
+
+- [ ] Unit setting — when the user changes the default unit between kg and lbs all default weight values throughout the app must update accordingly. Prompt the user to confirm whether they want to convert existing values.
 
 ---
 

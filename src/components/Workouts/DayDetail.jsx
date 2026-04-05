@@ -103,6 +103,7 @@ function getPrevWeekWeight(setData, weekNum, dayId, ei, si) {
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
+
   const setData = useStore((s) => s.setData);
   const saveSetData = useStore((s) => s.saveSetData);
   const savePB = useStore((s) => s.savePB);
@@ -296,7 +297,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
                 <div className="set-row">
                   <div className="set-label">S{si + 1}</div>
                   <input
-                    className="set-input"
+                    className={`set-input${rep === 'Failure' ? ' failure-set' : ''}`}
                     type="number"
                     inputMode="numeric"
                     placeholder={rep}
@@ -340,8 +341,6 @@ export default function DayDetail({ dayId, onBack }) {
   const programmeStartDate = useStore((s) => s.programmeStartDate);
   const completedDays = useStore((s) => s.completedDays);
   const skippedDays = useStore((s) => s.skippedDays);
-  const notes = useStore((s) => s.notes);
-  const saveNote = useStore((s) => s.saveNote);
   const saveCompletedDay = useStore((s) => s.saveCompletedDay);
   const removeCompletedDay = useStore((s) => s.removeCompletedDay);
   const saveSkippedDay = useStore((s) => s.saveSkippedDay);
@@ -352,11 +351,15 @@ export default function DayDetail({ dayId, onBack }) {
   const setLastSetLoggedAt = useStore((s) => s.setLastSetLoggedAt);
   const saveSetData = useStore((s) => s.saveSetData);
   const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
+  const notes = useStore((s) => s.notes);
+  const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
 
   const [celebrating, setCelebrating] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [celebMins, setCelebMins] = useState(0);
   const [restTimer, setRestTimer] = useState(null);
+  const [prevNoteOpen, setPrevNoteOpen] = useState(false);
+  const [showUndoModal, setShowUndoModal] = useState(false);
 
   const workoutNotifIdRef = useRef(null);
   const sessionStartRef = useRef(Date.now());
@@ -431,6 +434,7 @@ export default function DayDetail({ dayId, onBack }) {
   }
 
   function handleComplete() {
+    if (!programmeStartDate) setProgrammeStartDate(todayStr());
     if (isDone) {
       removeCompletedDay(key);
       onBack();
@@ -485,11 +489,92 @@ export default function DayDetail({ dayId, onBack }) {
           dayId={dayId}
           weekNum={weekNum}
           mins={celebMins}
+          noteKey={key}
           onDismiss={() => {
             setShowSummary(false);
             onBack();
           }}
         />
+      )}
+
+      {/* Undo workout modal */}
+      {showUndoModal && (
+        <div
+          onClick={() => setShowUndoModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.7)',
+            zIndex: 300,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '360px',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: '22px',
+                letterSpacing: '1px',
+                marginBottom: '8px',
+              }}
+            >
+              UNDO WORKOUT?
+            </div>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '24px' }}>
+              This will remove today's completed workout. Your set data will remain.
+            </p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setShowUndoModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: 'none',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  color: 'var(--text)',
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                }}
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={() => {
+                  removeCompletedDay(key);
+                  setShowUndoModal(false);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: 'var(--red)',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  color: '#fff',
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                }}
+              >
+                UNDO
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {restTimer && (
@@ -526,33 +611,60 @@ export default function DayDetail({ dayId, onBack }) {
         </div>
       </div>
 
+      {/* Previous week notes */}
+      {weekNum > 1 && notes[`week${weekNum - 1}_${dayId}`] && (
+        <div
+          onClick={() => setPrevNoteOpen((o) => !o)}
+          style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            padding: '12px 16px',
+            marginBottom: '12px',
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.5px' }}>
+              LAST WEEK'S NOTES
+            </div>
+            <div style={{ color: 'var(--muted)', fontSize: '16px' }}>{prevNoteOpen ? '▲' : '▼'}</div>
+          </div>
+          {prevNoteOpen && (
+            <div style={{ fontSize: '14px', color: 'var(--text)', marginTop: '10px', lineHeight: 1.5 }}>
+              {notes[`week${weekNum - 1}_${dayId}`]}
+            </div>
+          )}
+        </div>
+      )}
+
       {day.exercises.map((ex, ei) => (
         <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} />
       ))}
 
-      <textarea
-        placeholder="How did you feel? Any notes on today's session..."
-        value={notes[key] || ''}
-        onChange={(e) => saveNote(key, e.target.value)}
-        style={{
-          width: '100%',
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius)',
-          color: 'var(--text)',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '14px',
-          padding: '14px',
-          marginBottom: '12px',
-          resize: 'none',
-          height: '100px',
-          marginTop: '8px',
-        }}
-      />
-
       <button className="save-day-btn" onClick={handleComplete}>
         {isDone ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE'}
       </button>
+      {isDone && (
+        <button
+          onClick={() => setShowUndoModal(true)}
+          style={{
+            width: '100%',
+            marginTop: '8px',
+            padding: '12px',
+            background: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            color: 'var(--muted)',
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: '16px',
+            letterSpacing: '1px',
+            cursor: 'pointer',
+          }}
+        >
+          UNDO WORKOUT
+        </button>
+      )}
       {!isDone && (
         <button
           className={`skip-day-btn${isSkipped ? ' skipped' : ''}`}
