@@ -14,6 +14,7 @@ export default function WeekOverview({ onSelectDay }) {
   const workoutDates = useStore((s) => s.workoutDates);
   const todayStr = new Date().toISOString().slice(0, 10);
   const trainedToday = Object.values(workoutDates || {}).some((d) => d === todayStr);
+  const weekNum = getCurrentWeek(programmeStartDate);
 
   const nextDayId = trainedToday
     ? null
@@ -21,7 +22,6 @@ export default function WeekOverview({ onSelectDay }) {
         const k = `week${weekNum}_${d.id}`;
         return !completedDays[k] && !skippedDays?.[k];
       })?.id;
-  const weekNum = getCurrentWeek(programmeStartDate);
 
   function getDayProgress(dayId, exercises) {
     let total = 0,
