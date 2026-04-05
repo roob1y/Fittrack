@@ -26,7 +26,6 @@ export function getRestDuration(exerciseName) {
 export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetWeight, onComplete, onSkip }) {
   const [weight, setWeight] = useState(nextSetWeight || '');
   const [seconds, setSeconds] = useState(duration);
-  const [closing, setClosing] = useState(false);
 
   const notifIdRef = useRef(null);
   const intervalRef = useRef(null);
@@ -45,8 +44,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
     }
     hapticsNotification();
     playRestComplete();
-    setClosing(true);
-    setTimeout(() => onComplete(w), 280);
+    onComplete(weight);
   }
 
   useEffect(() => {
@@ -139,17 +137,16 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
 
       {/* Sheet */}
       <div
-        className={`bottom-sheet${closing ? ' closing' : ''}`}
         style={{
           position: 'fixed',
-          bottom: 0,
+          top: 0,
           left: 0,
           right: 0,
           background: 'var(--surface)',
-          borderTop: '1px solid var(--border)',
-          borderRadius: '20px 20px 0 0',
+          borderBottom: '1px solid var(--border)',
+          borderRadius: '0 0 20px 20px',
           zIndex: 120,
-          padding: '0 24px 40px',
+          padding: 'calc(var(--sat, 0px) + 20px) 24px 28px',
           maxWidth: '480px',
           margin: '0 auto',
           display: 'flex',
@@ -157,17 +154,6 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
           alignItems: 'center',
         }}
       >
-        {/* Drag handle — decorative only */}
-        <div
-          style={{
-            width: '40px',
-            height: '4px',
-            background: 'var(--border)',
-            borderRadius: '2px',
-            margin: '12px auto 20px',
-          }}
-        />
-
         {/* Exercise label */}
         <div
           style={{

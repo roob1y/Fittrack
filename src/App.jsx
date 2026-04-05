@@ -14,29 +14,11 @@ export default function App() {
   const [settingsClosing, setSettingsClosing] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarClosing, setCalendarClosing] = useState(false);
-  const [sessionStart, setSessionStart] = useState(null);
-  const [sessionDisplay, setSessionDisplay] = useState('0:00');
 
   const equipment = useStore((s) => s.equipment);
   const programmeStartDate = useStore((s) => s.programmeStartDate);
 
   const weekNum = getCurrentWeek(programmeStartDate);
-
-  // Session timer
-  useEffect(() => {
-    if (!sessionStart) {
-      setSessionDisplay('0:00');
-      return;
-    }
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
-      const hours = Math.floor(elapsed / 3600);
-      const mins = Math.floor((elapsed % 3600) / 60);
-      const secs = String(elapsed % 60).padStart(2, '0');
-      setSessionDisplay(hours > 0 ? `${hours}:${String(mins).padStart(2, '0')}:${secs}` : `${mins}:${secs}`);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [sessionStart]);
 
   // Top-level back button
   useEffect(() => {
@@ -85,7 +67,6 @@ export default function App() {
           <span style={{ color: 'var(--text)' }}>TRACK</span>
         </div>
         <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {sessionStart && (
             <div
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
@@ -93,9 +74,7 @@ export default function App() {
                 color: 'var(--accent)',
               }}
             >
-              {sessionDisplay}
             </div>
-          )}
           <div
             className="week-badge"
             onClick={() => setCalendarOpen(true)}
@@ -149,7 +128,7 @@ export default function App() {
       </div>
 
       <div className="view active">
-        {currentView === 'workouts' && <WorkoutsView onSessionStart={setSessionStart} />}
+        {currentView === 'workouts' && <WorkoutsView />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
       </div>
