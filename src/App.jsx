@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useStore from './store/useStore';
 import WorkoutsView from './components/Workouts/WorkoutsView';
-import CalendarView from './components/Calendar/CalendarView';
 import WeightView from './components/Weight/WeightView';
 import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
@@ -12,8 +11,6 @@ export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsClosing, setSettingsClosing] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [calendarClosing, setCalendarClosing] = useState(false);
 
   const equipment = useStore((s) => s.equipment);
   const programmeStartDate = useStore((s) => s.programmeStartDate);
@@ -27,21 +24,9 @@ export default function App() {
         closeSettings();
         return;
       }
-      if (calendarOpen) {
-        closeCalendar();
-        return;
-      }
     });
     return cleanup;
-  }, [settingsOpen, calendarOpen]);
-
-  function closeCalendar() {
-    setCalendarClosing(true);
-    setTimeout(() => {
-      setCalendarOpen(false);
-      setCalendarClosing(false);
-    }, 280);
-  }
+  }, [settingsOpen]);
 
   function closeSettings() {
     setSettingsClosing(true);
@@ -67,17 +52,15 @@ export default function App() {
           <span style={{ color: 'var(--text)' }}>TRACK</span>
         </div>
         <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '28px',
-                color: 'var(--accent)',
-              }}
-            >
-            </div>
+          <div
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: '28px',
+              color: 'var(--accent)',
+            }}
+          ></div>
           <div
             className="week-badge"
-            onClick={() => setCalendarOpen(true)}
             style={{ cursor: 'pointer', padding: '10px 20px', fontSize: '15px', fontWeight: 600 }}
           >
             Week {weekNum}
@@ -168,45 +151,6 @@ export default function App() {
               }}
             />
             <SettingsView onEquipmentSaved={() => setSettingsOpen(false)} />
-          </div>
-        </>
-      )}
-
-      {/* Calendar bottom sheet */}
-      {calendarOpen && (
-        <>
-          <div
-            onClick={closeCalendar}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 80 }}
-          />
-          <div
-            className={`bottom-sheet${calendarClosing ? ' closing' : ''}`}
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'var(--surface)',
-              borderTop: '1px solid var(--border)',
-              borderRadius: '20px 20px 0 0',
-              zIndex: 90,
-              maxHeight: '85vh',
-              overflowY: 'auto',
-              padding: `0 20px calc(var(--sab, 0px) + 40px)`,
-              maxWidth: '480px',
-              margin: '0 auto',
-            }}
-          >
-            <div
-              style={{
-                width: '40px',
-                height: '4px',
-                background: 'var(--border)',
-                borderRadius: '2px',
-                margin: '12px auto 20px',
-              }}
-            />
-            <CalendarView />
           </div>
         </>
       )}
