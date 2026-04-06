@@ -134,8 +134,8 @@ S
 
 M
 
-- [ ] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
-- [ ] Workout running in background — if a workout has been active for more than 30 minutes notify the user it is still running in the background
+- [x] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
+- [x] Workout running in background — if a workout has been active for more than 30 minutes notify the user it is still running in the background
 
 ---
 
@@ -150,7 +150,7 @@ S
 
 ---
 
-## UX Improvements
+## UX Improvements 1.5
 
 S
 
