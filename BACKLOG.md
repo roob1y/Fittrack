@@ -166,7 +166,7 @@ M
 - [x] Bench press — if no barbell is present in the user's equipment suggest dumbbell bench press as an automatic substitution
 - [x] Timer — move out of the header into a more appropriate position within the workout view
 - [x] Add fanfare sound alongside the confetti on the celebration screen
-- [ ] Exercise card — tapping the card opens a dedicated exercise detail view showing equipment tags, description and any relevant info
+- [x] Exercise card — tapping the card opens a dedicated exercise detail view showing equipment tags, description and any relevant info
 - [ ] Calendar — move into the Progress view, remove slide-up animation, make it fill the full screen within that view. Actually might have a button dedicated to the calendar somewhere else. The calendar isnt neccesary for the user to see perhaps?
 
 L

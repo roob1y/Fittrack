@@ -6,6 +6,7 @@ import WorkoutSummaryScreen from './WorkoutSummaryScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
 import { getCurrentWeek } from '../../utils/week';
+import ExerciseDetailSheet from './ExerciseDetailSheet';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
 
 const THIRTY_MINS = 30 * 60 * 1000;
@@ -103,6 +104,7 @@ function getPrevWeekWeight(setData, weekNum, dayId, ei, si) {
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const setData = useStore((s) => s.setData);
   const saveSetData = useStore((s) => s.saveSetData);
@@ -201,6 +203,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 
   return (
     <div className="exercise-card">
+      {detailOpen && <ExerciseDetailSheet ex={resolvedEx} onClose={() => setDetailOpen(false)} />}{' '}
       <div className="exercise-header" onClick={() => setOpen((o) => !o)}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -258,14 +261,39 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
             {resolvedEx.status === 'alternative' && <span style={{ color: 'var(--accent)' }}> · Substituted</span>}
           </div>
         </div>
-        <div
-          className={`exercise-toggle${open ? ' open' : ''}`}
-          style={{ opacity: resolvedEx.status === 'unavailable' ? 0.3 : 1 }}
-        >
-          +
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setDetailOpen(true);
+            }}
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--muted)',
+              fontSize: '13px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              flexShrink: 0,
+              fontFamily: 'Georgia, serif',
+            }}
+          >
+            i
+          </button>
+          <div
+            className={`exercise-toggle${open ? ' open' : ''}`}
+            style={{ opacity: resolvedEx.status === 'unavailable' ? 0.3 : 1 }}
+          >
+            +
+          </div>
         </div>
       </div>
-
       {open && (
         <div className="sets-table open">
           {barWeight && (
