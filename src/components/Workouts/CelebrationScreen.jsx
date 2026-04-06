@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
+import fanfareSrc from '../../assets/sounds/celebration-fanfare.mp3';
+import popSrc from '../../assets/sounds/pop.mp3';
 
 const MESSAGES = {
   hardcore: [
@@ -298,6 +300,10 @@ export default function CelebrationScreen({ mins, dayFocus, tone, onDismiss }) {
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
+    try {
+      new Audio(fanfareSrc).play();
+      new Audio(popSrc).play();
+    } catch {}
     const auto = setTimeout(onDismiss, 4000);
     return () => clearTimeout(auto);
   }, []);

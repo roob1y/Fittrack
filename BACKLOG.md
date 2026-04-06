@@ -111,6 +111,7 @@
 ## 1.4.3 Quick Fixes & Polish
 
 XS
+
 - [x] Decrease the size of the settings icon
 - [x] Remove visible scrollbar on the right when scrolling (hide via CSS)
 - [x] Fix padding — top and bottom of exercise cards are too big
@@ -123,6 +124,7 @@ XS
 - [x] Confetti on the workout complete screen stops, starts and moves periodically — fix animation to run smoothly and continuously until dismissed
 
 S
+
 - [x] Moving between views — automatically scroll to top on view change
 - [x] Weight view — move the trend graph to the bottom below all other content
 - [x] Tapping anywhere to continue on celebration screen — animate opacity pulsing in and out to hint it's tappable
@@ -131,6 +133,7 @@ S
 - [x] On the last set of the last exercise in a routine hide the rest timer — the user will not need it after the final set
 
 M
+
 - [ ] Background timer — if user leaves the app mid-workout and the timer finishes, fire a local notification with sound alerting them rest is over
 - [ ] Workout running in background — if a workout has been active for more than 30 minutes notify the user it is still running in the background
 
@@ -139,17 +142,18 @@ M
 ## Bug Fixes
 
 S
+
 - [x] Export PDF and CSV not working — investigate and fix
 - [x] Rest screen — Skip and Done Resting do the same thing, remove one, keep Skip only
 - [x] The workouts screen should not be scrollable when the rest timer is on display
 - [x] Personal best indicator should not trigger when the user logs a weight lower than the default — only show PB when a genuine best is achieved
-
 
 ---
 
 ## UX Improvements
 
 S
+
 - [x] Session complete screen — move notes input here, remove it from the main exercise window
 - [x] Previous week session notes — when starting a new week's session the user can see the notes from the same workout the previous week so they know what happened last time
 - [x] Undo workout for the day — if the user wants to remove the day's workout entirely show a warning prompt asking them to confirm before deleting
@@ -157,12 +161,13 @@ S
 - [x] Failure sets — allow the user to log the number of reps reached before failure, stored for progress tracking
 
 M
-- [ ] Rest timer — display at the top of the screen instead of sliding up as a bottom sheet
+
+- [x] Rest timer — display at the top of the screen instead of sliding up as a bottom sheet
+- [x] Bench press — if no barbell is present in the user's equipment suggest dumbbell bench press as an automatic substitution
+- [x] Timer — move out of the header into a more appropriate position within the workout view
+- [x] Add fanfare sound alongside the confetti on the celebration screen
 - [ ] Exercise card — tapping the card opens a dedicated exercise detail view showing equipment tags, description and any relevant info
-- [ ] Add fanfare sound alongside the confetti on the celebration screen
 - [ ] Calendar — move into the Progress view, remove slide-up animation, make it fill the full screen within that view. Actually might have a button dedicated to the calendar somewhere else. The calendar isnt neccesary for the user to see perhaps?
-- [ ] Timer — move out of the header into a more appropriate position within the workout view
-- [ ] Bench press — if no barbell is present in the user's equipment suggest dumbbell bench press as an automatic substitution
 
 L
 
@@ -173,14 +178,16 @@ L
 ## Nav Refactor
 
 L
+
 - [ ] Full bottom navigation refactor. Workouts, Weight and Progress become persistent overlay buttons at the bottom of the screen, matching the NutriTrack navigation pattern for consistency across the ecosystem. This is a full architectural change
 
 ---
 
-## Per-Set Weight Refactor 
+## Per-Set Weight Refactor
 
 L
 [x] Re structure the data model for per set weight logging:
+
 - Full data model refactor to store weight per individual set rather than a single default weight for the whole day
 - Each set in every exercise stores its own kg value independently
 - The default weight pre-populates each set but the user can adjust per set during the session
@@ -192,23 +199,25 @@ L
 
 L
 [ ] Redesign the warmup flow:
+
 - Each warmup exercise becomes its own screen, fast and snappy transitions between them
 - Timed warmups automatically advance to the next screen when complete
 - Each screen shows a simple gif representing the motion
 - Description of the exercise underneath the gif
 - Flow moves automatically through all warmups before the main session begins
 
-
 ---
 
 ## Complex / New Features
 
 L
+
 - [ ] Install an animation library (e.g. Framer Motion or Lottie) to power the celebration screen animations, tappable hint animation, and warmup transitions
 
 - [ ] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
 
 XL
+
 - [ ] Background timer sync — when user is outside the app, timer continues accurately, notification fires on completion with two-beep sound. Requires Capacitor local notifications plugin and background task handling.
 
 ## Future Considerations
