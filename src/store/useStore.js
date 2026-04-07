@@ -92,6 +92,22 @@ const useStore = create(
 
       setWeightUnit: (unit) => set({ weightUnit: unit }),
 
+      convertSetDataUnits: (fromUnit, toUnit) =>
+        set((state) => {
+          const factor = fromUnit === 'kg' && toUnit === 'lbs' ? 2.2046 : 1 / 2.2046;
+          const converted = {};
+          for (const [key, val] of Object.entries(state.setData)) {
+            const w = parseFloat(val.weight);
+            converted[key] = {
+              ...val,
+              weight:
+                val.weight && !isNaN(w)
+                  ? String(Math.round(w * factor * 4) / 4) // round to nearest 0.25
+                  : val.weight,
+            };
+          }
+          return { setData: converted };
+        }),
       setProgrammeStartDate: (date) => set({ programmeStartDate: date }),
 
       setEquipment: (equipment) => set({ equipment }),
