@@ -272,7 +272,7 @@ S
 
 L
 
-- [ ] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
+- [x] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
 
 ---
 
