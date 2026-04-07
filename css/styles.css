@@ -26,6 +26,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -37,7 +42,7 @@ body {
   -ms-overflow-style: none;
   max-width: 480px;
   margin: 0 auto;
-  padding-bottom: calc(var(--sab, 0px) + 80px);
+  height: 100%;
 }
 
 body::-webkit-scrollbar {
