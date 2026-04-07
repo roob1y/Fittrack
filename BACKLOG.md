@@ -175,7 +175,6 @@ L
 
 ---
 
-
 ## Backup Data
 
 M
@@ -202,7 +201,6 @@ L
 - The default weight pre-populates each set but the user can adjust per set during the session
 - The timer screen prompts the user to confirm or adjust the weight for the upcoming set
 
-
 ---
 
 ## Bug Fixes — v1.6
@@ -226,7 +224,7 @@ M
 
 - [x] **Confirm weight applies to all remaining sets** — when the user confirms a new weight on the timer, apply it to every subsequent set of the same exercise, not just the next one.
 - [x] **Next set info footer on timer** — show a small line at the bottom of the rest timer screen: e.g. "Next: 3 × 10 reps". On the final set of an exercise, show the upcoming exercise name instead: e.g. "Next exercise: Romanian Deadlift".
-- [ ] **User-adjustable rest duration** — add a rest time setting in Settings with science-backed presets: 60s (Isolation), 90s (Compound), 120s (Heavy / strength). Current auto-select logic remains the default; this setting overrides it. Could also expose a ± nudge directly on the timer screen.
+- [x] **User-adjustable rest duration** — add a rest time setting in Settings with science-backed presets: 60s (Isolation), 90s (Compound). Current auto-select logic remains the default; this setting overrides it. Could also expose a ± nudge directly on the timer screen.
 
 ---
 
