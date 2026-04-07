@@ -171,7 +171,7 @@ M
 
 L
 
-- [ ] Unit setting — when the user changes the default unit between kg and lbs all default weight values throughout the app must update accordingly. Prompt the user to confirm whether they want to convert existing values.
+- [x] Unit setting — when the user changes the default unit between kg and lbs all default weight values throughout the app must update accordingly. Prompt the user to confirm whether they want to convert existing values.
 
 ---
 
@@ -224,6 +224,8 @@ L
 - [ ] Install an animation library (e.g. Framer Motion or Lottie) to power the celebration screen animations, tappable hint animation, and warmup transitions
 
 - [ ] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
+
+- [ ] Full lbs support polish pass — input-time unit conversion on set weight inputs, unit label on weight input field, plate calculator lbs plate set (45, 35, 25, 10, 5, 2.5), program default weights converted on display. Prerequisite: unit setting (done).
 
 XL
 
