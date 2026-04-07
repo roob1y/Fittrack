@@ -19,6 +19,8 @@ const useStore = create(
       equipment: null,
       quoteTone: 'positive',
       lastSetLoggedAt: null,
+      restDurationOverride: null,
+
 
       // Actions
       setQuoteTone: (tone) => set({ quoteTone: tone }),
@@ -114,6 +116,8 @@ const useStore = create(
 
       setLastSetLoggedAt: (ts) => set({ lastSetLoggedAt: ts }),
 
+      setRestDurationOverride: (overrides) => set({ restDurationOverride: overrides }),
+
       resetAll: () =>
         set({
           completedDays: {},
@@ -129,6 +133,7 @@ const useStore = create(
           programmeStartDate: null,
           equipment: null,
           lastSetLoggedAt: null,
+          restDurationOverride: null,
         }),
     }),
     {
