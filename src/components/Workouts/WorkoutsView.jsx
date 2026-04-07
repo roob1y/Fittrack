@@ -26,8 +26,14 @@ export default function WorkoutsView() {
   // Android back button — navigate within the app, never exit
   useEffect(() => {
     const cleanup = registerBackButton(() => {
-      if (phase === 'warmup' || phase === 'workout') {
-        // Back during warmup or workout → return to week overview
+      if (phase === 'warmup') {
+        // Delegate to warmup's internal back handler
+        if (window.__warmupGoBack) {
+          window.__warmupGoBack();
+        } else {
+          handleBack();
+        }
+      } else if (phase === 'workout') {
         handleBack();
       }
       // On overview, do nothing — back button is swallowed, app stays open
@@ -57,6 +63,7 @@ export default function WorkoutsView() {
           </button>
           <WarmupView
             dayId={currentDayId}
+            onBack={handleBack}
             onStartWorkout={() => {
               setPhase('workout');
               // session timer now handled inside DayDetail
