@@ -69,6 +69,7 @@ export default function WeekOverview({ onSelectDay }) {
             style={{
               background: 'var(--card)',
               border: '1px solid var(--border)',
+              borderLeft: '3px solid var(--accent)',
               borderRadius: 'var(--radius)',
               padding: '16px',
               marginBottom: '16px',
@@ -174,18 +175,25 @@ export default function WeekOverview({ onSelectDay }) {
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <MuscleIcon dayId={day.id} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
-                {PROGRAM.map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '9px',
-                      height: '9px',
-                      borderRadius: '50%',
-                      background: i < Math.round((progress / 100) * PROGRAM.length) ? 'var(--accent)' : 'var(--border)',
-                    }}
-                  />
-                ))}
+              <div
+                style={{
+                  width: '3px',
+                  height: '80px',
+                  background: 'var(--border)',
+                  borderRadius: '2px',
+                  marginTop: '10px',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    height: `${progress}%`,
+                    background: 'var(--accent)',
+                    borderRadius: '2px',
+                    transition: 'height 0.4s ease',
+                  }}
+                />
               </div>
               {done && (
                 <div

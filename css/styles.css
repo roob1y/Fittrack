@@ -26,6 +26,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -37,7 +42,7 @@ body {
   -ms-overflow-style: none;
   max-width: 480px;
   margin: 0 auto;
-  padding-bottom: calc(var(--sab, 0px) + 80px);
+  height: 100%;
 }
 
 body::-webkit-scrollbar {
@@ -201,6 +206,8 @@ header {
   font-size: 14px;
   color: var(--muted);
   font-weight: 500;
+  margin-top: 6px;
+  line-height: 1.6;
 }
 .day-bar {
   height: 3px;
@@ -558,6 +565,11 @@ header {
     gap: 12px;
   }
 }
+
+.motivation-card {
+  border-left: 3px solid var(--accent);
+}
+
 .bottom-sheet {
   transform: translateY(0);
   animation: slideUp 0.3s ease;

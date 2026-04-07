@@ -59,9 +59,7 @@ export default function App() {
               color: 'var(--accent)',
             }}
           ></div>
-          <div className="week-badge" style={{ fontSize: '14px', fontWeight: 600 }}>
-            Week {weekNum}
-          </div>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--muted)' }}>Week {weekNum}</div>
           <button
             onClick={() => setSettingsOpen(true)}
             style={{
@@ -120,7 +118,7 @@ export default function App() {
               zIndex: 90,
               maxHeight: '85vh',
               overflowY: 'auto',
-              padding: `0 20px calc(var(--sab, 0px) + 40px)`,
+              padding: `0 20px calc(var(--sab, 0px))`,
             }}
           >
             <div
