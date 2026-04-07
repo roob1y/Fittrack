@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import useStore from '../../store/useStore';
 import { PROGRAM } from '../../data/program';
 import { WARMUPS } from '../../data/warmups';
@@ -321,12 +322,17 @@ export default function WarmupView({ dayId, onStartWorkout }) {
 
   return (
     <div>
-      <div className="day-header">
+      <motion.div
+        className="day-header"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
         <h2>WARM UP</h2>
         <p>
           {day.focus} · {available.length} movements
         </p>
-      </div>
+      </motion.div>
       {available.map((warmup, wi) =>
         warmup.type === 'timed' ? <TimedCard key={wi} warmup={warmup} /> : <RepsCard key={wi} warmup={warmup} />,
       )}

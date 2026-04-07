@@ -207,7 +207,7 @@ function EquipmentPicker({ onSave }) {
       ))}
 
       {/* Bar weights — only shown if the relevant barbell is selected */}
-      {(selected.includes('Barbell (7ft)') || selected.includes('Barbell (5ft)')) && (
+      {(selected.includes('Barbell')) && (
         <div
           style={{
             background: 'var(--card)',
@@ -232,9 +232,9 @@ function EquipmentPicker({ onSave }) {
             Used to calculate plates on the bar. Set to your actual bar weight.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {selected.includes('Barbell (7ft)') && (
+            {selected.includes('Barbell') && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontSize: '14px', fontWeight: 600 }}>7ft Barbell</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>Barbell</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
                     type="number"
@@ -257,7 +257,7 @@ function EquipmentPicker({ onSave }) {
                 </div>
               </div>
             )}
-            {selected.includes('Barbell (5ft)') && (
+            {selected.includes('Barbell') && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: '14px', fontWeight: 600 }}>5ft Barbell</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
