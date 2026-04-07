@@ -604,4 +604,11 @@ header {
 #root {
   max-width: 480px;
   margin: 0 auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#root::-webkit-scrollbar {
+  display: none;
 }

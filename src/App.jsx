@@ -59,10 +59,7 @@ export default function App() {
               color: 'var(--accent)',
             }}
           ></div>
-          <div
-            className="week-badge"
-            style={{ cursor: 'pointer', padding: '10px 20px', fontSize: '15px', fontWeight: 600 }}
-          >
+          <div className="week-badge" style={{ fontSize: '14px', fontWeight: 600 }}>
             Week {weekNum}
           </div>
           <button
