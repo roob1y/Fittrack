@@ -241,11 +241,34 @@ export default function SettingsView({ onEquipmentSaved }) {
   const quoteTone = useStore((s) => s.quoteTone);
   const setQuoteTone = useStore((s) => s.setQuoteTone);
 
+  const weightUnit = useStore((s) => s.weightUnit);
+  const setWeightUnit = useStore((s) => s.setWeightUnit);
+  const convertSetDataUnits = useStore((s) => s.convertSetDataUnits);
+
   const [editing, setEditing] = useState(!equipment);
   const [showResetModal, setShowResetModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showUnitModal, setShowUnitModal] = useState(false);
+  const [pendingUnit, setPendingUnit] = useState(null);
   const [pendingFile, setPendingFile] = useState(null);
   const state = useStore((s) => s);
+
+  function handleUnitChange(unit) {
+    if (unit === weightUnit) return;
+    setPendingUnit(unit);
+    setShowUnitModal(true);
+  }
+
+  function confirmUnitConvert() {
+    convertSetDataUnits(weightUnit, pendingUnit);
+    setWeightUnit(pendingUnit);
+    setShowUnitModal(false);
+  }
+
+  function confirmUnitKeep() {
+    setWeightUnit(pendingUnit);
+    setShowUnitModal(false);
+  }
 
   function handleFileChosen(e) {
     const file = e.target.files?.[0];
@@ -362,6 +385,37 @@ export default function SettingsView({ onEquipmentSaved }) {
             ))}
           </div>
         </div>
+
+        {/* Units */}
+        <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Weight Unit</div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '14px' }}>
+            Used across workouts, weight log and exports
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {['kg', 'lbs'].map((u) => (
+              <button
+                key={u}
+                onClick={() => handleUnitChange(u)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: 'var(--radius)',
+                  border: `1px solid ${weightUnit === u ? 'var(--accent)' : 'var(--border)'}`,
+                  background: weightUnit === u ? 'var(--accent)' : 'var(--card)',
+                  color: weightUnit === u ? '#0d0d0f' : 'var(--muted)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {u}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Backup & Restore */}
         <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
           <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Backup & Restore</div>
@@ -469,6 +523,91 @@ export default function SettingsView({ onEquipmentSaved }) {
           <div style={{ color: 'var(--red)', fontSize: '18px' }}>›</div>
         </div>
       </div>
+
+      {showUnitModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.7)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              padding: '24px',
+              maxWidth: '320px',
+              width: '100%',
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '17px', marginBottom: '10px' }}>Switch to {pendingUnit}?</div>
+            <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '20px' }}>
+              Do you want to convert your existing logged set weights to {pendingUnit}? Your body weight log is
+              unaffected.
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={confirmUnitConvert}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'var(--accent)',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#0d0d0f',
+                  cursor: 'pointer',
+                }}
+              >
+                Convert existing weights
+              </button>
+              <button
+                onClick={confirmUnitKeep}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                }}
+              >
+                Keep values as-is
+              </button>
+              <button
+                onClick={() => setShowUnitModal(false)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'none',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--muted)',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showImportModal && (
         <div

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { hapticsNotification } from '../../hooks/useHaptics';
 import { playRestComplete } from '../../hooks/useSound';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
+import useStore from '../../store/useStore';
 
 const COMPOUND_NAMES = [
   'Deadlifts',
@@ -24,6 +25,7 @@ export function getRestDuration(exerciseName) {
 }
 
 export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetWeight, onComplete, onSkip }) {
+  const weightUnit = useStore((s) => s.weightUnit);
   const [weight, setWeight] = useState(nextSetWeight || '');
   const [seconds, setSeconds] = useState(duration);
 
@@ -238,7 +240,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
                 marginBottom: '6px',
               }}
             >
-              NEXT SET WEIGHT (KG)
+              NEXT SET WEIGHT ({weightUnit.toUpperCase()})
             </div>
             <input
               type="number"
