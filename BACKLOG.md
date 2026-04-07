@@ -202,6 +202,48 @@ L
 - The default weight pre-populates each set but the user can adjust per set during the session
 - The timer screen prompts the user to confirm or adjust the weight for the upcoming set
 
+
+---
+
+## Bug Fixes — v1.6
+
+S
+
+- [ ] **Timer weight not updating after expiry** — if the user edits the weight input and the timer runs out before confirming, the new value is not saved. The auto-complete handler must read current input state, not the initial `nextSetWeight` prop.
+- [ ] **Info sheet scrolls behind overlay** — body scroll is not locked while the exercise info sheet is open. Apply the same `overflow: hidden` / `position: fixed` pattern used in `RestTimer`.
+- [ ] **"Few days" nudge persists after workout complete** — streak nudge does not dismiss once today's workout is marked done. Clear it as soon as today's key exists in `completedDays`.
+
+---
+
+## Timer Improvements
+
+S
+
+- [ ] **Countdown beeps for 3–2–1** — play a short distinct beep at 3, 2, and 1 seconds remaining, separate from the rest-complete sound.
+- [ ] **Suppress weight input on final rest timer** — the next-set weight input must not appear on the last set of the last exercise. Apply the same guard already used to suppress the timer itself.
+
+M
+
+- [ ] **Confirm weight applies to all remaining sets** — when the user confirms a new weight on the timer, apply it to every subsequent set of the same exercise, not just the next one.
+- [ ] **Next set info footer on timer** — show a small line at the bottom of the rest timer screen: e.g. "Next: 3 × 10 reps". On the final set of an exercise, show the upcoming exercise name instead: e.g. "Next exercise: Romanian Deadlift".
+- [ ] **User-adjustable rest duration** — add a rest time setting in Settings with science-backed presets: 60s (Isolation), 90s (Compound), 120s (Heavy / strength). Current auto-select logic remains the default; this setting overrides it. Could also expose a ± nudge directly on the timer screen.
+
+---
+
+## Notes
+
+M
+
+- [ ] **Per-exercise notes as collapsible dropdown** — replace the current notes UX with an inline collapsible "📝 Add note" row per exercise card. Session-level notes remain on the workout summary screen as a general catch-all.
+
+---
+
+## Play Store Defaults
+
+S
+
+- [ ] **Beginner-friendly default barbell weights** — personal bar weights (10 kg / 7.5 kg) are not suitable as app-wide defaults. Set standard defaults (e.g. 20 kg Olympic bar / 15 kg EZ bar) or prompt the user to enter bar weights during onboarding. No legal issue — a standard "consult a physician" disclaimer in onboarding satisfies Play Store health app requirements. Revisit alongside the onboarding flow.
+
 ---
 
 ## Warmup Refactor
