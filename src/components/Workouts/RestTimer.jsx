@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { hapticsNotification } from '../../hooks/useHaptics';
-import { playRestComplete } from '../../hooks/useSound';
+import { playRestComplete, playCountdownBeep } from '../../hooks/useSound';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
 import useStore from '../../store/useStore';
 
@@ -18,13 +18,13 @@ const COMPOUND_NAMES = [
   'Bulgarian Split Squats',
 ];
 
-export function getRestDuration(exerciseName) {
-  if (!exerciseName) return 60;
+export function getRestDuration(exerciseName, overrides) {
+  if (!exerciseName) return overrides?.accessory ?? 60;
   const isCompound = COMPOUND_NAMES.some((name) => exerciseName.toLowerCase().includes(name.toLowerCase()));
-  return isCompound ? 90 : 60;
+  if (isCompound) return overrides?.compound ?? 90;
+  return overrides?.accessory ?? 60;
 }
 
-// REPLACE the component signature
 export default function RestTimer({
   exerciseName,
   duration,
@@ -100,9 +100,17 @@ export default function RestTimer({
         }
       }
     }
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+
+  // Countdown beeps at 3, 2, 1
+  useEffect(() => {
+    if (seconds === 3 || seconds === 2 || seconds === 1) {
+      playCountdownBeep(seconds);
+    }
+  }, [seconds]);
 
   // Schedule / cancel background rest notification based on app visibility
   useEffect(() => {
@@ -313,8 +321,7 @@ export default function RestTimer({
               : `NEXT EXERCISE · ${nextSetInfo.name.toUpperCase()}`}
           </div>
         )}
-      </div>{' '}
-      {/* end sheet */}
+      </div>
     </>
   );
 }

@@ -32,7 +32,19 @@ function playBeep(ctx, startTime, frequency = 880, duration = 0.12, volume = 0.4
   oscillator.start(startTime);
   oscillator.stop(startTime + duration);
 }
+export function playCountdownBeep(n) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
 
+  try {
+    const now = ctx.currentTime;
+    // 3 = low, 2 = mid, 1 = high — anticipation builds
+    const freq = n === 1 ? 660 : n === 2 ? 520 : 440;
+    playBeep(ctx, now, freq, 0.1, 0.3);
+  } catch {
+    // silently ignore
+  }
+}
 // Two quick beeps — rest timer complete
 export function playRestComplete() {
   const ctx = getAudioContext();
