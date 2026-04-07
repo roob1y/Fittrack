@@ -72,10 +72,9 @@ export default function WorkoutSummaryScreen({ dayId, weekNum, mins, noteKey, on
         transition: 'opacity 0.3s ease, transform 0.3s ease',
       }}
     >
-      {/* Centred content — matches app max width */}
       <div
         style={{
-          maxWidth: '620px',
+          maxWidth: '480px',
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
