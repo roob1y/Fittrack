@@ -188,7 +188,7 @@ M
 
 L
 
-- [ ] Full bottom navigation refactor. Workouts, Weight and Progress become persistent overlay buttons at the bottom of the screen, matching the NutriTrack navigation pattern for consistency across the ecosystem. This is a full architectural change
+- [x] Full bottom navigation refactor. Workouts, Weight and Progress become persistent overlay buttons at the bottom of the screen, matching the NutriTrack navigation pattern for consistency across the ecosystem. This is a full architectural change
 
 ---
 
