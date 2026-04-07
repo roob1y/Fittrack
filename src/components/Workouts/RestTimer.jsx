@@ -35,6 +35,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
   // Record wall-clock start time so we can resync after backgrounding
   const startTimeRef = useRef(Date.now());
   const completedRef = useRef(false);
+  const weightRef = useRef(nextSetWeight || '');
 
   function handleComplete() {
     if (completedRef.current) return;
@@ -46,7 +47,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
     }
     hapticsNotification();
     playRestComplete();
-    onComplete(weight);
+    onComplete(weightRef.current);
   }
 
   useEffect(() => {
@@ -246,7 +247,10 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
               type="number"
               inputMode="decimal"
               value={weight}
-              onChange={(e) => setWeight(e.target.value)}
+              onChange={(e) => {
+                setWeight(e.target.value);
+                weightRef.current = e.target.value;
+              }}
               style={{
                 width: '100%',
                 padding: '12px',
