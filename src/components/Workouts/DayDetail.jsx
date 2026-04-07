@@ -379,6 +379,7 @@ export default function DayDetail({ dayId, onBack }) {
   const saveSessionTime = useStore((s) => s.saveSessionTime);
   const quoteTone = useStore((s) => s.quoteTone);
   const setLastSetLoggedAt = useStore((s) => s.setLastSetLoggedAt);
+  const restDurationOverride = useStore((s) => s.restDurationOverride);
   const saveSetData = useStore((s) => s.saveSetData);
   const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
   const notes = useStore((s) => s.notes);
@@ -470,7 +471,7 @@ export default function DayDetail({ dayId, onBack }) {
     const lastExIdx = day.exercises.length - 1;
     const isLastSet = ei === lastExIdx && si === day.exercises[lastExIdx].sets - 1;
     if (!isLastSet) {
-      const duration = getRestDuration(exerciseName);
+      const duration = getRestDuration(exerciseName, restDurationOverride);
 
       // Work out next set info for the footer
       const currentEx = day.exercises[ei];

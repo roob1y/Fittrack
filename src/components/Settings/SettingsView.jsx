@@ -235,6 +235,8 @@ function EquipmentPicker({ onSave }) {
 }
 
 export default function SettingsView({ onEquipmentSaved }) {
+  const restDurationOverride = useStore((s) => s.restDurationOverride);
+  const setRestDurationOverride = useStore((s) => s.setRestDurationOverride);
   const equipment = useStore((s) => s.equipment);
   const setEquipment = useStore((s) => s.setEquipment);
   const resetAll = useStore((s) => s.resetAll);
@@ -414,6 +416,100 @@ export default function SettingsView({ onEquipmentSaved }) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Rest Duration */}
+        <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+          <div
+            style={{
+              fontWeight: 600,
+              fontSize: '15px',
+              marginBottom: '10px',
+            }}
+          >
+            Rest Duration
+          </div>
+          {[
+            { label: 'Compound lifts', key: 'compound', default: 90 },
+            { label: 'Isolation exercises', key: 'accessory', default: 60 },
+          ].map(({ label, key, default: def }) => {
+            const current = restDurationOverride?.[key] ?? def;
+            return (
+              <div
+                key={key}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '14px 16px',
+                  background: 'var(--surface)',
+                  borderRadius: 'var(--radius)',
+                  border: '1px solid var(--border)',
+                  marginBottom: '10px',
+                }}
+              >
+                <div style={{ fontSize: '15px', fontWeight: 600 }}>{label}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button
+                    onClick={() =>
+                      setRestDurationOverride({
+                        ...(restDurationOverride ?? { compound: 90, accessory: 60 }),
+                        [key]: Math.max(30, current - 10),
+                      })
+                    }
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface2)',
+                      color: 'var(--text)',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    −
+                  </button>
+                  <div
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: '20px',
+                      minWidth: '48px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {current}s
+                  </div>
+                  <button
+                    onClick={() =>
+                      setRestDurationOverride({
+                        ...(restDurationOverride ?? { compound: 90, accessory: 60 }),
+                        [key]: Math.min(300, current + 10),
+                      })
+                    }
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface2)',
+                      color: 'var(--text)',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Backup & Restore */}
