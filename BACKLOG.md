@@ -249,7 +249,8 @@ S
 ## Warmup Refactor
 
 L
-[ ] Redesign the warmup flow:
+
+[x] Redesign the warmup flow:
 
 - Each warmup exercise becomes its own screen, fast and snappy transitions between them
 - Timed warmups automatically advance to the next screen when complete
@@ -259,11 +260,17 @@ L
 
 ---
 
+## Install Animation Library
+
+S
+
+- [x] Install an animation library (e.g. Framer Motion or Lottie) to power the celebration screen animations, tappable hint animation, and warmup transitions
+
+---
+
 ## Complex / New Features
 
 L
-
-- [ ] Install an animation library (e.g. Framer Motion or Lottie) to power the celebration screen animations, tappable hint animation, and warmup transitions
 
 - [ ] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
 
