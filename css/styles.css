@@ -37,7 +37,7 @@ body {
   -ms-overflow-style: none;
   max-width: 480px;
   margin: 0 auto;
-  padding-bottom: calc(var(--sab, 0px) + 16px);
+  padding-bottom: calc(var(--sab, 0px) + 80px);
 }
 
 body::-webkit-scrollbar {
@@ -79,31 +79,61 @@ header {
   font-weight: 500;
 }
 
-/* ── Nav tabs ── */
-.nav {
-  display: flex;
-  padding: 16px 20px 0;
-  gap: 6px;
+/* ── Bottom navigation ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: stretch;
+  background: rgba(13, 13, 15, 0.92);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding-bottom: var(--sab, 0px);
+  z-index: 60;
 }
-.nav-btn {
+.bottom-nav-btn {
   flex: 1;
-  padding: 10px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  background: none;
+  border: none;
   color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.5px;
+  transition: color 0.2s;
+  position: relative;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
-.nav-btn.active {
+.bottom-nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
   background: var(--accent);
-  color: #0d0d0f;
-  border-color: var(--accent);
+  border-radius: 0 0 2px 2px;
+  transform: scaleX(0);
+  transition: transform 0.2s;
+}
+.bottom-nav-btn.active {
+  color: var(--accent);
+}
+.bottom-nav-btn.active::before {
+  transform: scaleX(1);
+}
+.bottom-nav-btn:active {
+  opacity: 0.7;
 }
 
 /* ── Views ── */
@@ -467,7 +497,10 @@ header {
     font-size: 20px;
     max-width: 620px;
   }
-
+  .bottom-nav-btn {
+    font-size: 13px;
+    padding: 12px 8px;
+  }
   .logo {
     font-size: 42px;
   }
@@ -534,22 +567,24 @@ header {
   animation: slideDown 0.28s ease forwards;
 }
 
-@keyframes slideDown {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
-  }
-}
 @keyframes slideUp {
   from {
-    transform: translateY(100%);
+    transform: translateX(-50%) translateY(100%);
   }
   to {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 }
+
+@keyframes slideDown {
+  from {
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    transform: translateX(-50%) translateY(100%);
+  }
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --bg: #f5f0eb;
@@ -564,4 +599,9 @@ header {
   header {
     background: rgba(245, 240, 235, 0.92);
   }
+}
+
+#root {
+  max-width: 480px;
+  margin: 0 auto;
 }
