@@ -351,7 +351,6 @@ export default function DayDetail({ dayId, onBack }) {
   const [celebMins, setCelebMins] = useState(0);
   const [restTimer, setRestTimer] = useState(null);
   const [prevNoteOpen, setPrevNoteOpen] = useState(false);
-  const [showUndoModal, setShowUndoModal] = useState(false);
   const [sessionDisplay, setSessionDisplay] = useState('0:00');
 
   const workoutNotifIdRef = useRef(null);
@@ -524,85 +523,7 @@ export default function DayDetail({ dayId, onBack }) {
           }}
         />
       )}
-      {/* Undo workout modal */}
-      {showUndoModal && (
-        <div
-          onClick={() => setShowUndoModal(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            zIndex: 300,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '24px',
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              padding: '24px',
-              width: '100%',
-              maxWidth: '360px',
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '22px',
-                letterSpacing: '1px',
-                marginBottom: '8px',
-              }}
-            >
-              UNDO WORKOUT?
-            </div>
-            <p style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '24px' }}>
-              This will remove today's completed workout. Your set data will remain.
-            </p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={() => setShowUndoModal(false)}
-                style={{
-                  flex: 1,
-                  padding: '14px',
-                  background: 'none',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius)',
-                  color: 'var(--text)',
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                }}
-              >
-                CANCEL
-              </button>
-              <button
-                onClick={() => {
-                  removeCompletedDay(key);
-                  setShowUndoModal(false);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '14px',
-                  background: 'var(--red)',
-                  border: 'none',
-                  borderRadius: 'var(--radius)',
-                  color: '#fff',
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                }}
-              >
-                UNDO
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
       {restTimer && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 110 }} onTouchMove={(e) => e.preventDefault()} />{' '}
@@ -693,26 +614,6 @@ export default function DayDetail({ dayId, onBack }) {
       <button className="save-day-btn" onClick={handleComplete}>
         {isDone ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE'}
       </button>
-      {isDone && (
-        <button
-          onClick={() => setShowUndoModal(true)}
-          style={{
-            width: '100%',
-            marginTop: '8px',
-            padding: '12px',
-            background: 'none',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            color: 'var(--muted)',
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: '16px',
-            letterSpacing: '1px',
-            cursor: 'pointer',
-          }}
-        >
-          UNDO WORKOUT
-        </button>
-      )}
       {!isDone && (
         <button
           className={`skip-day-btn${isSkipped ? ' skipped' : ''}`}
