@@ -107,7 +107,7 @@ export default function WeekOverview({ onSelectDay }) {
             break;
           }
         }
-        if (!daysSinceLastWorkout || daysSinceLastWorkout < 2) return null;
+        if (!daysSinceLastWorkout || daysSinceLastWorkout < 2 || trainedToday) return null;
         const nudges = {
           hardcore: `${daysSinceLastWorkout} days without training. Weakness is a choice. Make a different one.`,
           positive: `It's been ${daysSinceLastWorkout} days — no worries, today is a great day to get back at it!`,

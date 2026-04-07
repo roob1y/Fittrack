@@ -24,7 +24,17 @@ export function getRestDuration(exerciseName) {
   return isCompound ? 90 : 60;
 }
 
-export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetWeight, onComplete, onSkip }) {
+// REPLACE the component signature
+export default function RestTimer({
+  exerciseName,
+  duration,
+  nextSetKey,
+  nextSetWeight,
+  isLastSet,
+  nextSetInfo,
+  onComplete,
+  onSkip,
+}) {
   const weightUnit = useStore((s) => s.weightUnit);
   const [weight, setWeight] = useState(nextSetWeight || '');
   const [seconds, setSeconds] = useState(duration);
@@ -35,6 +45,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
   // Record wall-clock start time so we can resync after backgrounding
   const startTimeRef = useRef(Date.now());
   const completedRef = useRef(false);
+  const weightRef = useRef(nextSetWeight || '');
 
   function handleComplete() {
     if (completedRef.current) return;
@@ -46,7 +57,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
     }
     hapticsNotification();
     playRestComplete();
-    onComplete(weight);
+    onComplete(weightRef.current);
   }
 
   useEffect(() => {
@@ -136,7 +147,6 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
           zIndex: 110,
         }}
       />
-
       {/* Sheet */}
       <div
         style={{
@@ -229,7 +239,7 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
           {duration === 90 ? 'Compound · 90s rest' : 'Isolation · 60s rest'}
         </div>
 
-        {nextSetKey && (
+        {nextSetKey && !isLastSet && (
           <div style={{ width: '100%', marginBottom: '16px' }}>
             <div
               style={{
@@ -240,13 +250,16 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
                 marginBottom: '6px',
               }}
             >
-              NEXT SET WEIGHT ({weightUnit.toUpperCase()})
+              NEXT SET WEIGHT (KG)
             </div>
             <input
               type="number"
               inputMode="decimal"
               value={weight}
-              onChange={(e) => setWeight(e.target.value)}
+              onChange={(e) => {
+                setWeight(e.target.value);
+                weightRef.current = e.target.value;
+              }}
               style={{
                 width: '100%',
                 padding: '12px',
@@ -283,7 +296,25 @@ export default function RestTimer({ exerciseName, duration, nextSetKey, nextSetW
             DONE RESTING
           </button>
         </div>
-      </div>
+
+        {/* Next set info footer */}
+        {nextSetInfo && (
+          <div
+            style={{
+              marginTop: '20px',
+              fontSize: '12px',
+              color: 'var(--muted)',
+              textAlign: 'center',
+              letterSpacing: '0.3px',
+            }}
+          >
+            {nextSetInfo.type === 'set'
+              ? `NEXT · SET ${nextSetInfo.setNum} OF ${nextSetInfo.totalSets} · ${nextSetInfo.reps} REPS`
+              : `NEXT EXERCISE · ${nextSetInfo.name.toUpperCase()}`}
+          </div>
+        )}
+      </div>{' '}
+      {/* end sheet */}
     </>
   );
 }

@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function ExerciseDetailSheet({ ex, onClose }) {
-  const resolvedName = ex.superset
-    ? `${ex.name} + ${ex.superset.name}`
-    : ex.name;
+  const resolvedName = ex.superset ? `${ex.name} + ${ex.superset.name}` : ex.name;
 
-  const allEquipment = [
-    ...(ex.equipment || []),
-    ...(ex.superset?.equipment || []),
-  ].filter((v, i, a) => a.indexOf(v) === i);
+  const allEquipment = [...(ex.equipment || []), ...(ex.superset?.equipment || [])].filter(
+    (v, i, a) => a.indexOf(v) === i,
+  );
+
+  // ADD this inside the component, before the return
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, []);
 
   return (
     <>
@@ -137,9 +146,7 @@ export default function ExerciseDetailSheet({ ex, onClose }) {
                   >
                     {i + 1}
                   </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text)', lineHeight: 1.6 }}>
-                    {step}
-                  </div>
+                  <div style={{ fontSize: '14px', color: 'var(--text)', lineHeight: 1.6 }}>{step}</div>
                 </div>
               ))}
             </div>
