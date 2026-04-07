@@ -178,10 +178,11 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
           showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg × ${reps}`);
         }
       }
+      const currentSetWeight = useStore.getState().setData[`week${weekNum}_${dayId}_${ei}_${si}`]?.weight;
       onSetTicked(
         resolvedEx.name,
         `week${weekNum}_${dayId}_${ei}_${si + 1}`,
-        getPrevWeekWeight(setData, weekNum, dayId, ei, si + 1) || resolvedEx.defaultWeight || '',
+        currentSetWeight || getPrevWeekWeight(setData, weekNum, dayId, ei, si + 1) || resolvedEx.defaultWeight || '',
         ei,
         si,
       );
@@ -311,15 +312,16 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
             const key = `week${weekNum}_${dayId}_${ei}_${si}`;
             const saved = setData[key] || {};
             const enteredWeight = parseFloat(saved.weight);
-            const totalWeight = barWeight && enteredWeight ? enteredWeight : null;
-            const plates = barWeight && enteredWeight ? calculatePlates(enteredWeight, barWeight) : null;
-            const prevWeight = si > 0 ? parseFloat(setData[`week${weekNum}_${dayId}_${ei}_${si - 1}`]?.weight) : null;
+            const validWeight = isFinite(enteredWeight) && enteredWeight > 0;
+            const totalWeight = barWeight && validWeight ? enteredWeight : null;
+            const plates = barWeight && validWeight ? calculatePlates(enteredWeight, barWeight) : null;
+            const prevWeight =
+              si > 0 ? parseFloat(setData[`week${weekNum}_${dayId}_${ei}_${si - 1}`]?.weight) || null : null;
             const isLastFilledSet = repsArr
               .slice(si + 1)
               .every((_, offset) => !parseFloat(setData[`week${weekNum}_${dayId}_${ei}_${si + 1 + offset}`]?.weight));
             const weightChanged = prevWeight && Math.abs(prevWeight - enteredWeight) > 0.01;
-            const showPlates = barWeight && enteredWeight > 0 && (isLastFilledSet || weightChanged);
-
+            const showPlates = barWeight && validWeight && (isLastFilledSet || weightChanged);
             return (
               <div key={si}>
                 <div className="set-row">
@@ -466,10 +468,35 @@ export default function DayDetail({ dayId, onBack }) {
   function handleSetTicked(exerciseName, nextKey, prevWeight, ei, si) {
     setLastSetLoggedAt(Date.now());
     const lastExIdx = day.exercises.length - 1;
-    const isLast = ei === lastExIdx && si === day.exercises[lastExIdx].sets - 1;
-    if (!isLast) {
+    const isLastSet = ei === lastExIdx && si === day.exercises[lastExIdx].sets - 1;
+    if (!isLastSet) {
       const duration = getRestDuration(exerciseName);
-      setRestTimer({ exerciseName, duration, nextSetKey: nextKey, nextSetWeight: prevWeight });
+
+      // Work out next set info for the footer
+      const currentEx = day.exercises[ei];
+      const isLastSetOfExercise = si === currentEx.sets - 1;
+      let nextSetInfo;
+      if (isLastSetOfExercise) {
+        // Final set of this exercise — show next exercise name
+        const nextEx = day.exercises[ei + 1];
+        nextSetInfo = nextEx ? { type: 'exercise', name: nextEx.name } : null;
+      } else {
+        // More sets in this exercise — show set number and reps
+        const repsArr = currentEx.reps.split('/');
+        const nextRepTarget = repsArr[si + 1] || repsArr[repsArr.length - 1];
+        nextSetInfo = { type: 'set', setNum: si + 2, reps: nextRepTarget, totalSets: currentEx.sets };
+      }
+
+      setRestTimer({
+        exerciseName,
+        duration,
+        nextSetKey: nextKey,
+        nextSetWeight: prevWeight,
+        isLastSet: isLastSetOfExercise,
+        nextSetInfo,
+        exerciseIdx: ei,
+        setIdx: si,
+      });
     }
   }
 
@@ -523,7 +550,6 @@ export default function DayDetail({ dayId, onBack }) {
           }}
         />
       )}
-
       {showSummary && (
         <WorkoutSummaryScreen
           dayId={dayId}
@@ -536,7 +562,6 @@ export default function DayDetail({ dayId, onBack }) {
           }}
         />
       )}
-
       {/* Undo workout modal */}
       {showUndoModal && (
         <div
@@ -616,7 +641,6 @@ export default function DayDetail({ dayId, onBack }) {
           </div>
         </div>
       )}
-
       {restTimer && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 110 }} onTouchMove={(e) => e.preventDefault()} />{' '}
@@ -625,8 +649,18 @@ export default function DayDetail({ dayId, onBack }) {
             duration={restTimer.duration}
             nextSetKey={restTimer.nextSetKey}
             nextSetWeight={restTimer.nextSetWeight}
+            isLastSet={restTimer.isLastSet}
+            nextSetInfo={restTimer.nextSetInfo}
             onComplete={(weight) => {
-              if (weight && restTimer.nextSetKey) saveSetData(restTimer.nextSetKey, 'weight', weight);
+              if (weight && restTimer.nextSetKey) {
+                // Apply confirmed weight to all remaining sets of this exercise
+                const ex = day.exercises[restTimer.exerciseIdx];
+                const startSi = restTimer.setIdx + 1;
+                for (let s = startSi; s < ex.sets; s++) {
+                  const k = `week${weekNum}_${dayId}_${restTimer.exerciseIdx}_${s}`;
+                  saveSetData(k, 'weight', weight);
+                }
+              }
               setRestTimer(null);
             }}
             onSkip={(weight) => {
@@ -636,7 +670,6 @@ export default function DayDetail({ dayId, onBack }) {
           />
         </>
       )}
-
       <div className="day-header">
         <h2>{day.focus.toUpperCase()}</h2>
         <p>
@@ -666,7 +699,6 @@ export default function DayDetail({ dayId, onBack }) {
           )}
         </div>
       </div>
-
       {/* Previous week notes */}
       {weekNum > 1 && notes[`week${weekNum - 1}_${dayId}`] && (
         <div
@@ -693,11 +725,9 @@ export default function DayDetail({ dayId, onBack }) {
           )}
         </div>
       )}
-
       {day.exercises.map((ex, ei) => (
         <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} />
       ))}
-
       <button className="save-day-btn" onClick={handleComplete}>
         {isDone ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE'}
       </button>
