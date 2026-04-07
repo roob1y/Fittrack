@@ -11,79 +11,6 @@ import { scheduleLocalNotification, cancelLocalNotification } from '../../plugin
 
 const THIRTY_MINS = 30 * 60 * 1000;
 
-// Available plate sizes in kg — largest first for greedy algorithm
-const PLATES = [20, 15, 10, 7.5, 5, 2.5, 1.25];
-
-/**
- * Given a total weight and bar weight, returns an array of plates per side.
- * Returns null if the weight is not achievable.
- */
-function calculatePlates(totalWeight, barWeight) {
-  const totalPlateWeight = totalWeight - barWeight;
-  if (totalPlateWeight < 0) return null;
-  if (totalPlateWeight === 0) return [];
-
-  const perSide = totalPlateWeight / 2;
-  // Check it's divisible into two equal sides cleanly
-  if (Math.abs(perSide * 2 - totalPlateWeight) > 0.01) return null;
-
-  let remaining = Math.round(perSide * 100) / 100;
-  const result = [];
-
-  for (const plate of PLATES) {
-    while (remaining >= plate - 0.001) {
-      result.push(plate);
-      remaining = Math.round((remaining - plate) * 100) / 100;
-    }
-  }
-
-  if (remaining > 0.01) return null; // not achievable
-  return result;
-}
-
-function PlateDisplay({ plates }) {
-  if (!plates) return null;
-  if (plates.length === 0) {
-    return <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>Bar only</div>;
-  }
-
-  // Group plates: e.g. [20, 20, 5] → "20 × 2 + 5 × 1"
-  const grouped = [];
-  for (const plate of plates) {
-    const last = grouped[grouped.length - 1];
-    if (last && last.weight === plate) {
-      last.count++;
-    } else {
-      grouped.push({ weight: plate, count: 1 });
-    }
-  }
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '5px', flexWrap: 'wrap' }}>
-      <span style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.5px' }}>PER SIDE</span>
-      {grouped.map(({ weight, count }, i) => (
-        <React.Fragment key={i}>
-          {i > 0 && <span style={{ fontSize: '10px', color: 'var(--muted)' }}>+</span>}
-          <div
-            style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              padding: '2px 7px',
-              fontSize: '11px',
-              fontWeight: 700,
-              color: 'var(--accent)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {weight}kg{count > 1 ? ` ×${count}` : ''}
-          </div>
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
 function useToast() {
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -118,7 +45,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 
   const resolvedEx = resolveExercise(ex);
   const repsArr = buildRepsArray(resolvedEx);
-  const barWeight = getBarWeight(resolvedEx);
   const hasPB = !!pbsAchieved[resolvedEx.name];
 
   function hasEquipment(required) {
@@ -132,12 +58,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
       return { ...ex, name: ex.alternative.name, status: 'alternative' };
     }
     return { ...ex, status: 'unavailable' };
-  }
-
-  function getBarWeight(ex) {
-    if (ex.equipment?.includes('Barbell (7ft)')) return 10;
-    if (ex.equipment?.includes('Barbell (5ft)')) return 7.5;
-    return null;
   }
 
   function buildRepsArray(ex) {
@@ -300,11 +220,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
       </div>
       {open && (
         <div className="sets-table open">
-          {barWeight && (
-            <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '8px' }}>
-              🏋️ Includes {barWeight}kg bar weight
-            </div>
-          )}
           <div className="col-header">
             <span>SET</span>
             <span>REPS</span>
@@ -314,17 +229,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
           {repsArr.map((rep, si) => {
             const key = `week${weekNum}_${dayId}_${ei}_${si}`;
             const saved = setData[key] || {};
-            const enteredWeight = parseFloat(saved.weight);
-            const validWeight = isFinite(enteredWeight) && enteredWeight > 0;
-            const totalWeight = barWeight && validWeight ? enteredWeight : null;
-            const plates = barWeight && validWeight ? calculatePlates(enteredWeight, barWeight) : null;
-            const prevWeight =
-              si > 0 ? parseFloat(setData[`week${weekNum}_${dayId}_${ei}_${si - 1}`]?.weight) || null : null;
-            const isLastFilledSet = repsArr
-              .slice(si + 1)
-              .every((_, offset) => !parseFloat(setData[`week${weekNum}_${dayId}_${ei}_${si + 1 + offset}`]?.weight));
-            const weightChanged = prevWeight && Math.abs(prevWeight - enteredWeight) > 0.01;
-            const showPlates = barWeight && validWeight && (isLastFilledSet || weightChanged);
+
             return (
               <div key={si}>
                 <div className="set-row">
@@ -349,18 +254,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
                     ✓
                   </button>
                 </div>
-                {/* Plate calculator — only shown for barbell exercises with a weight entered */}
-                {showPlates && (
-                  <div style={{ paddingLeft: '48px', paddingBottom: '8px', display: 'flex', justifyContent: 'right' }}>
-                    {plates ? (
-                      <PlateDisplay plates={plates} />
-                    ) : (
-                      <div style={{ fontSize: '11px', color: 'var(--red)', marginTop: '4px' }}>
-                        Not achievable with your plates
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })}
