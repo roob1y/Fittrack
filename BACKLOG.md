@@ -238,11 +238,11 @@ M
 
 ---
 
-## Play Store Defaults
+## Play Store Defaults - USER CAN NO LONGER SET BARBELL WEIGHT
 
 S
 
-- [ ] **Beginner-friendly default barbell weights** — personal bar weights (10 kg / 7.5 kg) are not suitable as app-wide defaults. Set standard defaults (e.g. 20 kg Olympic bar / 15 kg EZ bar) or prompt the user to enter bar weights during onboarding. No legal issue — a standard "consult a physician" disclaimer in onboarding satisfies Play Store health app requirements. Revisit alongside the onboarding flow.
+- [x] **Beginner-friendly default barbell weights** — personal bar weights (10 kg / 7.5 kg) are not suitable as app-wide defaults. Set standard defaults (e.g. 20 kg Olympic bar / 15 kg EZ bar) or prompt the user to enter bar weights during onboarding. No legal issue — a standard "consult a physician" disclaimer in onboarding satisfies Play Store health app requirements. Revisit alongside the onboarding flow.
 
 ---
 
