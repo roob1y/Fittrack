@@ -206,6 +206,8 @@ header {
   font-size: 14px;
   color: var(--muted);
   font-weight: 500;
+  margin-top: 6px;
+  line-height: 1.6;
 }
 .day-bar {
   height: 3px;
@@ -563,6 +565,11 @@ header {
     gap: 12px;
   }
 }
+
+.motivation-card {
+  border-left: 3px solid var(--accent);
+}
+
 .bottom-sheet {
   transform: translateY(0);
   animation: slideUp 0.3s ease;
