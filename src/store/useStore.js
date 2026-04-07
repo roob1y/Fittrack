@@ -21,6 +21,10 @@ const useStore = create(
       quoteTone: 'positive',
       lastSetLoggedAt: null,
       restDurationOverride: null,
+      measurementLog: {},
+      measurementUnit: 'cm',
+      heightCm: null,
+      gender: 'male',
 
       // Actions
       setQuoteTone: (tone) => set({ quoteTone: tone }),
@@ -123,6 +127,20 @@ const useStore = create(
 
       setRestDurationOverride: (overrides) => set({ restDurationOverride: overrides }),
 
+      logMeasurement: (date, field, value) =>
+        set((state) => ({
+          measurementLog: {
+            ...state.measurementLog,
+            [date]: { ...state.measurementLog[date], [field]: value },
+          },
+        })),
+
+      setMeasurementUnit: (unit) => set({ measurementUnit: unit }),
+
+      setHeight: (cm) => set({ heightCm: cm }),
+
+      setGender: (gender) => set({ gender }),
+
       resetAll: () =>
         set({
           completedDays: {},
@@ -140,6 +158,10 @@ const useStore = create(
           equipment: null,
           lastSetLoggedAt: null,
           restDurationOverride: null,
+          measurementLog: {},
+          measurementUnit: 'cm',
+          heightCm: null,
+          gender: 'male',
         }),
     }),
     {
