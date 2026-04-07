@@ -209,9 +209,9 @@ L
 
 S
 
-- [ ] **Timer weight not updating after expiry** — if the user edits the weight input and the timer runs out before confirming, the new value is not saved. The auto-complete handler must read current input state, not the initial `nextSetWeight` prop.
-- [ ] **Info sheet scrolls behind overlay** — body scroll is not locked while the exercise info sheet is open. Apply the same `overflow: hidden` / `position: fixed` pattern used in `RestTimer`.
-- [ ] **"Few days" nudge persists after workout complete** — streak nudge does not dismiss once today's workout is marked done. Clear it as soon as today's key exists in `completedDays`.
+- [x] **Timer weight not updating after expiry** — if the user edits the weight input and the timer runs out before confirming, the new value is not saved. The auto-complete handler must read current input state, not the initial `nextSetWeight` prop.
+- [x] **Info sheet scrolls behind overlay** — body scroll is not locked while the exercise info sheet is open. Apply the same `overflow: hidden` / `position: fixed` pattern used in `RestTimer`.
+- [x] **"Few days" nudge persists after workout complete** — streak nudge does not dismiss once today's workout is marked done. Clear it as soon as today's key exists in `completedDays`.
 
 ---
 
