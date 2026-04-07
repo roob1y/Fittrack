@@ -274,13 +274,36 @@ L
 
 - [ ] Input validation — consider setting sensible maximum values for weight and reps to prevent unrealistic entries skewing progress graphs. Research realistic upper limits rather than hard blocking the user.
 
+---
+
+## BodyTrack Features
+
+M
+
+- [ ] **Body measurements logging** — track chest, waist, hips, arms (bicep), and legs (thigh) measurements. Same logging pattern as weight — date-stamped entries, history list, trend line per measurement. Accessible from a new section in the Progress tab.
+
+- [ ] **Body fat % estimate** — calculate body fat percentage from logged measurements using the Navy method. Display as a trend graph alongside weight. No API needed — pure calculation from existing data.
+
+S
+
+- [ ] **Weight tracker expansion** — consolidate weight logging and body measurements into a unified Body Composition section in Progress tab. Replaces the current standalone weight view.
+
+L
+
+- [ ] **Progress photos** — date-stamped photo storage using `@capacitor/filesystem`. Side-by-side comparison of any two photos. Ship alone — filesystem access is a meaningful chunk of work separate from measurements.
+
+---
+
+
+## Future Considerations
+
+- [ ] Strength vs body composition correlation — overlay strength progress graphs with body composition changes to surface patterns over time. Requires sufficient data history to be meaningful.
+
 - [ ] Full lbs support polish pass — input-time unit conversion on set weight inputs, unit label on weight input field, plate calculator lbs plate set (45, 35, 25, 10, 5, 2.5), program default weights converted on display. Prerequisite: unit setting (done).
 
 XL
 
 - [ ] Background timer sync — when user is outside the app, timer continues accurately, notification fires on completion with two-beep sound. Requires Capacitor local notifications plugin and background task handling.
-
-## Future Considerations
 
 - On-device AI coaching using WebLLM with Llama 3.2 3B — free, offline,
   downloads once over WiFi. Plateau detection, progression suggestions,
