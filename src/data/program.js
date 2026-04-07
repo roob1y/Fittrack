@@ -9,14 +9,14 @@ const PROGRAM = [
     id: 'chest-biceps',
     label: 'Day 1',
     focus: 'Chest & Biceps',
-    equipment: ['Barbell (5ft)', 'Dumbbells', 'Incline Bench', 'Flat Bench'],
+    equipment: ['Barbell', 'Dumbbells', 'Incline Bench', 'Flat Bench'],
     exercises: [
       {
         name: 'Incline Bench Press',
         sets: 5,
         reps: '15/15/12/12/10',
         defaultWeight: 30,
-        equipment: ['Barbell (5ft)', 'Incline Bench'],
+        equipment: ['Barbell', 'Incline Bench'],
         alternative: {
           name: 'Incline Dumbbell Press',
           equipment: ['Dumbbells', 'Incline Bench'],
@@ -35,7 +35,7 @@ const PROGRAM = [
         sets: 4,
         reps: '12/10/8/8',
         defaultWeight: 30,
-        equipment: ['Barbell (5ft)', 'Flat Bench'],
+        equipment: ['Barbell', 'Flat Bench'],
         alternative: {
           name: 'Dumbbell Chest Press',
           equipment: ['Dumbbells', 'Flat Bench'],
@@ -69,13 +69,13 @@ const PROGRAM = [
         sets: 3,
         reps: '15/15/15',
         defaultWeight: null,
-        equipment: ['Barbell (5ft)'],
+        equipment: ['Barbell'],
         alternative: { name: 'Dumbbell Curls', equipment: ['Dumbbells'] },
         superset: {
           name: 'Reverse Barbell Curls',
           reps: 'Failure',
           defaultWeight: null,
-          equipment: ['Barbell (5ft)'],
+          equipment: ['Barbell'],
           alternative: {
             name: 'Reverse Dumbbell Curls',
             equipment: ['Dumbbells'],
@@ -110,14 +110,14 @@ const PROGRAM = [
     id: 'back',
     label: 'Day 2',
     focus: 'Back',
-    equipment: ['Barbell (7ft)', 'Dumbbells', 'Flat Bench'],
+    equipment: ['Barbell', 'Dumbbells', 'Flat Bench'],
     exercises: [
       {
         name: 'Deadlifts',
         sets: 4,
         reps: '10/8/8/Failure',
         defaultWeight: 62,
-        equipment: ['Barbell (7ft)'],
+        equipment: ['Barbell'],
         alternative: { name: 'Dumbbell Deadlifts', equipment: ['Dumbbells'] },
         description:
           'The king of posterior chain exercises. Builds the entire back, glutes, hamstrings and grip simultaneously.',
@@ -134,7 +134,7 @@ const PROGRAM = [
         reps: '12/10/10/8',
         defaultWeight: 35,
         note: '2 underhand, 2 overhand',
-        equipment: ['Barbell (7ft)'],
+        equipment: ['Barbell'],
         alternative: {
           name: 'Dumbbell Rows',
           equipment: ['Dumbbells', 'Flat Bench'],
@@ -153,7 +153,7 @@ const PROGRAM = [
         sets: 3,
         reps: '12/12/12',
         defaultWeight: 62,
-        equipment: ['Barbell (7ft)'],
+        equipment: ['Barbell'],
         alternative: { name: 'Dumbbell Shrugs', equipment: ['Dumbbells'] },
         description: 'Builds the traps and develops explosive pulling power. Heavy and fast.',
         howTo: [
@@ -186,7 +186,7 @@ const PROGRAM = [
     id: 'ham-glutes',
     label: 'Day 3',
     focus: 'Hamstrings & Glutes',
-    equipment: ['Barbell (7ft)', 'Flat Bench'],
+    equipment: ['Barbell', 'Flat Bench'],
     exercises: [
       {
         name: 'Lying Leg Curls',
@@ -207,7 +207,7 @@ const PROGRAM = [
         sets: 4,
         reps: '15-20 each',
         defaultWeight: 47.5,
-        equipment: ['Barbell (7ft)'],
+        equipment: ['Barbell'],
         alternative: {
           name: 'Dumbbell Straight-Legged Deadlifts',
           equipment: ['Dumbbells'],
@@ -225,7 +225,7 @@ const PROGRAM = [
         sets: 4,
         reps: '15/15/15/15',
         defaultWeight: 30,
-        equipment: ['Barbell (7ft)', 'Squat Rack'],
+        equipment: ['Barbell', 'Squat Rack'],
         alternative: { name: 'Goblet Squat', equipment: ['Dumbbells'] },
         description:
           'A quad-dominant squat variation. The front-loaded position demands more from the quads and naturally keeps the torso upright.',
@@ -240,7 +240,7 @@ const PROGRAM = [
         sets: 3,
         reps: '8-10 each',
         defaultWeight: 30,
-        equipment: ['Barbell (7ft)', 'Flat Bench'],
+        equipment: ['Barbell', 'Flat Bench'],
         alternative: {
           name: 'Bodyweight Hip Thrusts',
           equipment: ['Flat Bench'],
@@ -260,7 +260,7 @@ const PROGRAM = [
     id: 'shoulders-tri',
     label: 'Day 4',
     focus: 'Shoulders & Triceps',
-    equipment: ['Barbell (5ft)', 'Dumbbells', 'Flat Bench'],
+    equipment: ['Barbell', 'Dumbbells', 'Flat Bench'],
     exercises: [
       {
         name: 'Dumbbell Shoulder Press',
@@ -270,13 +270,13 @@ const PROGRAM = [
         equipment: ['Dumbbells'],
         alternative: {
           name: 'Barbell Shoulder Press',
-          equipment: ['Barbell (5ft)'],
+          equipment: ['Barbell'],
         },
         superset: {
           name: 'Barbell Front Raise',
           reps: '12/12/12',
           defaultWeight: 10,
-          equipment: ['Barbell (5ft)'],
+          equipment: ['Barbell'],
           alternative: {
             name: 'Dumbbell Front Raise',
             equipment: ['Dumbbells'],
@@ -311,7 +311,7 @@ const PROGRAM = [
         sets: 3,
         reps: '15/12/12',
         defaultWeight: null,
-        equipment: ['Barbell (5ft)'],
+        equipment: ['Barbell'],
         alternative: {
           name: 'Dumbbell Upright Rows',
           equipment: ['Dumbbells'],
@@ -343,7 +343,7 @@ const PROGRAM = [
           name: 'Skull Crushers',
           reps: '12-15',
           defaultWeight: 7.5,
-          equipment: ['Barbell (5ft)', 'Flat Bench'],
+          equipment: ['Barbell', 'Flat Bench'],
           alternative: {
             name: 'Dumbbell Skull Crushers',
             equipment: ['Dumbbells', 'Flat Bench'],
@@ -364,14 +364,14 @@ const PROGRAM = [
     id: 'quads',
     label: 'Day 5',
     focus: 'Quads',
-    equipment: ['Barbell (7ft)', 'Squat Rack', 'Flat Bench'],
+    equipment: ['Barbell', 'Squat Rack', 'Flat Bench'],
     exercises: [
       {
         name: 'Squats (heavy)',
         sets: 2,
         reps: '8/8',
         defaultWeight: 50,
-        equipment: ['Barbell (7ft)', 'Squat Rack'],
+        equipment: ['Barbell', 'Squat Rack'],
         alternative: {
           name: 'Dumbbell Goblet Squats',
           equipment: ['Dumbbells'],
@@ -389,7 +389,7 @@ const PROGRAM = [
         sets: 3,
         reps: '10-12 each',
         defaultWeight: 35,
-        equipment: ['Barbell (7ft)', 'Squat Rack'],
+        equipment: ['Barbell', 'Squat Rack'],
         alternative: {
           name: 'Dumbbell Goblet Squats',
           equipment: ['Dumbbells'],
@@ -447,8 +447,7 @@ const PROGRAM = [
 
 const EQUIPMENT_LIST = [
   'Squat Rack',
-  'Barbell (7ft)',
-  'Barbell (5ft)',
+  'Barbell',
   'Dumbbells',
   'Flat Bench',
   'Incline Bench',
