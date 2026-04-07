@@ -95,22 +95,7 @@ export default function App() {
         </div>
       </header>
 
-      <div className="nav">
-        {['workouts', 'weight', 'progress'].map((view) => (
-          <button
-            key={view}
-            className={`nav-btn${currentView === view ? ' active' : ''}`}
-            onClick={() => {
-              setCurrentView(view);
-              window.scrollTo({ top: 0 });
-            }}
-          >
-            {view.charAt(0).toUpperCase() + view.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      <div className="view active">
+      <div className="view active" style={{ paddingBottom: 'calc(var(--sab, 0px) + 80px)' }}>
         {currentView === 'workouts' && <WorkoutsView />}
         {currentView === 'weight' && <WeightView />}
         {currentView === 'progress' && <ProgressView />}
@@ -128,8 +113,10 @@ export default function App() {
             style={{
               position: 'fixed',
               bottom: 0,
-              left: 0,
-              right: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '100%',
+              maxWidth: '480px',
               background: 'var(--surface)',
               borderTop: '1px solid var(--border)',
               borderRadius: '20px 20px 0 0',
@@ -137,8 +124,6 @@ export default function App() {
               maxHeight: '85vh',
               overflowY: 'auto',
               padding: `0 20px calc(var(--sab, 0px) + 40px)`,
-              maxWidth: '480px',
-              margin: '0 auto',
             }}
           >
             <div
@@ -154,6 +139,79 @@ export default function App() {
           </div>
         </>
       )}
+
+      {/* Bottom navigation */}
+      <nav className="bottom-nav">
+        {[
+          {
+            id: 'workouts',
+            label: 'Workouts',
+            icon: (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M6 5v14M18 5v14M3 12h18M3 7h3M18 7h3M3 17h3M18 17h3" />
+              </svg>
+            ),
+          },
+          {
+            id: 'weight',
+            label: 'Weight',
+            icon: (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.73V8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3V6.73A2 2 0 0 1 10 5a2 2 0 0 1 2-2z" />
+                <path d="M9 12h6M9 16h6" />
+              </svg>
+            ),
+          },
+          {
+            id: 'progress',
+            label: 'Progress',
+            icon: (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+            ),
+          },
+        ].map(({ id, label, icon }) => (
+          <button
+            key={id}
+            className={`bottom-nav-btn${currentView === id ? ' active' : ''}`}
+            onClick={() => {
+              setCurrentView(id);
+              window.scrollTo({ top: 0 });
+            }}
+          >
+            {icon}
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
     </>
   );
 }
