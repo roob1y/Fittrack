@@ -219,13 +219,13 @@ S
 
 S
 
-- [ ] **Countdown beeps for 3–2–1** — play a short distinct beep at 3, 2, and 1 seconds remaining, separate from the rest-complete sound.
-- [ ] **Suppress weight input on final rest timer** — the next-set weight input must not appear on the last set of the last exercise. Apply the same guard already used to suppress the timer itself.
+- [x] **Countdown beeps for 3–2–1** — play a short distinct beep at 3, 2, and 1 seconds remaining, separate from the rest-complete sound.
+- [x] **Suppress weight input on final rest timer** — the next-set weight input must not appear on the last set of the last exercise. Apply the same guard already used to suppress the timer itself.
 
 M
 
-- [ ] **Confirm weight applies to all remaining sets** — when the user confirms a new weight on the timer, apply it to every subsequent set of the same exercise, not just the next one.
-- [ ] **Next set info footer on timer** — show a small line at the bottom of the rest timer screen: e.g. "Next: 3 × 10 reps". On the final set of an exercise, show the upcoming exercise name instead: e.g. "Next exercise: Romanian Deadlift".
+- [x] **Confirm weight applies to all remaining sets** — when the user confirms a new weight on the timer, apply it to every subsequent set of the same exercise, not just the next one.
+- [x] **Next set info footer on timer** — show a small line at the bottom of the rest timer screen: e.g. "Next: 3 × 10 reps". On the final set of an exercise, show the upcoming exercise name instead: e.g. "Next exercise: Romanian Deadlift".
 - [ ] **User-adjustable rest duration** — add a rest time setting in Settings with science-backed presets: 60s (Isolation), 90s (Compound), 120s (Heavy / strength). Current auto-select logic remains the default; this setting overrides it. Could also expose a ± nudge directly on the timer screen.
 
 ---
