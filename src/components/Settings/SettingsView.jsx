@@ -3,6 +3,8 @@ import useStore from '../../store/useStore';
 import { EQUIPMENT_LIST } from '../../data/program';
 import { exportCSV } from '../../utils/exportCSV';
 import { exportPDF } from '../../utils/exportPDF';
+import { exportJSON } from '../../utils/exportJSON';
+import { importJSON } from '../../utils/importJSON';
 
 const EQUIPMENT_GROUPS = [
   {
@@ -241,7 +243,31 @@ export default function SettingsView({ onEquipmentSaved }) {
 
   const [editing, setEditing] = useState(!equipment);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [pendingFile, setPendingFile] = useState(null);
   const state = useStore((s) => s);
+
+  function handleFileChosen(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPendingFile(file);
+    setShowImportModal(true);
+    e.target.value = '';
+  }
+
+  function confirmImport() {
+    importJSON(
+      pendingFile,
+      () => {
+        setShowImportModal(false);
+        window.location.reload();
+      },
+      (msg) => {
+        setShowImportModal(false);
+        alert(msg);
+      },
+    );
+  }
 
   const savePB = useStore((s) => s.savePB);
 
@@ -336,6 +362,51 @@ export default function SettingsView({ onEquipmentSaved }) {
             ))}
           </div>
         </div>
+        {/* Backup & Restore */}
+        <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Backup & Restore</div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '14px' }}>
+            Save a full backup of your data or restore from a previous backup
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => exportJSON(state)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--text)',
+                cursor: 'pointer',
+              }}
+            >
+              Export Backup
+            </button>
+            <label
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                color: 'var(--text)',
+                cursor: 'pointer',
+                textAlign: 'center',
+              }}
+            >
+              Restore Backup
+              <input type="file" accept=".json" onChange={handleFileChosen} style={{ display: 'none' }} />
+            </label>
+          </div>
+        </div>
+
         {/* Export */}
         <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
           <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Export Data</div>
@@ -398,6 +469,76 @@ export default function SettingsView({ onEquipmentSaved }) {
           <div style={{ color: 'var(--red)', fontSize: '18px' }}>›</div>
         </div>
       </div>
+
+      {showImportModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.7)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+              padding: '24px',
+              maxWidth: '320px',
+              width: '100%',
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: '17px', marginBottom: '10px' }}>Restore Backup?</div>
+            <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '20px' }}>
+              This will overwrite all your current data with the backup. This cannot be undone.
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  setShowImportModal(false);
+                  setPendingFile(null);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmImport}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--red)',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                Restore
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showResetModal && (
         <div

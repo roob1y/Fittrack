@@ -180,7 +180,7 @@ L
 
 M
 
-- [ ] JSON Backup & Restore — export full app data as a .json file and restore from a previously exported file. Lives in Settings. Warn the user before import that it will overwrite all current data.
+- [x] JSON Backup & Restore — export full app data as a .json file and restore from a previously exported file. Lives in Settings. Warn the user before import that it will overwrite all current data.
 
 ---
 

@@ -116,7 +116,7 @@ const useStore = create(
         }),
     }),
     {
-      name: 'fittrack_v1',
+      name: 'fittrack-store',
     },
   ),
 );
