@@ -44,7 +44,7 @@ const WARMUPS = {
       description: 'Same movement as your first working set — focus on path and feel, not load.',
       type: 'reps',
       reps: '15',
-      equipment: ['Barbell (5ft)', 'Incline Bench'],
+      equipment: ['Barbell', 'Incline Bench'],
       weightNote: 'Use ~20% of working weight',
       cues: [
         'Feel the bar path — slight arc, not straight up',
@@ -109,7 +109,7 @@ const WARMUPS = {
       description: 'Movement rehearsal — brace your core, push the floor away, feel the lats engage before the bar leaves the ground.',
       type: 'reps',
       reps: '8',
-      equipment: ['Barbell (7ft)'],
+      equipment: ['Barbell'],
       weightNote: 'Use ~20% of working weight',
       cues: [
         'Lat engagement first — protect the bar path before you pull',
@@ -122,7 +122,7 @@ const WARMUPS = {
       description: 'Hinge to your working position, pull to your lower chest. Pause at the top, lower with control.',
       type: 'reps',
       reps: '10',
-      equipment: ['Barbell (7ft)'],
+      equipment: ['Barbell'],
       weightNote: 'Use ~20% of working weight',
       cues: [
         'Hold the hip hinge position — don\'t let your torso rise as you pull',
@@ -174,7 +174,7 @@ const WARMUPS = {
       description: 'Feel the hamstrings load as you hinge. Push hips back, not down. This is about range and tension — not load.',
       type: 'reps',
       reps: '10',
-      equipment: ['Barbell (7ft)'],
+      equipment: ['Barbell'],
       weightNote: 'Use ~20% of working weight',
       cues: [
         'Bar stays in contact with your legs throughout',
@@ -291,7 +291,7 @@ const WARMUPS = {
       description: 'Same bar position and depth as your working sets. Lock in your stance and brace pattern before adding load.',
       type: 'reps',
       reps: '10',
-      equipment: ['Barbell (7ft)', 'Squat Rack'],
+      equipment: ['Barbell', 'Squat Rack'],
       weightNote: 'Use ~20% of working weight',
       cues: [
         'Set your stance exactly as you will for working sets',
