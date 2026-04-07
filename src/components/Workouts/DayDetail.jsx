@@ -47,6 +47,26 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const repsArr = buildRepsArray(resolvedEx);
   const hasPB = !!pbsAchieved[resolvedEx.name];
 
+  function getWeightWarningThreshold(ex) {
+    if (ex.equipment?.some((e) => e.includes('Barbell'))) return 250;
+    if (ex.equipment?.some((e) => e.includes('Dumbbell'))) return 80;
+    return 150;
+  }
+
+  function isWeightSuspect(value, ex) {
+    const num = parseFloat(value);
+    if (!isFinite(num) || num === 0 || value === '') return false;
+    if (num < 0) return true;
+    return num > getWeightWarningThreshold(ex);
+  }
+
+  function isRepsSuspect(value) {
+    const num = parseInt(value);
+    if (!isFinite(num) || num === 0 || value === '') return false;
+    if (num < 0) return true;
+    return num > 50;
+  }
+
   function hasEquipment(required) {
     if (!required || required.length === 0) return true;
     return required.every((e) => equipment?.includes(e));
@@ -234,22 +254,38 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               <div key={si}>
                 <div className="set-row">
                   <div className="set-label">S{si + 1}</div>
-                  <input
-                    className={`set-input${rep === 'Failure' ? ' failure-set' : ''}`}
-                    type="number"
-                    inputMode="numeric"
-                    placeholder={rep}
-                    value={saved.reps || ''}
-                    onChange={(e) => saveSetData(key, 'reps', e.target.value)}
-                  />
-                  <input
-                    className="set-input"
-                    type="number"
-                    inputMode="decimal"
-                    placeholder={getPrevWeekWeight(setData, weekNum, dayId, ei, si) || resolvedEx.defaultWeight || 'kg'}
-                    value={saved.weight || ''}
-                    onChange={(e) => saveSetData(key, 'weight', e.target.value)}
-                  />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <input
+                      className={`set-input${rep === 'Failure' ? ' failure-set' : ''}`}
+                      type="number"
+                      inputMode="numeric"
+                      placeholder={rep}
+                      value={saved.reps || ''}
+                      onChange={(e) => saveSetData(key, 'reps', e.target.value)}
+                    />
+                    {isRepsSuspect(saved.reps) && (
+                      <div style={{ fontSize: '10px', color: 'var(--red)', marginTop: '3px', textAlign: 'center' }}>
+                        Check reps
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <input
+                      className="set-input"
+                      type="number"
+                      inputMode="decimal"
+                      placeholder={
+                        getPrevWeekWeight(setData, weekNum, dayId, ei, si) || resolvedEx.defaultWeight || 'kg'
+                      }
+                      value={saved.weight || ''}
+                      onChange={(e) => saveSetData(key, 'weight', e.target.value)}
+                    />
+                    {isWeightSuspect(saved.weight, resolvedEx) && (
+                      <div style={{ fontSize: '10px', color: 'var(--red)', marginTop: '3px', textAlign: 'center' }}>
+                        Check weight
+                      </div>
+                    )}
+                  </div>
                   <button className={`check-btn${saved.done ? ' done' : ''}`} onClick={() => toggleSet(si, rep)}>
                     ✓
                   </button>
@@ -523,7 +559,7 @@ export default function DayDetail({ dayId, onBack }) {
           }}
         />
       )}
-      
+
       {restTimer && (
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 110 }} onTouchMove={(e) => e.preventDefault()} />{' '}
