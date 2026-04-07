@@ -234,7 +234,7 @@ M
 
 M
 
-- [ ] **Per-exercise notes as collapsible dropdown** — replace the current notes UX with an inline collapsible "📝 Add note" row per exercise card. Session-level notes remain on the workout summary screen as a general catch-all.
+- [x] **Per-exercise notes as collapsible dropdown** — replace the current notes UX with an inline collapsible "📝 Add note" row per exercise card. Session-level notes remain on the workout summary screen as a general catch-all.
 
 ---
 
