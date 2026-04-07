@@ -115,7 +115,7 @@ const PROGRAM = [
       {
         name: 'Deadlifts',
         sets: 4,
-        reps: '10/8/8/Fail',
+        reps: '10/8/8/Failure',
         defaultWeight: 62,
         equipment: ['Barbell (7ft)'],
         alternative: { name: 'Dumbbell Deadlifts', equipment: ['Dumbbells'] },

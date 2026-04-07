@@ -3,6 +3,7 @@ const BACKUP_KEYS = [
   'skippedDays',
   'setData',
   'notes',
+  'exerciseNotes',
   'sessionTimes',
   'workoutDates',
   'pbs',

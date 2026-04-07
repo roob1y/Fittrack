@@ -105,6 +105,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
 
   const setData = useStore((s) => s.setData);
   const saveSetData = useStore((s) => s.saveSetData);
@@ -112,6 +113,8 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const savePBAchieved = useStore((s) => s.savePBAchieved);
   const equipment = useStore((s) => s.equipment);
   const pbsAchieved = useStore((s) => s.pbsAchieved);
+  const exerciseNotes = useStore((s) => s.exerciseNotes);
+  const saveExerciseNote = useStore((s) => s.saveExerciseNote);
 
   const resolvedEx = resolveExercise(ex);
   const repsArr = buildRepsArray(resolvedEx);
@@ -361,6 +364,71 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               </div>
             );
           })}
+        </div>
+      )}
+      {/* Exercise note */}
+      {open && (
+        <div style={{ borderTop: '1px solid var(--border)', marginTop: '4px', padding: '10px 12px 4px' }}>
+          <button
+            onClick={() => setNoteOpen((o) => !o)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '4px 0',
+              cursor: 'pointer',
+              fontSize: '12px',
+              color: exerciseNotes[`week${weekNum}_${dayId}_${ei}`] ? 'var(--accent)' : 'var(--muted)',
+              fontWeight: 600,
+              letterSpacing: '0.5px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            📝 {exerciseNotes[`week${weekNum}_${dayId}_${ei}`] ? 'NOTE ·' : 'ADD NOTE'}
+          </button>
+          {noteOpen && (
+            <div style={{ marginTop: '8px' }}>
+              {weekNum > 1 && exerciseNotes[`week${weekNum - 1}_${dayId}_${ei}`] && (
+                <div
+                  style={{
+                    fontSize: '12px',
+                    color: 'var(--muted)',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)',
+                    padding: '8px 10px',
+                    marginBottom: '8px',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <div style={{ fontWeight: 600, letterSpacing: '0.5px', marginBottom: '4px', fontSize: '11px' }}>
+                    LAST WEEK
+                  </div>
+                  {exerciseNotes[`week${weekNum - 1}_${dayId}_${ei}`]}
+                </div>
+              )}
+              <textarea
+                value={exerciseNotes[`week${weekNum}_${dayId}_${ei}`] || ''}
+                onChange={(e) => saveExerciseNote(`week${weekNum}_${dayId}_${ei}`, e.target.value)}
+                placeholder="Add a note for this exercise..."
+                rows={3}
+                style={{
+                  width: '100%',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  color: 'var(--text)',
+                  fontSize: '14px',
+                  padding: '10px',
+                  resize: 'none',
+                  boxSizing: 'border-box',
+                  fontFamily: "'DM Sans', sans-serif",
+                  lineHeight: 1.5,
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

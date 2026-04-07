@@ -9,6 +9,7 @@ const useStore = create(
       skippedDays: {},
       setData: {},
       notes: {},
+      exerciseNotes: {},
       sessionTimes: {},
       workoutDates: {},
       pbs: {},
@@ -20,7 +21,6 @@ const useStore = create(
       quoteTone: 'positive',
       lastSetLoggedAt: null,
       restDurationOverride: null,
-
 
       // Actions
       setQuoteTone: (tone) => set({ quoteTone: tone }),
@@ -60,6 +60,11 @@ const useStore = create(
       saveNote: (key, val) =>
         set((state) => ({
           notes: { ...state.notes, [key]: val },
+        })),
+
+      saveExerciseNote: (key, val) =>
+        set((state) => ({
+          exerciseNotes: { ...state.exerciseNotes, [key]: val },
         })),
 
       saveSessionTime: (key, mins) =>
@@ -124,6 +129,7 @@ const useStore = create(
           skippedDays: {},
           setData: {},
           notes: {},
+          exerciseNotes: {},
           sessionTimes: {},
           workoutDates: {},
           pbs: {},
