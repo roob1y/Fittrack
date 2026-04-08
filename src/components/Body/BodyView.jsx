@@ -502,7 +502,7 @@ function MeasurementGraphScreen({ measurement, onBack }) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 40 }}
       transition={{ duration: 0.25 }}
-      style={{ position: 'relative', zIndex: 1 }}
+      style={{ position: 'relative' }}
     >
       <button className="back-btn" onClick={onBack}>
         ← BACK
@@ -746,25 +746,42 @@ function BodyFatSection() {
 export default function BodyView() {
   const [selectedMeasurement, setSelectedMeasurement] = useState(null);
   const scrollPos = useRef(0);
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    isFirstMount.current = false;
+  }, []);
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Main view — always mounted, never unmounts */}
-      <div style={{ visibility: selectedMeasurement ? 'hidden' : 'visible' }}>
-        <GenderSelector />
-        <HeightInput />
-        <BodyWeightSection />
-        <MeasurementsSection
-          onSelectMeasurement={(m) => {
-            scrollPos.current = document.getElementById('root').scrollTop;
-            setSelectedMeasurement(m);
-            document.getElementById('root').scrollTo({ top: 0 });
-          }}
-        />
-        <BodyFatSection />
-      </div>
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      <AnimatePresence>
+        {!selectedMeasurement && (
+          <motion.div
+            key="main"
+            initial={{ opacity: 0, x: isFirstMount.current ? 0 : -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={TRANSITION}
+          >
+            <GenderSelector />
+            <HeightInput />
+            <BodyWeightSection />
+            <MeasurementsSection
+              onSelectMeasurement={(m) => {
+                scrollPos.current = document.body.scrollTop;
+                setSelectedMeasurement(m);
+                // Delay scroll until after exit animation finishes
+                setTimeout(() => {
+                  document.body.scrollTo({ top: 0 });
+                }, TRANSITION.duration * 1000);
+              }}
+            />
+            <BodyFatSection />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Graph screen — overlays on top when active */}
+      {/* Graph screen */}
       <AnimatePresence>
         {selectedMeasurement && (
           <motion.div
@@ -774,17 +791,17 @@ export default function BodyView() {
             exit={{ opacity: 0, x: 40 }}
             transition={TRANSITION}
             style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              background: 'var(--bg)',
+              position: 'relative',
+              minHeight: '100vh',
             }}
           >
             <MeasurementGraphScreen
               measurement={selectedMeasurement}
               onBack={() => {
                 setSelectedMeasurement(null);
+                requestAnimationFrame(() => {
+                  document.body.scrollTo({ top: scrollPos.current });
+                });
               }}
             />
           </motion.div>
