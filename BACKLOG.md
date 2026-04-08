@@ -324,3 +324,29 @@ XL
 - Play Store release like signed APK, screenshots, privacy policy
 - iOS version via Capacitor
 - Social features. Gives ability to connect with other users for motivation, sharing progress and accountability.
+
+
+## Onboarding Redesign
+
+M
+
+- [ ] **Streamlined onboarding flow** — reduce first-launch setup to 3–4 screens by combining related questions. Proposed flow:
+  - Screen 1: Name + units
+  - Screen 2: Goal + experience level
+  - Screen 3: Equipment multi-select
+  - Then straight into the app
+  - Defer permission requests, email opt-in and attribution screens entirely
+
+- [ ] **Show the program before the user commits** — after equipment selection, show a preview of the actual first workout with real exercises, sets and rest times before entering the main app.
+
+- [ ] **Permission deferral** — request notification permissions at the moment they become relevant (e.g. first rest timer), not during onboarding.
+
+---
+
+## Equipment vs Routine Mismatch
+
+M
+
+- [ ] **Exercise swap** — add a Swap option inside `ExerciseDetailSheet` alongside the existing ⓘ button. Opens a filtered picker showing same-muscle alternatives limited to the user's declared equipment. Requires a substitution map in `program.js` keyed by muscle group and equipment type.
+
+- [ ] **Routine validation on import** — when a routine is added, flag any exercise requiring equipment not in the user's profile and offer an inline swap at that point rather than mid-workout.
