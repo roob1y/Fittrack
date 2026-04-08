@@ -377,7 +377,7 @@ function HeightInput() {
   return (
     <div style={{ marginBottom: '28px' }}>
       <SectionTitle>HEIGHT</SectionTitle>
-      <Card style={{ padding: '16px' }}>
+      <Card style={{ padding: '16px', overflow: 'hidden' }}>
         <Toggle options={['cm', 'ft/in']} value={unit} onChange={setUnit} />
         {unit === 'cm' ? (
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -385,17 +385,22 @@ function HeightInput() {
             <SaveButton onClick={handleSaveCm} />
           </div>
         ) : (
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <NumberInput placeholder="ft" value={ft} onChange={setFt} style={{ fontSize: '15px', padding: '10px' }} />
-            <span style={{ color: 'var(--muted)', fontSize: '14px' }}>ft</span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', minWidth: 0 }}>
+            <NumberInput
+              placeholder="ft"
+              value={ft}
+              onChange={setFt}
+              style={{ flex: 1, minWidth: 0, fontSize: '15px', padding: '10px' }}
+            />
+            <span style={{ color: 'var(--muted)', fontSize: '14px', flexShrink: 0 }}>ft</span>
             <NumberInput
               placeholder="in"
               value={inches}
               onChange={setInches}
-              style={{ fontSize: '15px', padding: '10px' }}
+              style={{ flex: 1, minWidth: 0, fontSize: '15px', padding: '10px' }}
             />
-            <span style={{ color: 'var(--muted)', fontSize: '14px' }}>in</span>
-            <SaveButton onClick={handleSaveFtIn} />
+            <span style={{ color: 'var(--muted)', fontSize: '14px', flexShrink: 0 }}>in</span>
+            <SaveButton onClick={handleSaveFtIn} style={{ flexShrink: 0, padding: '12px 16px' }} />
           </div>
         )}
         {heightCm && (

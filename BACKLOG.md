@@ -280,11 +280,11 @@ L
 
 S
 
-- [ ] **Weight tracker expansion** — consolidate weight logging and body measurements into a unified Body Composition section in Progress tab. Replaces the current standalone weight view.
+- [x] **Weight tracker expansion** — consolidate weight logging and body measurements into a unified Body Composition section in Progress tab. Replaces the current standalone weight view.
 
 M
 
-- [ ] **Body measurements logging** — track chest, waist, hips, arms (bicep), and legs (thigh) measurements. Same logging pattern as weight — date-stamped entries, history list, trend line per measurement. Accessible from a new section in the Progress tab.
+- [x] **Body measurements logging** — track chest, waist, hips, arms (bicep), and legs (thigh) measurements. Same logging pattern as weight — date-stamped entries, history list, trend line per measurement. Accessible from a new section in the Progress tab.
 
 - [ ] **Body fat % estimate** — calculate body fat percentage from logged measurements using the Navy method. Display as a trend graph alongside weight. No API needed — pure calculation from existing data.
 
