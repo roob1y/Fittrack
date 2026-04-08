@@ -25,6 +25,7 @@ const useStore = create(
       measurementUnit: 'cm',
       heightCm: null,
       gender: 'male',
+      measurementGoals: {},
 
       // Actions
       setQuoteTone: (tone) => set({ quoteTone: tone }),
@@ -141,6 +142,11 @@ const useStore = create(
 
       setGender: (gender) => set({ gender }),
 
+      setMeasurementGoal: (key, value) =>
+        set((state) => ({
+          measurementGoals: { ...state.measurementGoals, [key]: value },
+        })),
+
       resetAll: () =>
         set({
           completedDays: {},
@@ -162,6 +168,7 @@ const useStore = create(
           measurementUnit: 'cm',
           heightCm: null,
           gender: 'male',
+          measurementGoals: {},
         }),
     }),
     {
