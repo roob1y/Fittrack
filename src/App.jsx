@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useStore from './store/useStore';
 import WorkoutsView from './components/Workouts/WorkoutsView';
-import WeightView from './components/Weight/WeightView';
+import BodyView from './components/Body/BodyView';
 import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
 import { registerBackButton } from './hooks/useBackButton';
@@ -92,7 +92,7 @@ export default function App() {
 
       <div className="view active" style={{ paddingBottom: 'calc(var(--sab, 0px) + 80px)' }}>
         {currentView === 'workouts' && <WorkoutsView />}
-        {currentView === 'weight' && <WeightView />}
+        {currentView === 'body' && <BodyView />}
         {currentView === 'progress' && <ProgressView />}
       </div>
 
@@ -157,8 +157,8 @@ export default function App() {
             ),
           },
           {
-            id: 'weight',
-            label: 'Weight',
+            id: 'body',
+            label: 'Body',
             icon: (
               <svg
                 width="22"
@@ -170,8 +170,18 @@ export default function App() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M12 3a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.73V8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3V6.73A2 2 0 0 1 10 5a2 2 0 0 1 2-2z" />
-                <path d="M9 12h6M9 16h6" />
+                {/* Head */}
+                <circle cx="12" cy="5" r="2.5" />
+                {/* Shoulders / torso */}
+                <path d="M7 10c0-1.1.9-2 2-2h6a2 2 0 0 1 2 2v5H7v-5z" />
+                {/* Left arm */}
+                <path d="M7 10l-2 5" />
+                {/* Right arm */}
+                <path d="M17 10l2 5" />
+                {/* Left leg */}
+                <path d="M9 15v5" />
+                {/* Right leg */}
+                <path d="M15 15v5" />
               </svg>
             ),
           },

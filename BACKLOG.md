@@ -278,21 +278,27 @@ L
 
 ## BodyTrack Features
 
-M
-
-- [ ] **Body measurements logging** — track chest, waist, hips, arms (bicep), and legs (thigh) measurements. Same logging pattern as weight — date-stamped entries, history list, trend line per measurement. Accessible from a new section in the Progress tab.
-
-- [ ] **Body fat % estimate** — calculate body fat percentage from logged measurements using the Navy method. Display as a trend graph alongside weight. No API needed — pure calculation from existing data.
-
 S
 
-- [ ] **Weight tracker expansion** — consolidate weight logging and body measurements into a unified Body Composition section in Progress tab. Replaces the current standalone weight view.
+- [x] **Weight tracker expansion** — consolidate weight logging and body measurements into a unified Body Composition section in Progress tab. Replaces the current standalone weight view.
+
+M
+
+- [x] **Body measurements logging** — track chest, waist, hips, arms (bicep), and legs (thigh) measurements. Same logging pattern as weight — date-stamped entries, history list, trend line per measurement. Accessible from a new section in the Progress tab.
+
+- [ ] **Body fat % estimate** — calculate body fat percentage from logged measurements using the Navy method. Display as a trend graph alongside weight. No API needed — pure calculation from existing data.
 
 L
 
 - [ ] **Progress photos** — date-stamped photo storage using `@capacitor/filesystem`. Side-by-side comparison of any two photos. Ship alone — filesystem access is a meaningful chunk of work separate from measurements.
 
 ---
+
+## Bug Fixes
+
+S
+
+- [ ] **Week advancement mismatch** — week number increments based on programme start date rather than actual workout completion. If the user doesn't complete workouts within the expected window, week advances but data remains under previous week keys, causing progress and set data to appear missing. Week advancement should be tied to workout completion, not calendar time.
 
 
 ## Future Considerations
