@@ -350,3 +350,23 @@ M
 - [ ] **Exercise swap** — add a Swap option inside `ExerciseDetailSheet` alongside the existing ⓘ button. Opens a filtered picker showing same-muscle alternatives limited to the user's declared equipment. Requires a substitution map in `program.js` keyed by muscle group and equipment type.
 
 - [ ] **Routine validation on import** — when a routine is added, flag any exercise requiring equipment not in the user's profile and offer an inline swap at that point rather than mid-workout.
+
+## Social Feed
+
+XL
+
+- [ ] **Social tab** — fourth bottom nav item. Activity feed showing workout completions, PB milestones and streak achievements from friends. Each post auto-generates from existing app events — no manual posting needed. Includes fire reaction and comments.
+- [ ] **Leaderboard** — weekly volume ranking among friends, surfaced inline in the feed.
+- [ ] **Milestone cards** — distinct post formats for PB and streak achievements.
+- [ ] **Challenges** — friend group challenges based on weekly volume or session count.
+- [ ] Requires backend — user accounts and shared database are a prerequisite.
+
+---
+
+## Profile Tab
+
+M
+
+- [ ] **Profile tab** — dedicated fifth nav item replacing the settings icon in the header. Houses social identity, personal stats, friends list and settings.
+- [ ] **Settings consolidation** — Settings moves inside Profile entirely, freeing up the header.
+- [ ] Exact content and relationship with the Body tab to be decided at build time.
