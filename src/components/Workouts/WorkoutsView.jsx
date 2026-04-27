@@ -8,8 +8,8 @@ import { getCurrentWeek } from '../../utils/week';
 import useStore from '../../store/useStore';
 
 export default function WorkoutsView() {
-  const completedDays = useStore((s) => s.completedDays);
-  const programmeStartDate = useStore((s) => s.programmeStartDate);
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
   const [currentDayId, setCurrentDayId] = useState(null);
   const [phase, setPhase] = useState('overview');
 

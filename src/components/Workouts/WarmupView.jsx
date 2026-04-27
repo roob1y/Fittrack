@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PROGRAM } from '../../data/program';
+import { PROGRAMMES } from '../../data/program';
 import { WARMUPS } from '../../data/warmups';
 import useStore from '../../store/useStore';
 
@@ -249,8 +249,9 @@ function RepsScreen({ warmup, onAdvance }) {
 }
 
 export default function WarmupView({ dayId, onStartWorkout, onBack }) {
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   const equipment = useStore((s) => s.equipment);
-  const day = PROGRAM.find((d) => d.id === dayId);
   const warmups = WARMUPS[dayId] || [];
 
   function hasEquipment(required) {

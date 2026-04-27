@@ -294,6 +294,14 @@ L
 
 ---
 
+## Programme Swap — PPL
+
+XL
+
+- [x] **Replace 5-day split with Push / Pull / Legs** — swap the current chest/biceps, back, hamstrings/glutes, shoulders/triceps, quads programme for a 3-day PPL split (Mon/Wed/Fri). Full rewrite of `program.js` and `warmups.js`. Pull-ups listed as primary exercise on Pull day with inverted row as the equipment-conditional alternative (requires Pull Up Bar). Deadlift on Pull day, RDL on Legs day. A complete data storage refactor is neccesary to keep data between programmes seperate and coexisting.
+
+---
+
 ## Bug Fixes
 
 S

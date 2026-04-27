@@ -29,27 +29,34 @@ function showToast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 
-const BACKUP_KEYS = [
-  'completedDays',
-  'skippedDays',
-  'setData',
-  'notes',
-  'sessionTimes',
-  'workoutDates',
+// Global keys that are not programme-specific
+const GLOBAL_KEYS = [
   'pbs',
   'pbsAchieved',
   'weightLog',
   'weightUnit',
-  'programmeStartDate',
   'equipment',
   'quoteTone',
+  'restDurationOverride',
+  'measurementLog',
+  'measurementUnit',
+  'heightCm',
+  'gender',
+  'measurementGoals',
+  'barWeights',
 ];
 
 export async function exportJSON(store) {
   const payload = {
-    version: 1,
+    version: 2, // v2 = multi-programme store shape
     exportedAt: new Date().toISOString(),
-    data: Object.fromEntries(BACKUP_KEYS.map((k) => [k, store[k]])),
+    data: {
+      // Global state
+      ...Object.fromEntries(GLOBAL_KEYS.map((k) => [k, store[k]])),
+      // Programme state — full nested structure
+      activeProgrammeId: store.activeProgrammeId,
+      programmeData: store.programmeData,
+    },
   };
 
   const json = JSON.stringify(payload, null, 2);

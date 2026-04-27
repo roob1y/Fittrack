@@ -1,6 +1,6 @@
 import React from 'react';
 import useStore from '../../store/useStore';
-import { PROGRAM } from '../../data/program';
+import { PROGRAMMES } from '../../data/program';
 import { getCurrentWeek } from '../../utils/week';
 
 function calcStreak(workoutDates) {
@@ -51,8 +51,8 @@ function StrengthGraph({ dayId, ei, exName }) {
   const [range, setRange] = React.useState(28);
   const [open, setOpen] = React.useState(false);
   const canvasRef = React.useRef(null);
-  const setData = useStore((s) => s.setData);
-  const workoutDates = useStore((s) => s.workoutDates);
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
 
   const data = getExerciseProgressData(dayId, ei, setData, workoutDates, range);
 
@@ -301,12 +301,14 @@ function CompletionMeter({ completed, total }) {
 }
 
 export default function ProgressView() {
-  const programmeStartDate = useStore((s) => s.programmeStartDate);
-  const completedDays = useStore((s) => s.completedDays);
-  const skippedDays = useStore((s) => s.skippedDays);
-  const sessionTimes = useStore((s) => s.sessionTimes);
-  const workoutDates = useStore((s) => s.workoutDates);
+  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
+  const sessionTimes = useStore((s) => s.programmeData[s.activeProgrammeId]?.sessionTimes ?? {});
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
 
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
   const weekNum = getCurrentWeek(programmeStartDate);
   const doneCount = Object.keys(completedDays || {}).length;
   const streak = calcStreak(workoutDates);

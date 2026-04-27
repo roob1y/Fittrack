@@ -1,7 +1,6 @@
-// exportCSV.js
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import { PROGRAM } from '../data/program';
+import { PROGRAMMES } from '../data/program';
 import { Share } from '@capacitor/share';
 
 function convertWeight(kg, unit) {
@@ -37,7 +36,11 @@ function showToast(msg) {
 }
 
 export async function exportCSV(store) {
-  const { setData, workoutDates, sessionTimes, weightLog, weightUnit } = store;
+  const activeProgrammeId = store.activeProgrammeId;
+  const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
+  const slice = store.programmeData?.[activeProgrammeId] ?? {};
+  const { weightLog, weightUnit } = store;
+  const { setData, workoutDates, sessionTimes } = slice;
   const rows = [];
 
   rows.push(['WORKOUT HISTORY']);

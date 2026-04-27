@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useStore from '../../store/useStore';
-import { PROGRAM } from '../../data/program';
+import { PROGRAMMES } from '../../data/program';
 import CelebrationScreen from './CelebrationScreen';
 import WorkoutSummaryScreen from './WorkoutSummaryScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
@@ -34,13 +34,13 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
 
-  const setData = useStore((s) => s.setData);
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
   const saveSetData = useStore((s) => s.saveSetData);
   const savePB = useStore((s) => s.savePB);
   const savePBAchieved = useStore((s) => s.savePBAchieved);
   const equipment = useStore((s) => s.equipment);
   const pbsAchieved = useStore((s) => s.pbsAchieved);
-  const exerciseNotes = useStore((s) => s.exerciseNotes);
+  const exerciseNotes = useStore((s) => s.programmeData[s.activeProgrammeId]?.exerciseNotes ?? {});
   const saveExerciseNote = useStore((s) => s.saveExerciseNote);
 
   const resolvedEx = resolveExercise(ex);
@@ -365,9 +365,11 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 }
 
 export default function DayDetail({ dayId, onBack }) {
-  const programmeStartDate = useStore((s) => s.programmeStartDate);
-  const completedDays = useStore((s) => s.completedDays);
-  const skippedDays = useStore((s) => s.skippedDays);
+  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
+  const notes = useStore((s) => s.programmeData[s.activeProgrammeId]?.notes ?? {});
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
   const saveCompletedDay = useStore((s) => s.saveCompletedDay);
   const removeCompletedDay = useStore((s) => s.removeCompletedDay);
   const saveSkippedDay = useStore((s) => s.saveSkippedDay);
@@ -379,7 +381,6 @@ export default function DayDetail({ dayId, onBack }) {
   const restDurationOverride = useStore((s) => s.restDurationOverride);
   const saveSetData = useStore((s) => s.saveSetData);
   const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
-  const notes = useStore((s) => s.notes);
   const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
 
   const [celebrating, setCelebrating] = useState(false);
@@ -393,7 +394,7 @@ export default function DayDetail({ dayId, onBack }) {
   const sessionStartRef = useRef(Date.now());
 
   const weekNum = getCurrentWeek(programmeStartDate);
-  const day = PROGRAM.find((d) => d.id === dayId);
+  const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
   const isSkipped = skippedDays?.[key];

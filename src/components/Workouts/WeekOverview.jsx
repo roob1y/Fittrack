@@ -1,17 +1,20 @@
 import React from 'react';
 import useStore from '../../store/useStore';
-import { PROGRAM } from '../../data/program';
 import MuscleIcon from './MuscleIcon';
 import { getDailyQuote } from '../../data/quotes';
 import { getCurrentWeek } from '../../utils/week';
+import { PROGRAMMES } from '../../data/program';
 
 export default function WeekOverview({ onSelectDay }) {
-  const programmeStartDate = useStore((s) => s.programmeStartDate);
-  const completedDays = useStore((s) => s.completedDays);
-  const skippedDays = useStore((s) => s.skippedDays);
-  const setData = useStore((s) => s.setData);
   const quoteTone = useStore((s) => s.quoteTone);
-  const workoutDates = useStore((s) => s.workoutDates);
+  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
+
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
   const todayStr = new Date().toISOString().slice(0, 10);
   const trainedToday = Object.values(workoutDates || {}).some((d) => d === todayStr);
   const weekNum = getCurrentWeek(programmeStartDate);

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import useStore from '../../store/useStore';
-import { PROGRAM } from '../../data/program';
+import { PROGRAMMES } from '../../data/program';
 import { getCurrentWeek } from '../../utils/week';
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getDayStatus(dateStr, completedDays, skippedDays, workoutDates) {
-  for (const day of PROGRAM) {
+function getDayStatus(dateStr, completedDays, skippedDays, workoutDates, days) {
+  for (const day of days) {
     for (let week = 1; week <= 52; week++) {
       const key = `week${week}_${day.id}`;
       if (completedDays?.[key] && workoutDates?.[key] === dateStr) return 'trained';
@@ -18,8 +18,8 @@ function getDayStatus(dateStr, completedDays, skippedDays, workoutDates) {
   return null;
 }
 
-function getWorkoutForDate(dateStr, completedDays, skippedDays, workoutDates) {
-  for (const day of PROGRAM) {
+function getWorkoutForDate(dateStr, completedDays, skippedDays, workoutDates, days) {
+  for (const day of days) {
     for (let week = 1; week <= 52; week++) {
       const key = `week${week}_${day.id}`;
       if (workoutDates?.[key] === dateStr) {
@@ -103,6 +103,7 @@ function MonthGrid({
   selectedDate,
   onSelectDate,
   days,
+  programDays,
 }) {
   const now = new Date();
   const monthDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -119,7 +120,7 @@ function MonthGrid({
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(monthDate.getFullYear(), monthDate.getMonth(), d);
     const str = date.toISOString().slice(0, 10);
-    const status = getDayStatus(str, completedDays, skippedDays, workoutDates);
+    const status = getDayStatus(str, completedDays, skippedDays, workoutDates, programDays);
     const isToday = str === today;
     const isSelected = str === selectedDate;
     const isStart = str === programmeStartDate;
@@ -181,11 +182,13 @@ function MonthGrid({
 }
 
 export default function CalendarView() {
-  const programmeStartDate = useStore((s) => s.programmeStartDate);
+  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
   const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
-  const completedDays = useStore((s) => s.completedDays);
-  const skippedDays = useStore((s) => s.skippedDays);
-  const workoutDates = useStore((s) => s.workoutDates);
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
 
   const [mode, setMode] = useState('week');
   const [offset, setOffset] = useState(0);
@@ -207,7 +210,7 @@ export default function CalendarView() {
       const d = new Date(base);
       d.setDate(base.getDate() + i);
       const str = d.toISOString().slice(0, 10);
-      const status = getDayStatus(str, completedDays, skippedDays, workoutDates);
+      const status = getDayStatus(str, completedDays, skippedDays, workoutDates, PROGRAM);
       const isToday = str === today;
       const isSelected = str === selectedDate;
       const isStart = str === programmeStartDate;
@@ -264,7 +267,9 @@ export default function CalendarView() {
     );
   }
 
-  const workoutInfo = selectedDate ? getWorkoutForDate(selectedDate, completedDays, skippedDays, workoutDates) : null;
+  const workoutInfo = selectedDate
+    ? getWorkoutForDate(selectedDate, completedDays, skippedDays, workoutDates, PROGRAM)
+    : null;
   const formattedDate = selectedDate
     ? new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
     : null;
@@ -356,6 +361,7 @@ export default function CalendarView() {
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
           days={days}
+          programDays={PROGRAM}
         />
       )}
 
