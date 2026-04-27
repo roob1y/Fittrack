@@ -145,6 +145,7 @@ header {
 .view {
   display: none;
   padding: 20px;
+  padding-bottom: calc(var(--sab, 0px) + 80px);
 }
 .view.active {
   display: block;

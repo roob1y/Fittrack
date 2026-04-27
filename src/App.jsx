@@ -14,7 +14,7 @@ export default function App() {
   const [settingsClosing, setSettingsClosing] = useState(false);
 
   const equipment = useStore((s) => s.equipment);
-  const programmeStartDate = useStore((s) => s.programmeStartDate);
+  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
 
   const weekNum = getCurrentWeek(programmeStartDate);
 
@@ -39,7 +39,7 @@ export default function App() {
 
   if (!equipment && !settingsOpen) {
     return (
-      <div className="view active">
+      <div className="view active" style={{ paddingBottom: 'calc(var(--sab, 0px) + 80px)' }}>
         <SettingsView onEquipmentSaved={() => {}} />
       </div>
     );
@@ -91,7 +91,7 @@ export default function App() {
         </div>
       </header>
 
-      <div className="view active" style={{ paddingBottom: 'calc(var(--sab, 0px) + 80px)' }}>
+      <div className="view active">
         {currentView === 'workouts' && <WorkoutsView />}
         {currentView === 'body' && <BodyView />}
         {currentView === 'progress' && <ProgressView />}
@@ -120,7 +120,6 @@ export default function App() {
               zIndex: 90,
               maxHeight: '85vh',
               overflowY: 'auto',
-              padding: `0 20px calc(var(--sab, 0px))`,
             }}
           >
             <div
