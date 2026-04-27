@@ -47,7 +47,11 @@ export default function WorkoutsView() {
     window.scrollTo({ top: 0 });
   }
 
-  function handleBack() {
+  function handleBack(skipConfirm = false) {
+    if (!skipConfirm && phase === 'workout') {
+      const confirmed = window.confirm('Leave workout? Your sets are saved and you can resume later.');
+      if (!confirmed) return;
+    }
     setCurrentDayId(null);
     setPhase('overview');
     window.scrollTo({ top: 0 });

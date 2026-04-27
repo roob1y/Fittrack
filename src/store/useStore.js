@@ -37,6 +37,7 @@ const useStore = create(
       gender: 'male',
       measurementGoals: {},
       barWeights: { '7ft': 20, '5ft': 15 },
+      activeSessionStart: null,
 
       // ── Programme actions ────────────────────────────────────────────
       setActiveProgramme: (id) =>
@@ -114,6 +115,9 @@ const useStore = create(
         })),
 
       setProgrammeStartDate: (date) => get()._updateActive(() => ({ programmeStartDate: date })),
+
+      setActiveSessionStart: (ts) => set({ activeSessionStart: ts }),
+      clearActiveSessionStart: () => set({ activeSessionStart: null }),
 
       // ── PB actions ───────────────────────────────────────────────────
       savePB: (key, value) =>
@@ -205,6 +209,7 @@ const useStore = create(
           heightCm: null,
           gender: 'male',
           measurementGoals: {},
+          activeSessionStart: null,
         }),
     }),
     {

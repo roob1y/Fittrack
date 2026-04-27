@@ -93,7 +93,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     const e1rm = weight * (1 + reps / 30);
     const current = useStore.getState().pbs[exName];
     if (!current) return false;
-
     if (e1rm > current) {
       savePB(exName, e1rm);
       return true;
@@ -108,9 +107,12 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 
     if (!current) {
       await hapticsImpact();
-      const fresh = useStore.getState().setData[key];
+
+      // ── Fix: read from programmeData slice, not flat setData ──
+      const activeId = useStore.getState().activeProgrammeId;
+      const fresh = useStore.getState().programmeData[activeId]?.setData[key];
       const weight = parseFloat(fresh?.weight) || parseFloat(resolvedEx.defaultWeight) || 0;
-      const reps = parseInt(fresh?.reps) || parseInt(rep); // rep = repsArr[si], the placeholder for this set
+      const reps = parseInt(fresh?.reps) || parseInt(rep);
 
       if (weight && reps) {
         const e1rm = weight * (1 + reps / 30);
@@ -121,7 +123,10 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
           showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg × ${reps}`);
         }
       }
-      const currentSetWeight = useStore.getState().setData[`week${weekNum}_${dayId}_${ei}_${si}`]?.weight;
+
+      // ── Fix: read weight from programmeData slice ──
+      const currentSetWeight =
+        useStore.getState().programmeData[activeId]?.setData[`week${weekNum}_${dayId}_${ei}_${si}`]?.weight;
       onSetTicked(
         resolvedEx.name,
         `week${weekNum}_${dayId}_${ei}_${si + 1}`,
@@ -130,11 +135,11 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
         si,
       );
     } else {
-      // Unticked — recalculate best e1RM across remaining ticked sets
-      const allSetData = useStore.getState().setData;
+      // ── Fix: read from programmeData slice ──
+      const allSetData = useStore.getState().programmeData[useStore.getState().activeProgrammeId]?.setData ?? {};
       let bestE1rm = 0;
       for (let s = 0; s < resolvedEx.sets; s++) {
-        if (s === si) continue; // skip the set being unticked
+        if (s === si) continue;
         const k = `week${weekNum}_${dayId}_${ei}_${s}`;
         const d = allSetData[k];
         if (!d?.done || !d?.weight || !d?.reps) continue;
@@ -295,7 +300,6 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
           })}
         </div>
       )}
-      {/* Exercise note */}
       {open && (
         <div style={{ borderTop: '1px solid var(--border)', marginTop: '4px', padding: '10px 12px 4px' }}>
           <button
@@ -383,6 +387,11 @@ export default function DayDetail({ dayId, onBack }) {
   const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
   const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
 
+  // ── Session persistence — survives back navigation ──
+  const activeSessionStart = useStore((s) => s.activeSessionStart);
+  const setActiveSessionStart = useStore((s) => s.setActiveSessionStart);
+  const clearActiveSessionStart = useStore((s) => s.clearActiveSessionStart);
+
   const [celebrating, setCelebrating] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [celebMins, setCelebMins] = useState(0);
@@ -391,13 +400,32 @@ export default function DayDetail({ dayId, onBack }) {
   const [sessionDisplay, setSessionDisplay] = useState('0:00');
 
   const workoutNotifIdRef = useRef(null);
-  const sessionStartRef = useRef(Date.now());
 
   const weekNum = getCurrentWeek(programmeStartDate);
   const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
   const isSkipped = skippedDays?.[key];
+
+  // ── On mount: start session timer only if not already running ──
+  useEffect(() => {
+    if (!activeSessionStart) {
+      setActiveSessionStart(Date.now());
+    }
+  }, []);
+
+  // ── Session display timer ──
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const start = activeSessionStart ?? Date.now();
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const mins = Math.floor((elapsed % 3600) / 60);
+      const secs = String(elapsed % 60).padStart(2, '0');
+      setSessionDisplay(hours > 0 ? `${hours}:${String(mins).padStart(2, '0')}:${secs}` : `${mins}:${secs}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeSessionStart]);
 
   useEffect(() => {
     if (!lastSetLoggedAt) return;
@@ -448,17 +476,6 @@ export default function DayDetail({ dayId, onBack }) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [lastSetLoggedAt]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
-      const hours = Math.floor(elapsed / 3600);
-      const mins = Math.floor((elapsed % 3600) / 60);
-      const secs = String(elapsed % 60).padStart(2, '0');
-      setSessionDisplay(hours > 0 ? `${hours}:${String(mins).padStart(2, '0')}:${secs}` : `${mins}:${secs}`);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   function todayStr() {
     return new Date().toISOString().slice(0, 10);
   }
@@ -469,22 +486,17 @@ export default function DayDetail({ dayId, onBack }) {
     const isLastSet = ei === lastExIdx && si === day.exercises[lastExIdx].sets - 1;
     if (!isLastSet) {
       const duration = getRestDuration(exerciseName, restDurationOverride);
-
-      // Work out next set info for the footer
       const currentEx = day.exercises[ei];
       const isLastSetOfExercise = si === currentEx.sets - 1;
       let nextSetInfo;
       if (isLastSetOfExercise) {
-        // Final set of this exercise — show next exercise name
         const nextEx = day.exercises[ei + 1];
         nextSetInfo = nextEx ? { type: 'exercise', name: nextEx.name } : null;
       } else {
-        // More sets in this exercise — show set number and reps
         const repsArr = currentEx.reps.split('/');
         const nextRepTarget = repsArr[si + 1] || repsArr[repsArr.length - 1];
         nextSetInfo = { type: 'set', setNum: si + 2, reps: nextRepTarget, totalSets: currentEx.sets };
       }
-
       setRestTimer({
         exerciseName,
         duration,
@@ -502,15 +514,18 @@ export default function DayDetail({ dayId, onBack }) {
     if (!programmeStartDate) setProgrammeStartDate(todayStr());
     if (isDone) {
       removeCompletedDay(key);
-      onBack();
+      clearActiveSessionStart();
+      onBack(true);
       return;
     }
-    const mins = Math.round((Date.now() - sessionStartRef.current) / 60000);
+    const start = activeSessionStart ?? Date.now();
+    const mins = Math.round((Date.now() - start) / 60000);
     saveCompletedDay(key);
     saveWorkoutDate(key, todayStr());
     saveSessionTime(key, mins);
     setCelebMins(mins);
     setCelebrating(true);
+    clearActiveSessionStart();
     if (workoutNotifIdRef.current !== null) {
       cancelLocalNotification(workoutNotifIdRef.current);
       workoutNotifIdRef.current = null;
@@ -520,10 +535,10 @@ export default function DayDetail({ dayId, onBack }) {
 
   function handleSkip() {
     if (isDone) return;
-
     if (isSkipped) {
       removeSkippedDay(key);
-      onBack();
+      clearActiveSessionStart();
+      onBack(true);
       return;
     }
     const reason = prompt('Reason for skipping?\n\n1. Rest day\n2. Illness\n3. No time\n4. Other');
@@ -532,6 +547,7 @@ export default function DayDetail({ dayId, onBack }) {
     const reasonText = reasons[parseInt(reason) - 1] || 'Other';
     saveSkippedDay(key, reasonText);
     saveWorkoutDate(key, todayStr());
+    clearActiveSessionStart();
     onBack();
   }
 
@@ -556,14 +572,14 @@ export default function DayDetail({ dayId, onBack }) {
           noteKey={key}
           onDismiss={() => {
             setShowSummary(false);
-            onBack();
+            onBack(true);
           }}
         />
       )}
 
       {restTimer && (
         <>
-          <div style={{ position: 'fixed', inset: 0, zIndex: 110 }} onTouchMove={(e) => e.preventDefault()} />{' '}
+          <div style={{ position: 'fixed', inset: 0, zIndex: 110 }} onTouchMove={(e) => e.preventDefault()} />
           <RestTimer
             exerciseName={restTimer.exerciseName}
             duration={restTimer.duration}
@@ -573,7 +589,6 @@ export default function DayDetail({ dayId, onBack }) {
             nextSetInfo={restTimer.nextSetInfo}
             onComplete={(weight) => {
               if (weight && restTimer.nextSetKey) {
-                // Apply confirmed weight to all remaining sets of this exercise
                 const ex = day.exercises[restTimer.exerciseIdx];
                 const startSi = restTimer.setIdx + 1;
                 for (let s = startSi; s < ex.sets; s++) {
@@ -619,7 +634,7 @@ export default function DayDetail({ dayId, onBack }) {
           )}
         </div>
       </div>
-      {/* Previous week notes */}
+
       {weekNum > 1 && notes[`week${weekNum - 1}_${dayId}`] && (
         <div
           onClick={() => setPrevNoteOpen((o) => !o)}
@@ -645,9 +660,11 @@ export default function DayDetail({ dayId, onBack }) {
           )}
         </div>
       )}
+
       {day.exercises.map((ex, ei) => (
         <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} />
       ))}
+
       <button className="save-day-btn" onClick={handleComplete}>
         {isDone ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE'}
       </button>
