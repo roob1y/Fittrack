@@ -300,6 +300,202 @@ const WARMUPS = {
       ],
     },
   ],
+  // Add these three keys to the existing WARMUPS object
+// alongside the existing 'chest-biceps', 'back', etc. keys
+
+push: [
+  {
+    name: 'Thoracic Rotations',
+    description: 'Sit or kneel, hands behind head. Rotate your upper back left and right, keeping hips still.',
+    type: 'reps',
+    reps: '10 each side',
+    equipment: [],
+    cues: [
+      'Initiate from your upper back — not your shoulders',
+      'Keep your hips completely still throughout',
+      'Pause at end range — don\'t rush through it',
+    ],
+  },
+  {
+    name: 'Arm Swings',
+    description: 'Stand tall. Swing both arms across your chest and back out wide in a controlled arc.',
+    type: 'timed',
+    duration: 30,
+    equipment: [],
+    cues: [
+      'Keep your chest tall and core lightly braced',
+      'Let the arms swing freely — no forcing the range',
+      'Gradually increase the arc over the first few reps',
+    ],
+  },
+  {
+    name: 'Doorframe Chest Stretch',
+    description: 'Place forearms on a doorframe at 90°. Step forward until you feel a stretch across the chest. Hold.',
+    type: 'timed',
+    duration: 30,
+    equipment: [],
+    cues: [
+      'Forearms at 90° — higher targets upper chest, lower hits pec minor',
+      'Step through until you feel the stretch, not pain',
+      'Breathe into the stretch — don\'t hold your breath',
+    ],
+  },
+  {
+    name: 'Light Bench Press',
+    description: 'Same movement as your first working set. Focus on the path and feel — not load.',
+    type: 'reps',
+    reps: '15',
+    equipment: ['Barbell', 'Flat Bench'],
+    weightNote: 'Use ~20% of working weight',
+    cues: [
+      'Retract your shoulder blades before you unrack',
+      'Feel the bar path — slight arc, not straight up',
+      'Lower slowly — 2 seconds down',
+    ],
+  },
+  {
+    name: 'Light Shoulder Press',
+    description: 'Press straight overhead, lock out at the top, lower slowly. Primes the rotator cuff before heavier work.',
+    type: 'reps',
+    reps: '12',
+    equipment: ['Dumbbells'],
+    weightNote: 'Use ~20% of working weight',
+    cues: [
+      'Press in a slight arc — not ramrod straight',
+      'Full lockout at the top — don\'t short it',
+      'Lower in 2–3 seconds — control the descent',
+    ],
+  },
+],
+
+pull: [
+  {
+    name: 'Cat-Cow',
+    description: 'On hands and knees. Inhale — drop belly, lift head. Exhale — round spine, tuck chin.',
+    type: 'reps',
+    reps: '10',
+    equipment: [],
+    cues: [
+      'Move segment by segment — cervical, thoracic, lumbar',
+      'Breath drives the movement: inhale = cow, exhale = cat',
+      'Full range at each end — don\'t short-change it',
+    ],
+  },
+  {
+    name: 'Hip Hinge Drill',
+    description: 'Stand tall. Hinge at the hips until you feel your hamstrings load, back flat. Squeeze glutes to stand.',
+    type: 'reps',
+    reps: '12',
+    equipment: [],
+    cues: [
+      'Push hips back — not down. This is not a squat',
+      'Maintain a neutral spine throughout — no rounding',
+      'Feel the hamstrings load before you return to standing',
+    ],
+  },
+  {
+    name: 'Scapular Pulls',
+    description: 'Hang from a bar with arms straight. Without bending your elbows, depress and retract your shoulder blades. Hold 1 sec at the top.',
+    type: 'reps',
+    reps: '8',
+    equipment: ['Pull Up Bar'],
+    cues: [
+      'Arms stay completely straight throughout',
+      'Think: pull shoulder blades into your back pockets',
+      'Hold 1 second at the top before lowering with control',
+    ],
+  },
+  {
+    name: 'Light Deadlift',
+    description: 'Movement rehearsal — brace, push the floor away, feel the lats engage before the bar leaves the ground.',
+    type: 'reps',
+    reps: '8',
+    equipment: ['Barbell'],
+    weightNote: 'Use ~20% of working weight',
+    cues: [
+      'Engage lats first — protect the bar path before you pull',
+      'Push the floor away, don\'t pull the bar up',
+      'Lock hips and shoulders out together at the top',
+    ],
+  },
+  {
+    name: 'Light Bent-Over Row',
+    description: 'Hinge to your working position. Pull to your lower chest, pause at the top, lower with control.',
+    type: 'reps',
+    reps: '10',
+    equipment: ['Barbell'],
+    weightNote: 'Use ~20% of working weight',
+    cues: [
+      'Hold the hinge — don\'t let your torso rise as you pull',
+      'Pull to your lower chest, elbows close to your body',
+      'Squeeze shoulder blades together at the top',
+    ],
+  },
+],
+
+legs: [
+  {
+    name: 'Hip Circles',
+    description: 'Stand on one leg, draw large circles with your opposite knee. Mobilises the hip joint before loading.',
+    type: 'reps',
+    reps: '10 each direction, each leg',
+    equipment: [],
+    cues: [
+      'Make the circles as large as possible',
+      'Standing leg stays slightly bent for balance',
+      'Keep your torso still — only the hip moves',
+    ],
+  },
+  {
+    name: 'Leg Swings',
+    description: 'Hold a wall for support. Swing each leg forward and back in a controlled arc, gradually increasing range.',
+    type: 'reps',
+    reps: '12 each leg',
+    equipment: [],
+    cues: [
+      'Keep the swing controlled — momentum, not force',
+      'Standing leg stays soft — slight bend in the knee',
+      'Let the range increase naturally over the reps',
+    ],
+  },
+  {
+    name: 'Glute Bridges',
+    description: 'Lie on your back, feet flat. Drive through your heels, squeeze glutes at the top. Hold 1 second.',
+    type: 'reps',
+    reps: '15',
+    equipment: [],
+    cues: [
+      'Drive through heels — toes can even lift slightly',
+      'Squeeze glutes hard at the top — not just your lower back',
+      'Hold 1 second at the top before lowering with control',
+    ],
+  },
+  {
+    name: 'Bodyweight Squats',
+    description: 'Full depth. Pause 1 second at the bottom. Knees track over toes, chest stays tall.',
+    type: 'reps',
+    reps: '15',
+    equipment: [],
+    cues: [
+      'Knees track over toes — push them out as you descend',
+      'Chest tall throughout — don\'t fold forward',
+      'Pause 1 second at the bottom before driving up',
+    ],
+  },
+  {
+    name: 'Light Squat',
+    description: 'Same bar position and depth as your working sets. Lock in your stance and brace pattern before adding load.',
+    type: 'reps',
+    reps: '10',
+    equipment: ['Barbell', 'Squat Rack'],
+    weightNote: 'Use ~20% of working weight',
+    cues: [
+      'Set your stance exactly as you will for working sets',
+      'Brace your core before you unrack — not after',
+      'Full depth — match your working set depth exactly',
+    ],
+  },
+],
 };
 
 export { WARMUPS };

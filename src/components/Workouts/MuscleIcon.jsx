@@ -23,6 +23,22 @@ const DAY_MUSCLES = {
   quads: {
     front: [{ name: 'Quads', muscles: ['quadriceps'] }],
   },
+  push: {
+    front: [
+      { name: 'Chest', muscles: ['chest'] },
+      { name: 'Shoulders', muscles: ['front-deltoids'] },
+      { name: 'Triceps', muscles: ['triceps'] },
+    ],
+  },
+  pull: {
+    back: [
+      { name: 'Back', muscles: ['upper-back', 'lower-back', 'trapezius'] },
+      { name: 'Biceps', muscles: ['biceps'] },
+    ],
+  },
+  legs: {
+    front: [{ name: 'Legs', muscles: ['quadriceps', 'hamstring', 'gluteal'] }],
+  },
 };
 
 export default function MuscleIcon({ dayId }) {

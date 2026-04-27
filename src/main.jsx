@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import '../css/styles.css';
 import { createNotificationChannel, requestNotificationPermission } from './plugins/localNotifications';
+import { migrateStoreIfNeeded } from './utils/migrateStore';
 
+migrateStoreIfNeeded();
 createNotificationChannel();
 requestNotificationPermission();
 

@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import useStore from '../../store/useStore';
-import { PROGRAM } from '../../data/program';
+import { PROGRAMMES } from '../../data/program';
 
 export default function WorkoutSummaryScreen({ dayId, weekNum, mins, noteKey, onDismiss }) {
   const [visible, setVisible] = useState(false);
-  const setData = useStore((s) => s.setData);
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
   const pbs = useStore((s) => s.pbs);
-  const notes = useStore((s) => s.notes);
+  const notes = useStore((s) => s.programmeData[s.activeProgrammeId]?.notes ?? {});
   const saveNote = useStore((s) => s.saveNote);
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
   }, []);
 
-  const day = PROGRAM.find((d) => d.id === dayId);
+  const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   if (!day) return null;
 
   // Sets completed vs total

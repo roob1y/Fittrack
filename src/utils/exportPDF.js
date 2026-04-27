@@ -1,8 +1,7 @@
-// exportPDF.js
 import { jsPDF } from 'jspdf';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
-import { PROGRAM } from '../data/program';
+import { PROGRAMMES } from '../data/program';
 import { Share } from '@capacitor/share';
 
 const ACCENT = [200, 241, 53];
@@ -52,7 +51,11 @@ function showToast(msg) {
 }
 
 export async function exportPDF(store) {
-  const { setData, workoutDates, sessionTimes, weightLog, weightUnit } = store;
+  const activeProgrammeId = store.activeProgrammeId;
+  const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
+  const slice = store.programmeData?.[activeProgrammeId] ?? {};
+  const { weightLog, weightUnit } = store;
+  const { setData, workoutDates, sessionTimes } = slice;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageW = 210,
     pageH = 297,
