@@ -43,7 +43,7 @@ function getLastUsedBestWeight(setData, weekNum, dayId, ei, sets) {
   return null;
 }
 
-function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
+function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -87,7 +87,20 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
     return required.every((e) => equipment?.includes(e));
   }
 
+  function isBarbbellDumbbellPair(ex) {
+    if (!ex.alternative) return false;
+    const hasBarbell = ex.equipment?.some((e) => e.includes('Barbell'));
+    const altHasDumbbell = ex.alternative.equipment?.some((e) => e.includes('Dumbbell'));
+    const hasDumbbell = ex.equipment?.some((e) => e.includes('Dumbbell'));
+    const altHasBarbell = ex.alternative.equipment?.some((e) => e.includes('Barbell'));
+    return (hasBarbell && altHasDumbbell) || (hasDumbbell && altHasBarbell);
+  }
+
   function resolveExercise(ex) {
+    // Manual session swap takes priority
+    if (swapped && ex.alternative) {
+      return { ...ex, ...ex.alternative, sets: ex.sets, reps: ex.reps, defaultWeight: ex.alternative.defaultWeight || '', status: 'swapped' };
+    }
     if (hasEquipment(ex.equipment)) return { ...ex, status: 'available' };
     if (ex.alternative && hasEquipment(ex.alternative.equipment)) {
       return { ...ex, name: ex.alternative.name, status: 'alternative' };
@@ -223,6 +236,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               ? '⚠ No alternative available for your equipment'
               : `${resolvedEx.sets} sets · ${resolvedEx.reps}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`}
             {resolvedEx.status === 'alternative' && <span style={{ color: 'var(--accent)' }}> · Substituted</span>}
+            {resolvedEx.status === 'swapped' && <span style={{ color: 'var(--accent)' }}> · Swapped</span>}
             {resolvedEx.status !== 'unavailable' && (() => {
               const lastW = getLastUsedBestWeight(setData, weekNum, dayId, ei, resolvedEx.sets);
               if (!lastW) return null;
@@ -235,6 +249,28 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {isBarbbellDumbbellPair(ex) && onSwap && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onSwap(ei); }}
+              title={swapped ? 'Switch back to ' + ex.name : 'Switch to ' + ex.alternative?.name}
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                border: '1px solid ' + (swapped ? 'var(--accent)' : 'var(--border)'),
+                background: swapped ? 'rgba(200,241,53,0.15)' : 'var(--surface)',
+                color: swapped ? 'var(--accent)' : 'var(--muted)',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              ⇄
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -417,6 +453,11 @@ export default function DayDetail({ dayId, onBack }) {
 
   const [celebrating, setCelebrating] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [swappedExercises, setSwappedExercises] = useState({});
+
+  function handleSwap(ei) {
+    setSwappedExercises((prev) => ({ ...prev, [ei]: !prev[ei] }));
+  }
   const [celebMins, setCelebMins] = useState(0);
   const [restTimer, setRestTimer] = useState(null);
   const [prevNoteOpen, setPrevNoteOpen] = useState(false);
@@ -683,7 +724,7 @@ export default function DayDetail({ dayId, onBack }) {
       )}
 
       {day.exercises.map((ex, ei) => (
-        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} />
+        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} swapped={!!swappedExercises[ei]} onSwap={handleSwap} />
       ))}
 
       <button className="save-day-btn" onClick={handleComplete}>
