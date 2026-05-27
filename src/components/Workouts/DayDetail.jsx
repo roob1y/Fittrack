@@ -21,21 +21,26 @@ function useToast() {
   return showToast;
 }
 
+// Returns the weight last used for a specific set, scanning backwards through all weeks
 function getPrevWeekWeight(setData, weekNum, dayId, ei, si) {
-  if (weekNum < 1) return null;
-  const prevKey = `week${weekNum - 1}_${dayId}_${ei}_${si}`;
-  return setData[prevKey]?.weight || null;
+  for (let w = weekNum - 1; w >= 1; w--) {
+    const weight = setData[`week${w}_${dayId}_${ei}_${si}`]?.weight;
+    if (weight) return weight;
+  }
+  return null;
 }
 
-function getLastWeekBestWeight(setData, weekNum, dayId, ei, sets) {
-  if (weekNum <= 1) return null;
-  let best = null;
-  for (let si = 0; si < sets; si++) {
-    const key = `week${weekNum - 1}_${dayId}_${ei}_${si}`;
-    const w = parseFloat(setData[key]?.weight);
-    if (w > 0 && (best === null || w > best)) best = w;
+// Returns the best weight last used for an exercise across any set, scanning backwards
+function getLastUsedBestWeight(setData, weekNum, dayId, ei, sets) {
+  for (let w = weekNum - 1; w >= 1; w--) {
+    let best = null;
+    for (let si = 0; si < sets; si++) {
+      const weight = parseFloat(setData[`week${w}_${dayId}_${ei}_${si}`]?.weight);
+      if (weight > 0 && (best === null || weight > best)) best = weight;
+    }
+    if (best !== null) return best;
   }
-  return best;
+  return null;
 }
 
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
@@ -219,7 +224,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               : `${resolvedEx.sets} sets · ${resolvedEx.reps}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`}
             {resolvedEx.status === 'alternative' && <span style={{ color: 'var(--accent)' }}> · Substituted</span>}
             {resolvedEx.status !== 'unavailable' && (() => {
-              const lastW = getLastWeekBestWeight(setData, weekNum, dayId, ei, resolvedEx.sets);
+              const lastW = getLastUsedBestWeight(setData, weekNum, dayId, ei, resolvedEx.sets);
               if (!lastW) return null;
               return (
                 <span style={{ marginLeft: '6px', color: 'var(--accent)', fontWeight: 600, opacity: 0.8 }}>
