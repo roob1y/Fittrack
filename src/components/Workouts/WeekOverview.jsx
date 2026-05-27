@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useStore from '../../store/useStore';
 import MuscleIcon from './MuscleIcon';
 import { getDailyQuote } from '../../data/quotes';
@@ -10,6 +10,27 @@ export default function WeekOverview({ onSelectDay }) {
   const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
   const currentWeek = useStore((s) => s.currentWeek);
   const setCurrentWeek = useStore((s) => s.setCurrentWeek);
+
+  // Highest week that has any logged set data
+  const maxActiveWeek = React.useMemo(() => {
+    let max = 1;
+    for (const key of Object.keys(setData)) {
+      const match = key.match(/^week(\d+)_/);
+      if (match) max = Math.max(max, parseInt(match[1]));
+    }
+    for (const key of Object.keys(completedDays)) {
+      const match = key.match(/^week(\d+)_/);
+      if (match) max = Math.max(max, parseInt(match[1]));
+    }
+    return max;
+  }, [setData, completedDays]);
+
+  // On mount: jump to the highest active week automatically
+  useEffect(() => {
+    if (currentWeek < maxActiveWeek) {
+      setCurrentWeek(maxActiveWeek);
+    }
+  }, []);
   const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
   const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
   const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
@@ -160,22 +181,24 @@ export default function WeekOverview({ onSelectDay }) {
               ← Prev
             </button>
           )}
-          <button
-            onClick={() => setCurrentWeek(weekNum + 1)}
-            style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--accent)',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              fontWeight: 600,
-              padding: '6px 12px',
-              cursor: 'pointer',
-            }}
-          >
-            Next →
-          </button>
+          {weekNum <= maxActiveWeek && (
+            <button
+              onClick={() => setCurrentWeek(weekNum + 1)}
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                color: 'var(--accent)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                padding: '6px 12px',
+                cursor: 'pointer',
+              }}
+            >
+              Next →
+            </button>
+          )}
         </div>
       </div>
       <div className="week-grid">
