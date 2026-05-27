@@ -16,7 +16,8 @@ export default function App() {
 
   // Scroll to top on every view change
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
   }, [currentView]);
 
   // Top-level back button
