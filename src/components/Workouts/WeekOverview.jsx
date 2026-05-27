@@ -2,13 +2,14 @@ import React from 'react';
 import useStore from '../../store/useStore';
 import MuscleIcon from './MuscleIcon';
 import { getDailyQuote } from '../../data/quotes';
-import { getCurrentWeek } from '../../utils/week';
+// getCurrentWeek replaced by manual currentWeek in store
 import { PROGRAMMES } from '../../data/program';
 
 export default function WeekOverview({ onSelectDay }) {
   const quoteTone = useStore((s) => s.quoteTone);
-  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
   const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const currentWeek = useStore((s) => s.currentWeek);
+  const setCurrentWeek = useStore((s) => s.setCurrentWeek);
   const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
   const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
   const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
@@ -17,7 +18,7 @@ export default function WeekOverview({ onSelectDay }) {
   const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
   const todayStr = new Date().toISOString().slice(0, 10);
   const trainedToday = Object.values(workoutDates || {}).some((d) => d === todayStr);
-  const weekNum = getCurrentWeek(programmeStartDate);
+  const weekNum = currentWeek;
 
   const nextDayId = trainedToday
     ? null
@@ -138,8 +139,44 @@ export default function WeekOverview({ onSelectDay }) {
         );
       })()}
 
-      <div className="section-title" style={{ marginTop: '4px' }}>
-        THIS WEEK
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', marginBottom: '12px' }}>
+        <div className="section-title" style={{ margin: 0 }}>WEEK {weekNum}</div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {weekNum > 1 && (
+            <button
+              onClick={() => setCurrentWeek(weekNum - 1)}
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                color: 'var(--muted)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '13px',
+                fontWeight: 600,
+                padding: '6px 12px',
+                cursor: 'pointer',
+              }}
+            >
+              ← Prev
+            </button>
+          )}
+          <button
+            onClick={() => setCurrentWeek(weekNum + 1)}
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--accent)',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '13px',
+              fontWeight: 600,
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            Next →
+          </button>
+        </div>
       </div>
       <div className="week-grid">
         {PROGRAM.map((day) => {
