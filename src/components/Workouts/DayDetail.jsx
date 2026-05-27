@@ -228,7 +228,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               if (!lastW) return null;
               return (
                 <span style={{ marginLeft: '6px', color: 'var(--accent)', fontWeight: 600, opacity: 0.8 }}>
-                  · {lastW}kg last wk
+                  · {lastW}kg last used
                 </span>
               );
             })()}
