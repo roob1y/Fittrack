@@ -5,7 +5,6 @@ import CelebrationScreen from './CelebrationScreen';
 import WorkoutSummaryScreen from './WorkoutSummaryScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
-import { getCurrentWeek } from '../../utils/week';
 import ExerciseDetailSheet from './ExerciseDetailSheet';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
 
@@ -389,8 +388,8 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 }
 
 export default function DayDetail({ dayId, onBack }) {
-  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
   const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const weekNum = useStore((s) => s.currentWeek);
   const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
   const notes = useStore((s) => s.programmeData[s.activeProgrammeId]?.notes ?? {});
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
@@ -405,7 +404,6 @@ export default function DayDetail({ dayId, onBack }) {
   const restDurationOverride = useStore((s) => s.restDurationOverride);
   const saveSetData = useStore((s) => s.saveSetData);
   const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
-  const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
 
   // ── Session persistence — survives back navigation ──
   const activeSessionStart = useStore((s) => s.activeSessionStart);
@@ -421,7 +419,6 @@ export default function DayDetail({ dayId, onBack }) {
 
   const workoutNotifIdRef = useRef(null);
 
-  const weekNum = getCurrentWeek(programmeStartDate);
   const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
@@ -531,8 +528,7 @@ export default function DayDetail({ dayId, onBack }) {
   }
 
   function handleComplete() {
-    if (!programmeStartDate) setProgrammeStartDate(todayStr());
-    if (isDone) {
+      if (isDone) {
       removeCompletedDay(key);
       clearActiveSessionStart();
       onBack(true);
