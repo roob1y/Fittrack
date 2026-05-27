@@ -46,7 +46,8 @@ export default function WorkoutsView() {
 
   function handleSelectDay(dayId) {
     setCurrentDayId(dayId);
-    setPhase('warmup');
+    const isDone = !!completedDays[`week${currentWeek}_${dayId}`];
+    setPhase(isDone ? 'workout' : 'warmup');
     window.scrollTo({ top: 0 });
   }
 
