@@ -5,9 +5,13 @@ import DayDetail from './DayDetail';
 import { keepScreenAwake, allowScreenSleep } from '../../plugins/keepAwake';
 import { registerBackButton } from '../../hooks/useBackButton';
 import useStore from '../../store/useStore';
+import { PROGRAMMES } from '../../data/program';
 
 export default function WorkoutsView() {
   const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const currentWeek = useStore((s) => s.currentWeek);
+  const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const resetDaySession = useStore((s) => s.resetDaySession);
   const [currentDayId, setCurrentDayId] = useState(null);
   const [phase, setPhase] = useState('overview');
   const [showExitModal, setShowExitModal] = useState(false);
@@ -57,6 +61,14 @@ export default function WorkoutsView() {
   }
 
   function confirmExit() {
+    setShowExitModal(false);
+    setCurrentDayId(null);
+    setPhase('overview');
+    window.scrollTo({ top: 0 });
+  }
+
+  function confirmReset() {
+    resetDaySession(currentWeek, currentDayId, PROGRAMMES[activeProgrammeId]);
     setShowExitModal(false);
     setCurrentDayId(null);
     setPhase('overview');
@@ -120,7 +132,7 @@ export default function WorkoutsView() {
             <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '24px', lineHeight: 1.5 }}>
               Your sets are saved. You can pick up where you left off.
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
               <button
                 onClick={() => setShowExitModal(false)}
                 style={{
@@ -152,6 +164,21 @@ export default function WorkoutsView() {
                 Leave
               </button>
             </div>
+            <button
+              onClick={confirmReset}
+              style={{
+                width: '100%', padding: '14px',
+                borderRadius: '12px',
+                border: '1px solid var(--border)',
+                background: 'transparent',
+                color: 'var(--muted)',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px', fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Leave & reset session
+            </button>
           </div>
         </div>
       )}
