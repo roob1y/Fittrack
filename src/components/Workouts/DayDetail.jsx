@@ -28,6 +28,17 @@ function getPrevWeekWeight(setData, weekNum, dayId, ei, si) {
   return setData[prevKey]?.weight || null;
 }
 
+function getLastWeekBestWeight(setData, weekNum, dayId, ei, sets) {
+  if (weekNum <= 1) return null;
+  let best = null;
+  for (let si = 0; si < sets; si++) {
+    const key = `week${weekNum - 1}_${dayId}_${ei}_${si}`;
+    const w = parseFloat(setData[key]?.weight);
+    if (w > 0 && (best === null || w > best)) best = w;
+  }
+  return best;
+}
+
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
@@ -208,6 +219,15 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               ? '⚠ No alternative available for your equipment'
               : `${resolvedEx.sets} sets · ${resolvedEx.reps}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`}
             {resolvedEx.status === 'alternative' && <span style={{ color: 'var(--accent)' }}> · Substituted</span>}
+            {resolvedEx.status !== 'unavailable' && (() => {
+              const lastW = getLastWeekBestWeight(setData, weekNum, dayId, ei, resolvedEx.sets);
+              if (!lastW) return null;
+              return (
+                <span style={{ marginLeft: '6px', color: 'var(--accent)', fontWeight: 600, opacity: 0.8 }}>
+                  · {lastW}kg last wk
+                </span>
+              );
+            })()}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
