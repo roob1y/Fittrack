@@ -14,6 +14,11 @@ export default function App() {
 
   const equipment = useStore((s) => s.equipment);
 
+  // Scroll to top on every view change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [currentView]);
+
   // Top-level back button
   useEffect(() => {
     const cleanup = registerBackButton(() => {
@@ -225,7 +230,6 @@ export default function App() {
             className={`bottom-nav-btn${currentView === id ? ' active' : ''}`}
             onClick={() => {
               setCurrentView(id);
-              window.scrollTo({ top: 0 });
             }}
           >
             {icon}
