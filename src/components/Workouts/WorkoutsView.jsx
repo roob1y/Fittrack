@@ -68,7 +68,7 @@ export default function WorkoutsView() {
       {phase === 'overview' && <WeekOverview onSelectDay={handleSelectDay} />}
       {phase === 'warmup' && (
         <>
-          <button className="back-btn" onClick={handleBack}>
+          <button className="back-btn" onClick={() => handleBack()}>
             ← BACK TO WEEK
           </button>
           <WarmupView
@@ -83,7 +83,7 @@ export default function WorkoutsView() {
       )}
       {phase === 'workout' && (
         <>
-          <button className="back-btn" onClick={handleBack}>
+          <button className="back-btn" onClick={() => handleBack()}>
             ← BACK TO WEEK
           </button>
           <DayDetail dayId={currentDayId} onBack={handleBack} />
