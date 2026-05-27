@@ -48,7 +48,7 @@ export default function WorkoutsView() {
     setCurrentDayId(dayId);
     const isDone = !!completedDays[`week${currentWeek}_${dayId}`];
     setPhase(isDone ? 'workout' : 'warmup');
-    window.scrollTo({ top: 0 });
+    document.body.scrollTop = 0; document.documentElement.scrollTop = 0;
   }
 
   function handleBack(skipConfirm = false) {
@@ -57,7 +57,7 @@ export default function WorkoutsView() {
       if (isDone) {
         setCurrentDayId(null);
         setPhase('overview');
-        window.scrollTo({ top: 0 });
+        document.body.scrollTop = 0; document.documentElement.scrollTop = 0;
         return;
       }
       setShowExitModal(true);
@@ -65,14 +65,14 @@ export default function WorkoutsView() {
     }
     setCurrentDayId(null);
     setPhase('overview');
-    window.scrollTo({ top: 0 });
+    document.body.scrollTop = 0; document.documentElement.scrollTop = 0;
   }
 
   function confirmExit() {
     setShowExitModal(false);
     setCurrentDayId(null);
     setPhase('overview');
-    window.scrollTo({ top: 0 });
+    document.body.scrollTop = 0; document.documentElement.scrollTop = 0;
   }
 
   function confirmReset() {
@@ -80,7 +80,7 @@ export default function WorkoutsView() {
     setShowExitModal(false);
     setCurrentDayId(null);
     setPhase('overview');
-    window.scrollTo({ top: 0 });
+    document.body.scrollTop = 0; document.documentElement.scrollTop = 0;
   }
 
   return (
