@@ -23,6 +23,7 @@ const useStore = create(
       },
 
       // ── Global state ─────────────────────────────────────────────────
+      currentWeek: 1,
       pbs: {},
       pbsAchieved: {},
       weightLog: {},
@@ -115,6 +116,8 @@ const useStore = create(
         })),
 
       setProgrammeStartDate: (date) => get()._updateActive(() => ({ programmeStartDate: date })),
+
+      setCurrentWeek: (week) => set({ currentWeek: Math.max(1, week) }),
 
       setActiveSessionStart: (ts) => set({ activeSessionStart: ts }),
       clearActiveSessionStart: () => set({ activeSessionStart: null }),
@@ -210,6 +213,7 @@ const useStore = create(
           gender: 'male',
           measurementGoals: {},
           activeSessionStart: null,
+          currentWeek: 1,
         }),
     }),
     {
