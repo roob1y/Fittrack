@@ -103,26 +103,26 @@ export default function WorkoutsView() {
       )}
 
       {showExitModal && (
-        <div
-          onClick={() => setShowExitModal(false)}
-          style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            zIndex: 200,
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-          }}
-        >
+        <>
           <div
+            onClick={() => setShowExitModal(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 80 }}
+          />
+          <div
+            className="bottom-sheet"
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'var(--surface)',
-              borderRadius: '20px 20px 0 0',
-              borderTop: '1px solid var(--border)',
-              padding: '24px 24px calc(24px + var(--sab, 0px))',
+              position: 'fixed',
+              bottom: 0,
+              left: '50%',
+              transform: 'translateX(-50%)',
               width: '100%',
               maxWidth: '480px',
+              background: 'var(--surface)',
+              borderTop: '1px solid var(--border)',
+              borderRadius: '20px 20px 0 0',
+              zIndex: 90,
+              padding: '0 24px calc(24px + env(safe-area-inset-bottom, 0px))',
             }}
           >
             <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 20px' }} />
@@ -180,7 +180,7 @@ export default function WorkoutsView() {
               Leave & reset session
             </button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
