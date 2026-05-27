@@ -10,6 +10,9 @@ export default function WeekOverview({ onSelectDay }) {
   const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
   const currentWeek = useStore((s) => s.currentWeek);
   const setCurrentWeek = useStore((s) => s.setCurrentWeek);
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
 
   // Highest week that has any logged set data
   const maxActiveWeek = React.useMemo(() => {
@@ -31,9 +34,6 @@ export default function WeekOverview({ onSelectDay }) {
       setCurrentWeek(maxActiveWeek);
     }
   }, []);
-  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
-  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
-  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
 
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
   const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
