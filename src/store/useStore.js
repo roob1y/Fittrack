@@ -122,6 +122,29 @@ const useStore = create(
       setActiveSessionStart: (ts) => set({ activeSessionStart: ts }),
       clearActiveSessionStart: () => set({ activeSessionStart: null }),
 
+      resetDaySession: (weekNum, dayId, programme) => {
+        // Wipe all set data, completed/skipped status, workout date and session time for a day
+        get()._updateActive((slice) => {
+          const setData = { ...slice.setData };
+          const exercises = programme?.days?.find((d) => d.id === dayId)?.exercises ?? [];
+          exercises.forEach((ex, ei) => {
+            for (let si = 0; si < ex.sets; si++) {
+              delete setData[`week${weekNum}_${dayId}_${ei}_${si}`];
+            }
+          });
+          const completedDays = { ...slice.completedDays };
+          delete completedDays[`week${weekNum}_${dayId}`];
+          const skippedDays = { ...slice.skippedDays };
+          delete skippedDays[`week${weekNum}_${dayId}`];
+          const workoutDates = { ...slice.workoutDates };
+          delete workoutDates[`week${weekNum}_${dayId}`];
+          const sessionTimes = { ...slice.sessionTimes };
+          delete sessionTimes[`week${weekNum}_${dayId}`];
+          return { setData, completedDays, skippedDays, workoutDates, sessionTimes };
+        });
+        set({ activeSessionStart: null, lastSetLoggedAt: null });
+      },
+
       // ── PB actions ───────────────────────────────────────────────────
       savePB: (key, value) =>
         set((state) => {
