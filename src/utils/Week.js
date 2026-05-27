@@ -1,12 +1,10 @@
-// week.js
-// Calculates the current programme week from the start date.
-// Week 1 starts on programmeStartDate, new week every 7 days.
+// Week.js
+// Week is now manually controlled by the user via the store.
+// getCurrentWeek is kept for legacy call sites but should be replaced with
+// the currentWeek value from useStore directly.
 
 export function getCurrentWeek(programmeStartDate) {
-  if (!programmeStartDate) return 1;
-  const start = new Date(programmeStartDate);
-  const today = new Date();
-  const diffMs = today - start;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  return Math.max(1, Math.floor(diffDays / 7) + 1);
+  // Deprecated: use useStore(s => s.currentWeek) instead.
+  // Kept only to avoid import errors in files not yet migrated.
+  return 1;
 }
