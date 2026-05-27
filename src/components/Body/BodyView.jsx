@@ -188,6 +188,7 @@ function NumberInput({ placeholder, value, onChange, style }) {
       onChange={(e) => onChange(e.target.value)}
       style={{
         flex: 1,
+        minWidth: 0,
         background: 'var(--surface)',
         border: '1px solid var(--border)',
         borderRadius: '8px',
@@ -196,6 +197,7 @@ function NumberInput({ placeholder, value, onChange, style }) {
         fontSize: '16px',
         padding: '12px',
         textAlign: 'center',
+        boxSizing: 'border-box',
         ...style,
       }}
     />
@@ -380,7 +382,7 @@ function HeightInput() {
       <Card style={{ padding: '16px', overflow: 'hidden' }}>
         <Toggle options={['cm', 'ft/in']} value={unit} onChange={setUnit} />
         {unit === 'cm' ? (
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box' }}>
             <NumberInput placeholder="e.g. 178" value={cm} onChange={setCm} />
             <SaveButton onClick={handleSaveCm} />
           </div>
@@ -463,7 +465,7 @@ function BodyWeightSection() {
 
       <SectionTitle>LOG TODAY</SectionTitle>
       <Card style={{ padding: '16px', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box' }}>
           <NumberInput placeholder={`Enter weight in ${weightUnit}`} value={input} onChange={setInput} />
           <SaveButton onClick={handleLog} />
         </div>
