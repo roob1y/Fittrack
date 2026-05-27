@@ -5,7 +5,6 @@ import CelebrationScreen from './CelebrationScreen';
 import WorkoutSummaryScreen from './WorkoutSummaryScreen';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
-import { getCurrentWeek } from '../../utils/week';
 import ExerciseDetailSheet from './ExerciseDetailSheet';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
 
@@ -26,6 +25,17 @@ function getPrevWeekWeight(setData, weekNum, dayId, ei, si) {
   if (weekNum < 1) return null;
   const prevKey = `week${weekNum - 1}_${dayId}_${ei}_${si}`;
   return setData[prevKey]?.weight || null;
+}
+
+function getLastWeekBestWeight(setData, weekNum, dayId, ei, sets) {
+  if (weekNum <= 1) return null;
+  let best = null;
+  for (let si = 0; si < sets; si++) {
+    const key = `week${weekNum - 1}_${dayId}_${ei}_${si}`;
+    const w = parseFloat(setData[key]?.weight);
+    if (w > 0 && (best === null || w > best)) best = w;
+  }
+  return best;
 }
 
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
@@ -208,6 +218,15 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
               ? '⚠ No alternative available for your equipment'
               : `${resolvedEx.sets} sets · ${resolvedEx.reps}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`}
             {resolvedEx.status === 'alternative' && <span style={{ color: 'var(--accent)' }}> · Substituted</span>}
+            {resolvedEx.status !== 'unavailable' && (() => {
+              const lastW = getLastWeekBestWeight(setData, weekNum, dayId, ei, resolvedEx.sets);
+              if (!lastW) return null;
+              return (
+                <span style={{ marginLeft: '6px', color: 'var(--accent)', fontWeight: 600, opacity: 0.8 }}>
+                  · {lastW}kg last wk
+                </span>
+              );
+            })()}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -369,8 +388,8 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked }) {
 }
 
 export default function DayDetail({ dayId, onBack }) {
-  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
   const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const weekNum = useStore((s) => s.currentWeek);
   const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
   const notes = useStore((s) => s.programmeData[s.activeProgrammeId]?.notes ?? {});
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
@@ -385,7 +404,6 @@ export default function DayDetail({ dayId, onBack }) {
   const restDurationOverride = useStore((s) => s.restDurationOverride);
   const saveSetData = useStore((s) => s.saveSetData);
   const lastSetLoggedAt = useStore((s) => s.lastSetLoggedAt);
-  const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
 
   // ── Session persistence — survives back navigation ──
   const activeSessionStart = useStore((s) => s.activeSessionStart);
@@ -401,7 +419,6 @@ export default function DayDetail({ dayId, onBack }) {
 
   const workoutNotifIdRef = useRef(null);
 
-  const weekNum = getCurrentWeek(programmeStartDate);
   const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   const key = `week${weekNum}_${dayId}`;
   const isDone = !!completedDays[key];
@@ -511,8 +528,7 @@ export default function DayDetail({ dayId, onBack }) {
   }
 
   function handleComplete() {
-    if (!programmeStartDate) setProgrammeStartDate(todayStr());
-    if (isDone) {
+      if (isDone) {
       removeCompletedDay(key);
       clearActiveSessionStart();
       onBack(true);
