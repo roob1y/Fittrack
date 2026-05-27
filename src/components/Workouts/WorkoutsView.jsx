@@ -52,6 +52,13 @@ export default function WorkoutsView() {
 
   function handleBack(skipConfirm = false) {
     if (!skipConfirm && phase === 'workout') {
+      const isDone = !!completedDays[`week${currentWeek}_${currentDayId}`];
+      if (isDone) {
+        setCurrentDayId(null);
+        setPhase('overview');
+        window.scrollTo({ top: 0 });
+        return;
+      }
       setShowExitModal(true);
       return;
     }
