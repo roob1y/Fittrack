@@ -126,7 +126,9 @@ export default function App() {
                 margin: '12px auto 20px',
               }}
             />
-            <SettingsView onEquipmentSaved={() => setSettingsOpen(false)} />
+            <div style={{ padding: '0 20px calc(20px + env(safe-area-inset-bottom, 0px))' }}>
+              <SettingsView onEquipmentSaved={() => setSettingsOpen(false)} />
+            </div>
           </div>
         </>
       )}
