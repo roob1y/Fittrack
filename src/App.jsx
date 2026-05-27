@@ -6,7 +6,6 @@ import ProgressView from './components/Progress/ProgressView';
 import SettingsView from './components/Settings/SettingsView';
 import ProgrammeView from './components/Programme/ProgrammeView';
 import { registerBackButton } from './hooks/useBackButton';
-import { getCurrentWeek } from './utils/week';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('workouts');
@@ -14,9 +13,6 @@ export default function App() {
   const [settingsClosing, setSettingsClosing] = useState(false);
 
   const equipment = useStore((s) => s.equipment);
-  const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
-
-  const weekNum = getCurrentWeek(programmeStartDate);
 
   // Top-level back button
   useEffect(() => {
@@ -60,7 +56,6 @@ export default function App() {
               color: 'var(--accent)',
             }}
           ></div>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--muted)' }}>Week {weekNum}</div>
           <button
             onClick={() => setSettingsOpen(true)}
             style={{
