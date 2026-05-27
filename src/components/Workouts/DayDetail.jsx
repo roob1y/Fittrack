@@ -43,7 +43,7 @@ function getLastUsedBestWeight(setData, weekNum, dayId, ei, sets) {
   return null;
 }
 
-function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap }) {
+function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, readOnly }) {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -326,7 +326,9 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap }) 
                       inputMode="numeric"
                       placeholder={rep}
                       value={saved.reps || ''}
-                      onChange={(e) => saveSetData(key, 'reps', e.target.value)}
+                      onChange={(e) => !readOnly && saveSetData(key, 'reps', e.target.value)}
+                      readOnly={readOnly}
+                      style={{ opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}
                     />
                     {isRepsSuspect(saved.reps) && (
                       <div style={{ fontSize: '10px', color: 'var(--red)', marginTop: '3px', textAlign: 'center' }}>
@@ -343,7 +345,9 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap }) 
                         getPrevWeekWeight(setData, weekNum, dayId, ei, si) || resolvedEx.defaultWeight || 'kg'
                       }
                       value={saved.weight || ''}
-                      onChange={(e) => saveSetData(key, 'weight', e.target.value)}
+                      onChange={(e) => !readOnly && saveSetData(key, 'weight', e.target.value)}
+                      readOnly={readOnly}
+                      style={{ opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}
                     />
                     {isWeightSuspect(saved.weight, resolvedEx) && (
                       <div style={{ fontSize: '10px', color: 'var(--red)', marginTop: '3px', textAlign: 'center' }}>
@@ -351,7 +355,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap }) 
                       </div>
                     )}
                   </div>
-                  <button className={`check-btn${saved.done ? ' done' : ''}`} onClick={() => toggleSet(si, rep)}>
+                  <button className={`check-btn${saved.done ? ' done' : ''}`} onClick={() => !readOnly && toggleSet(si, rep)} style={{ opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}>
                     ✓
                   </button>
                 </div>
@@ -724,7 +728,7 @@ export default function DayDetail({ dayId, onBack }) {
       )}
 
       {day.exercises.map((ex, ei) => (
-        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} swapped={!!swappedExercises[ei]} onSwap={handleSwap} />
+        <ExerciseCard key={ei} ex={ex} ei={ei} dayId={dayId} weekNum={weekNum} onSetTicked={handleSetTicked} swapped={!!swappedExercises[ei]} onSwap={handleSwap} readOnly={isDone} />
       ))}
 
       <button className="save-day-btn" onClick={handleComplete}>
