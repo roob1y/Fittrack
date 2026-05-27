@@ -129,20 +129,6 @@ export default function WorkoutsView() {
             <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', color: 'var(--text)', marginBottom: '8px' }}>
               Leave workout?
             </div>
-            {completedDays[`week${currentWeek}_${currentDayId}`] && (
-              <div style={{
-                background: 'rgba(255,77,109,0.08)',
-                border: '1px solid rgba(255,77,109,0.2)',
-                borderRadius: '10px',
-                padding: '10px 14px',
-                marginBottom: '16px',
-                fontSize: '13px',
-                color: 'var(--red, #ff4d6d)',
-                lineHeight: 1.5,
-              }}>
-                ⚠ This day is marked complete. Leaving and resetting will wipe all your logged sets.
-              </div>
-            )}
             <div style={{ fontSize: '14px', color: 'var(--muted)', marginBottom: '24px', lineHeight: 1.5 }}>
               Your sets are saved. You can pick up where you left off.
             </div>
@@ -178,21 +164,23 @@ export default function WorkoutsView() {
                 Leave
               </button>
             </div>
-            <button
-              onClick={confirmReset}
-              style={{
-                width: '100%', padding: '14px',
-                borderRadius: '12px',
-                border: 'none',
-                background: 'var(--red, #ff4d6d)',
-                color: '#fff',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px', fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Leave & reset session
-            </button>
+            {!completedDays[`week${currentWeek}_${currentDayId}`] && (
+              <button
+                onClick={confirmReset}
+                style={{
+                  width: '100%', padding: '14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'var(--red, #ff4d6d)',
+                  color: '#fff',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px', fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Leave & reset session
+              </button>
+            )}
           </div>
         </>
       )}
