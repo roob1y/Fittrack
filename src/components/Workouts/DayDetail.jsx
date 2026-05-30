@@ -109,7 +109,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
   }
 
   function buildRepsArray(ex) {
-    const parts = ex.reps.split('/');
+    const parts = ex.reps.split('/').sort((a, b) => parseInt(b) - parseInt(a));
     if (parts.length >= ex.sets) return parts.slice(0, ex.sets);
     const arr = [];
     for (let i = 0; i < ex.sets; i++) arr.push(parts[i] || parts[parts.length - 1]);
