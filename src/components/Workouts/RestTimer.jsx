@@ -32,6 +32,7 @@ export default function RestTimer({
   nextSetWeight,
   isLastSet,
   nextSetInfo,
+  isBodyweight,
   onComplete,
   onSkip,
 }) {
@@ -166,7 +167,7 @@ export default function RestTimer({
           borderBottom: '1px solid var(--border)',
           borderRadius: '0 0 20px 20px',
           zIndex: 120,
-          padding: 'calc(var(--sat, 0px) + 20px) 24px 28px',
+          padding: 'calc(env(safe-area-inset-top, 0px) + 20px) 24px 28px',
           maxWidth: '480px',
           margin: '0 auto',
           display: 'flex',
@@ -247,7 +248,7 @@ export default function RestTimer({
           {duration === 90 ? 'Compound · 90s rest' : 'Isolation · 60s rest'}
         </div>
 
-        {nextSetKey && !isLastSet && (
+        {nextSetKey && !isLastSet && !isBodyweight && (
           <div style={{ width: '100%', marginBottom: '16px' }}>
             <div
               style={{
