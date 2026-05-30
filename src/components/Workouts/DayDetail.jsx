@@ -60,7 +60,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
 
   const resolvedEx = resolveExercise(ex);
   const repsArr = buildRepsArray(resolvedEx);
-  const hasPB = !!pbsAchieved[resolvedEx.name];
+  const hasPB = !!pbsAchieved[`week${weekNum}_${dayId}_${resolvedEx.name}`];
 
   function getWeightWarningThreshold(ex) {
     if (ex.equipment?.some((e) => e.includes('Barbell'))) return 250;
@@ -147,7 +147,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
         if (!useStore.getState().pbs[resolvedEx.name]) {
           savePB(resolvedEx.name, e1rm);
         } else if (checkPB(resolvedEx.name, weight, reps)) {
-          savePBAchieved(resolvedEx.name);
+          savePBAchieved(`week${weekNum}_${dayId}_${resolvedEx.name}`);
           showToast(`🏆 New PB! ${resolvedEx.name} ${weight}kg × ${reps}`);
         }
       }
