@@ -573,6 +573,7 @@ export default function DayDetail({ dayId, onBack }) {
         nextSetInfo,
         exerciseIdx: ei,
         setIdx: si,
+        isBodyweight: (resolvedEx.equipment?.length === 0),
       });
     }
   }
@@ -653,6 +654,7 @@ export default function DayDetail({ dayId, onBack }) {
             nextSetWeight={restTimer.nextSetWeight}
             isLastSet={restTimer.isLastSet}
             nextSetInfo={restTimer.nextSetInfo}
+            isBodyweight={restTimer.isBodyweight}
             onComplete={(weight) => {
               if (weight && restTimer.nextSetKey) {
                 const ex = day.exercises[restTimer.exerciseIdx];
