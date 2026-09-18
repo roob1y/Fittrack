@@ -17,7 +17,7 @@
 //     changed underneath the numbers.
 
 import { setKey, dayKey, exerciseNoteKey } from './setKeys';
-import { incrementFor, repRangeForSet, nextTarget } from './increments';
+import { incrementFor, repRangeForSet, nextTarget, atCeiling } from './increments';
 import { historyPeers } from './history';
 
 const e1rm = (w, r) => w * (1 + r / 30);
@@ -147,7 +147,16 @@ export function isReadyToProgress(ex, sessions) {
   const p = repProgress(ex, sessions);
   // The load has to have been CARRIED for the whole exercise, not just topped on
   // the sets that reached it — see the ramp-set note in repProgress.
-  return !!p && p.short <= 1 && p.setsAtLoad >= p.setsWanted;
+  // And there has to be somewhere to go: at an equipment ceiling (`maxWeight`) a
+  // full house is the finish line, not a cue — see ceilingFor in increments.js.
+  return !!p && p.short <= 1 && p.setsAtLoad >= p.setsWanted && !atCeiling(ex, p.load);
+}
+
+// Topped out at the heaviest weight the equipment allows. Not ready (there is no
+// heavier weight) and not stalled (holding a full house is the best it can do).
+export function isAtCeiling(ex, sessions) {
+  const p = repProgress(ex, sessions);
+  return !!p && p.short <= 1 && p.setsAtLoad >= p.setsWanted && atCeiling(ex, p.load);
 }
 
 // Same top load AND no reps gained across the last `window` sessions. Two sessions
@@ -164,6 +173,9 @@ export function isStalled(ex, allSessions, windowSize = 3) {
   const sessions = comparable(ex, allSessions);
   if (sessions.length < windowSize) return false;
   if (isReadyToProgress(ex, sessions)) return false;
+  // Same reasoning at an equipment ceiling: 15/15/15 at 20 kg three times running
+  // cannot gain load, and calling it a plateau would be the old flag in new clothes.
+  if (isAtCeiling(ex, sessions)) return false;
   const recent = sessions.slice(-windowSize).filter((s) => s.topLoad);
   if (recent.length < windowSize) return false;
   if (!recent.every((s) => s.topLoad === recent[0].topLoad)) return false;

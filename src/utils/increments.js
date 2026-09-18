@@ -128,6 +128,30 @@ export function repRangeForSet(repsField, setIndex) {
 // `reps` — the load is right and there are reps still to win at it.
 // `hold` — the last session came in under range, which usually means a weight was
 //   just added. Nothing to change; let it settle.
+// An equipment ceiling — the heaviest weight he can SAFELY use for this exercise,
+// in the same units he logs. Weighted crunches are the first: 20 kg is the heaviest
+// dumbbell that is safe to hold on his chest, and the app flagged "due a weight
+// increase" at 20 kg on four straight sessions because nothing knew that. A rule
+// that can only ever say "add weight" is wrong the moment there is none to add.
+export function ceilingFor(ex) {
+  const m = Number(ex?.maxWeight);
+  return m > 0 ? m : null;
+}
+export function atCeiling(ex, load) {
+  const m = ceilingFor(ex);
+  return m != null && Number(load) >= m;
+}
+// One real step up, but never past the ceiling. A step that would overshoot lands
+// ON the ceiling (18 → 20, not 18 → 22); at the ceiling there is no next load.
+export function nextLoadFor(ex, load) {
+  const step = incrementFor(ex);
+  if (!(step > 0)) return null;
+  const m = ceilingFor(ex);
+  if (m == null) return tidy(load + step);
+  if (load >= m) return null;
+  return tidy(Math.min(load + step, m));
+}
+
 export function nextTarget(ex, lastSession) {
   const sets = (lastSession?.sets ?? []).filter((s) => s.reps > 0 && s.weight > 0);
   if (!sets.length) return null;
@@ -153,9 +177,27 @@ export function nextTarget(ex, lastSession) {
   // suggested increase formula". He is right, and it inflates every exercise he
   // ramps into rather than starting flat.
   const carried = atLoad.length >= (ex.sets ?? atLoad.length);
+  const capped = atCeiling(ex, load);
+  const upNext = nextLoadFor(ex, load);
+
+  // Earned an increase, but this is already the heaviest safe weight. Say so plainly
+  // instead of suggesting a load he does not have.
+  if (short <= 1 && carried && capped) {
+    return {
+      verdict: 'ceiling',
+      load,
+      nextLoad: null,
+      topOfRange: top,
+      done: doneReps,
+      max: maxReps,
+      note:
+        `${doneReps} of ${maxReps} reps at ${load} kg — the top of your range at the heaviest weight you can ` +
+        `safely use here. No increase to make: keep the reps clean, or slow the lowering to keep it working.`,
+    };
+  }
 
   if (short <= 1 && carried && step > 0) {
-    const nextLoad = tidy(load + step);
+    const nextLoad = upNext;
     const bestReps = Math.max(...atLoad.map((s) => s.reps));
     const jumpPct = ((nextLoad - load) / load) * 100;
     const expect = expectedReps(load, bestReps, nextLoad);
@@ -186,7 +228,7 @@ export function nextTarget(ex, lastSession) {
     return {
       verdict: 'reps',
       load,
-      nextLoad: step > 0 ? tidy(load + step) : null,
+      nextLoad: upNext,
       topOfRange: top,
       done: doneReps,
       max: maxReps,
@@ -201,14 +243,14 @@ export function nextTarget(ex, lastSession) {
   return {
     verdict: 'reps',
     load,
-    nextLoad: step > 0 ? tidy(load + step) : null,
+    nextLoad: upNext,
     topOfRange: top,
     done: doneReps,
     max: maxReps,
     setsAtLoad: atLoad.length,
     setsWanted: ex.sets,
     note: `${doneReps} of ${maxReps} reps at ${load} kg. ${short} more${
-      step > 0 ? ` and it is ${tidy(load + step)} kg` : ''
+      upNext != null ? ` and it is ${upNext} kg` : ''
     }.`,
   };
 }

@@ -941,24 +941,6 @@ const PROGRAMMES = {
         equipment: ['Barbell', 'Dumbbells', 'Flat Bench', 'Incline Bench', 'Cable Machine', 'Chest Fly Machine'],
         exercises: [
           {
-            name: 'Push-Ups',
-            muscles: { primary: ['chest'], secondary: ['triceps', 'front-delts'] },
-            compound: true,
-            sets: 2,
-            reps: '12-15/12-15',
-            defaultWeight: null,
-            equipment: [],
-            alternative: null,
-            description:
-              'Activation, not a working set. Two lighter sets to prime the chest, shoulders and triceps and get blood into the joints before you load them. Stop several reps short of failure — this is preparation for the bench, not competition with it. Flagged compound because it is a multi-joint press; if the full compound rest feels excessive between two activation sets, just skip the timer.',
-            howTo: [
-              'Hands slightly wider than shoulder-width, body in one straight line from head to heels.',
-              'Squeeze your glutes and brace your core so your hips do not sag.',
-              'Chest to the floor on every rep — full range, no half reps.',
-              'Elevate your hands on a bench if 15 clean reps is a stretch. Leave 3–4 reps in the tank on both sets.',
-            ],
-          },
-          {
             // Requested 6 Sep — "Why cant I substitute this with the chest press on
             // smith machine?" It was added as an `alternative` that day, which was
             // the wrong shape twice over: the ⇄ button only renders for barbell ↔
@@ -1008,6 +990,39 @@ const PROGRAMMES = {
               'Twist the bar to unrack, lower to your chest over 2 seconds, touch, no bounce.',
               'Press to lockout. If the path feels wrong at the bottom, move the bench, not your shoulders.',
               'Re-rack by twisting back — check the hooks have caught before you let go.',
+            ],
+          },
+          {
+            // Chest joined shoulders and arms as a size goal on 18 Sep. Volume was not
+            // the gap — 8 direct chest sets a Push day was already plenty in a deficit —
+            // the ANGLE was: flat bench, flat push-ups, flyes, and nothing for the upper
+            // chest he felt working on 14 Sep. This replaced Push-Ups, which had sat at
+            // 15/15 for four sessions and could not progress at 88 kg bodyweight.
+            //
+            // 30 kg is PAIR TOTAL (15 a hand) and deliberately light — an estimate off
+            // flat bench says 34-40, but badly-guessed accessory loads set too heavy are
+            // what caused the August problem. The first session calibrates it, and the
+            // first logged session seeds every later pre-fill, so log it as a pair.
+            //
+            // Third press on Push (bench, incline, shoulder press). Incline, not overhead,
+            // so not the impingement position — but if the left cuff ache comes back,
+            // this is the new variable.
+            name: 'Incline Dumbbell Press',
+            muscles: { primary: ['chest'], secondary: ['front-delts', 'triceps'] },
+            compound: true,
+            sets: 3,
+            reps: '8-12/8-12/8-12',
+            defaultWeight: 30,
+            equipment: ['Dumbbells', 'Incline Bench'],
+            alternative: null,
+            description:
+              'Upper-chest work after the flat press. Bench at about 30° — steeper turns it into a shoulder press. Weights are the PAIR TOTAL, like every dumbbell in this app: 30 means a 15 in each hand. Start light and let the first session tell you the number. Progression: total reps across the three sets within one of 36 at the same weight, then go up 2 kg.',
+            howTo: [
+              'Set the bench to about 30°. Kick the dumbbells up off your knees as you lie back.',
+              'Shoulder blades back and down, feet driving into the floor — the same setup that moved your flat bench.',
+              'Lower under control until the dumbbells are level with your upper chest and you feel the stretch, elbows about 45° from your body.',
+              'Press up and slightly in, without clanging the dumbbells together at the top.',
+              'Log the pair total. If the front of the shoulder complains, drop the angle before you drop the weight.',
             ],
           },
           {
@@ -1167,6 +1182,12 @@ const PROGRAMMES = {
             sets: 3,
             reps: '12-15/12-15/12-15',
             defaultWeight: 10,
+            // Equipment ceiling, stated 18 Sep: "The dymbells i can use that are also safe
+            // for this exercise only goes up to 20kg." At 20 kg a full house is the end of
+            // the road for load, not a cue to add it — nextTarget, isReadyToProgress and
+            // exportFlags all stop suggesting an increase here. Raise it if he gets a
+            // heavier safe option.
+            maxWeight: 20,
             equipment: ['Dumbbells'],
             alternative: { name: 'Bodyweight Crunches', muscles: { primary: ['abs'] }, equipment: [] },
             description:
@@ -1368,6 +1389,12 @@ const PROGRAMMES = {
             sets: 3,
             reps: '12-15/12-15/12-15',
             defaultWeight: 10,
+            // Equipment ceiling, stated 18 Sep: "The dymbells i can use that are also safe
+            // for this exercise only goes up to 20kg." At 20 kg a full house is the end of
+            // the road for load, not a cue to add it — nextTarget, isReadyToProgress and
+            // exportFlags all stop suggesting an increase here. Raise it if he gets a
+            // heavier safe option.
+            maxWeight: 20,
             equipment: ['Dumbbells'],
             alternative: { name: 'Bodyweight Crunches', muscles: { primary: ['abs'] }, equipment: [] },
             description:

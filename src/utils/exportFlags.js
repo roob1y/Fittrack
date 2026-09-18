@@ -18,6 +18,7 @@
 // four times is how a useful signal turns into something you scroll past.
 
 import { setKey, dayKey } from './setKeys';
+import { atCeiling } from './increments';
 
 // `reps` is per-set and slash-separated: '8-12/8-12/8-12', '15/12/12', or a bare
 // '12-15' applying to every set. Returns [lo, hi] or null.
@@ -141,7 +142,10 @@ export function buildDataNotes(PROGRAM, setData, workoutDates, maxWeeks = 52) {
         const scored = bodyweight ? withReps : loaded;
         const topLoad = loaded.length ? Math.max(...loaded.map((d) => Number(d.weight))) : null;
         const atTop = bodyweight ? scored : scored.filter((d) => Number(d.weight) === topLoad);
-        if (atTop.length >= 2 && atTop.length >= ex.sets) {
+        // At an equipment ceiling (`maxWeight`) there is no increase to be due, and a
+        // flag repeated every session for something that cannot change is noise — the
+        // crunches said "due a weight increase" at 20 kg four sessions running.
+        if (atTop.length >= 2 && atTop.length >= ex.sets && !(topLoad && atCeiling(ex, topLoad))) {
           const targets = atTop.map((d) => repTargetForSet(ex.reps, d.si));
           if (targets.every((t, i) => t && Number(atTop[i].reps) >= t[1])) {
             add(
