@@ -293,7 +293,55 @@ export default function WarmupView({ dayId, onStartWorkout, onBack }) {
   }, [index]);
 
   const warmup = available[index];
-  const isLast = index === available.length - 1;
+
+  // Every push-v2 warm-up asks for equipment (bands, or a barbell and a flat
+  // bench), so a user whose kit list has neither ends up with an empty
+  // `available` — and `warmup.name` on undefined took the whole Workouts screen
+  // to a black page. Same if the kit list shrinks mid-warm-up and `index` falls
+  // off the end. Nothing here should ever stand between him and the workout, so
+  // the missing warm-up is reported and the START button is right there. Not an
+  // auto-redirect: navigating from render is how the other black screen started.
+  if (!day || !warmup) {
+    return (
+      <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+        <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '28px', color: 'var(--text)', margin: 0 }}>
+          WARM UP
+        </h2>
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '13px',
+            color: 'var(--muted)',
+            margin: '8px 0 20px',
+          }}
+        >
+          {day
+            ? 'No warm-ups match the equipment set in Settings. Warm up however you normally would.'
+            : 'That day is not part of the active programme.'}
+        </p>
+        <button className="save-day-btn" onClick={onStartWorkout} style={{ width: '100%', maxWidth: '320px' }}>
+          START WORKOUT
+        </button>
+        <button
+          onClick={onBack}
+          style={{
+            background: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            color: 'var(--muted)',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px',
+            fontWeight: 600,
+            padding: '6px 12px',
+            marginTop: '12px',
+            cursor: 'pointer',
+          }}
+        >
+          BACK
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '0 16px', paddingBottom: '32px' }}>

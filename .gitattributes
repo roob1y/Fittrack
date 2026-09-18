@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# patch-package patches must stay LF — a CRLF checkout will not apply.
+patches/*.patch -text

@@ -1,16 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { PROGRAMMES } from '../data/program';
+import { setKey, dayKey } from '../utils/setKeys';
+import { migrationsHaveRun } from '../utils/migrateStore';
+import { emptyProgrammeData } from './shape';
 
-const emptyProgrammeData = () => ({
-  completedDays: {},
-  skippedDays: {},
-  setData: {},
-  notes: {},
-  exerciseNotes: {},
-  sessionTimes: {},
-  workoutDates: {},
-  programmeStartDate: null,
-});
+// If this fires, something imported the store before src/bootstrap.js ran. The
+// store is about to hydrate from un-migrated localStorage and the app will look
+// empty. Fix the import order in main.jsx rather than the migration.
+if (typeof localStorage !== 'undefined' && !migrationsHaveRun) {
+  console.error('[FitTrack] Store created before migrations ran — check that main.jsx imports ./bootstrap first.');
+}
 
 const useStore = create(
   persist(
@@ -30,6 +30,12 @@ const useStore = create(
       weightUnit: 'kg',
       equipment: null,
       quoteTone: 'positive',
+      // Which calendar range the Progress screens are scoped to (see
+      // utils/dateRange.js). A plain string, so a store persisted before this
+      // field existed reads `undefined` and the selector's `?? DEFAULT_RANGE`
+      // returns a stable primitive — the `?? {}` identity trap of bug 22 only
+      // bites on object and array literals.
+      progressRange: 'all',
       lastSetLoggedAt: null,
       restDurationOverride: null,
       measurementLog: {},
@@ -39,6 +45,8 @@ const useStore = create(
       measurementGoals: {},
       barWeights: { '7ft': 20, '5ft': 15 },
       activeSessionStart: null,
+      healthEnabled: false,
+      healthLastSync: null,
 
       // ── Programme actions ────────────────────────────────────────────
       setActiveProgramme: (id) =>
@@ -105,6 +113,41 @@ const useStore = create(
           exerciseNotes: { ...slice.exerciseNotes, [key]: val },
         })),
 
+      // Hold an exercise at its current weight, or release it. Records the date so a
+      // hold set months ago is visibly old rather than silently permanent.
+      toggleHeldExercise: (key) =>
+        get()._updateActive((slice) => {
+          const held = { ...(slice.heldExercises ?? {}) };
+          if (held[key]) delete held[key];
+          else held[key] = { since: new Date().toISOString().slice(0, 10) };
+          return { heldExercises: held };
+        }),
+
+      // Which exercise a shared slot is showing for one week+day — the two leg
+      // presses, where he does whichever machine is free. Stored rather than held
+      // in component state so it survives leaving the screen mid-session, and so a
+      // finished day reopens on the machine it was actually done on.
+      setSlotChoice: (key, exerciseKey) =>
+        get()._updateActive((slice) => ({
+          slotChoices: { ...(slice.slotChoices ?? {}), [key]: exerciseKey },
+        })),
+
+      // Merge a patch into one session's health record; never blows away what is
+      // already there, since heart rate and sleep can arrive on different passes.
+      saveSessionHealth: (key, patch) =>
+        get()._updateActive((slice) => ({
+          sessionHealth: {
+            ...(slice.sessionHealth ?? {}),
+            [key]: { ...(slice.sessionHealth?.[key] ?? {}), ...patch },
+          },
+        })),
+
+      setHealthEnabled: (on) => set({ healthEnabled: !!on }),
+      setHealthLastSync: (ts) => set({ healthLastSync: ts }),
+      // Used by the weight sync, which merges rather than replaces — see
+      // mergeWeightSamples in healthMetrics.js.
+      setWeightLog: (weightLog) => set({ weightLog }),
+
       saveSessionTime: (key, mins) =>
         get()._updateActive((slice) => ({
           sessionTimes: { ...slice.sessionTimes, [key]: mins },
@@ -127,20 +170,39 @@ const useStore = create(
         get()._updateActive((slice) => {
           const setData = { ...slice.setData };
           const exercises = programme?.days?.find((d) => d.id === dayId)?.exercises ?? [];
-          exercises.forEach((ex, ei) => {
+          exercises.forEach((ex) => {
             for (let si = 0; si < ex.sets; si++) {
-              delete setData[`week${weekNum}_${dayId}_${ei}_${si}`];
+              delete setData[setKey(weekNum, dayId, ex, si)];
             }
           });
+          const dKey = dayKey(weekNum, dayId);
           const completedDays = { ...slice.completedDays };
-          delete completedDays[`week${weekNum}_${dayId}`];
+          delete completedDays[dKey];
           const skippedDays = { ...slice.skippedDays };
-          delete skippedDays[`week${weekNum}_${dayId}`];
+          delete skippedDays[dKey];
           const workoutDates = { ...slice.workoutDates };
-          delete workoutDates[`week${weekNum}_${dayId}`];
+          delete workoutDates[dKey];
           const sessionTimes = { ...slice.sessionTimes };
-          delete sessionTimes[`week${weekNum}_${dayId}`];
-          return { setData, completedDays, skippedDays, workoutDates, sessionTimes };
+          delete sessionTimes[dKey];
+          const sessionHealth = { ...(slice.sessionHealth ?? {}) };
+          delete sessionHealth[dKey];
+          return { setData, completedDays, skippedDays, workoutDates, sessionTimes, sessionHealth };
+        });
+        // Clear this day's PB badges, then roll the PB values back to whatever the
+        // remaining logged sets support. Without this a reset leaves both the trophy
+        // and an inflated all-time best behind.
+        const exercises = programme?.days?.find((d) => d.id === dayId)?.exercises ?? [];
+        set((state) => {
+          const pbsAchieved = { ...state.pbsAchieved };
+          exercises.forEach((ex) => {
+            delete pbsAchieved[`week${weekNum}_${dayId}_${ex.name}`];
+            if (ex.alternative?.name) delete pbsAchieved[`week${weekNum}_${dayId}_${ex.alternative.name}`];
+          });
+          return { pbsAchieved };
+        });
+        exercises.forEach((ex) => {
+          get().recomputePB(ex.name);
+          if (ex.alternative?.name) get().recomputePB(ex.alternative.name);
         });
         set({ activeSessionStart: null, lastSetLoggedAt: null });
       },
@@ -158,6 +220,43 @@ const useStore = create(
         set((state) => ({
           pbsAchieved: { ...state.pbsAchieved, [key]: true },
         })),
+
+      clearPBAchieved: (key) =>
+        set((state) => {
+          const updated = { ...state.pbsAchieved };
+          delete updated[key];
+          return { pbsAchieved: updated };
+        }),
+
+      // Recompute an exercise's PB from every logged set across all programmes.
+      // Needed because `pbs` is an all-time best keyed on exercise name — unticking
+      // or resetting a session must roll it back, or one mistaken entry poisons PB
+      // detection permanently.
+      recomputePB: (exerciseName) =>
+        set((state) => {
+          let best = 0;
+          for (const [progId, slice] of Object.entries(state.programmeData ?? {})) {
+            const days = PROGRAMMES[progId]?.days ?? [];
+            const sd = slice?.setData ?? {};
+            for (const day of days) {
+              day.exercises.forEach((ex) => {
+                if (ex.name !== exerciseName && ex.alternative?.name !== exerciseName) return;
+                for (let week = 1; week <= 52; week++) {
+                  for (let si = 0; si < ex.sets; si++) {
+                    const d = sd[setKey(week, day.id, ex, si)];
+                    if (!d?.done || !d?.weight || !d?.reps) continue;
+                    const e1rm = parseFloat(d.weight) * (1 + parseInt(d.reps) / 30);
+                    if (e1rm > best) best = e1rm;
+                  }
+                }
+              });
+            }
+          }
+          const pbs = { ...state.pbs };
+          if (best > 0) pbs[exerciseName] = best;
+          else delete pbs[exerciseName];
+          return { pbs };
+        }),
 
       clearAllPBs: () => set({ pbs: {}, pbsAchieved: {} }),
 
@@ -208,6 +307,8 @@ const useStore = create(
 
       setMeasurementUnit: (unit) => set({ measurementUnit: unit }),
       setHeight: (cm) => set({ heightCm: cm }),
+      setProgressRange: (id) => set({ progressRange: id }),
+
       setGender: (gender) => set({ gender }),
 
       setMeasurementGoal: (key, value) =>
@@ -237,6 +338,8 @@ const useStore = create(
           measurementGoals: {},
           activeSessionStart: null,
           currentWeek: 1,
+          healthEnabled: false,
+          healthLastSync: null,
         }),
     }),
     {

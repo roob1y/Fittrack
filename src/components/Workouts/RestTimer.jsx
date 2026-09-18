@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { hapticsNotification } from '../../hooks/useHaptics';
 import { playRestComplete, playCountdownBeep } from '../../hooks/useSound';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
-import useStore from '../../store/useStore';
 
 const COMPOUND_NAMES = [
   'Deadlifts',
@@ -18,7 +17,23 @@ const COMPOUND_NAMES = [
   'Bulgarian Split Squats',
 ];
 
-export function getRestDuration(exerciseName, overrides) {
+export function getRestDuration(exerciseName, overrides, compoundFlag, restSeconds) {
+  // A per-exercise `restSeconds` in program.js wins over everything else. It is
+  // the only honest way to say "this IS a compound movement, but it does not
+  // need the full compound rest" — an activation set, a light ramp — without
+  // lying about `compound` and losing the flag everywhere else it is read.
+  // It beats the user's global compound/accessory overrides too: those set the
+  // default for a whole category, this is a deliberate exception to it.
+  const explicit = Number(restSeconds);
+  if (Number.isFinite(explicit) && explicit > 0) return Math.round(explicit);
+
+  // Otherwise prefer the programme's own `compound` flag. COMPOUND_NAMES is a
+  // legacy fallback for programmes whose exercises predate the flag — it
+  // silently misses any name not on the list, which is how a whole day of
+  // compound work ended up on 60s rest.
+  if (typeof compoundFlag === 'boolean') {
+    return compoundFlag ? (overrides?.compound ?? 90) : (overrides?.accessory ?? 60);
+  }
   if (!exerciseName) return overrides?.accessory ?? 60;
   const isCompound = COMPOUND_NAMES.some((name) => exerciseName.toLowerCase().includes(name.toLowerCase()));
   if (isCompound) return overrides?.compound ?? 90;
@@ -33,10 +48,10 @@ export default function RestTimer({
   isLastSet,
   nextSetInfo,
   isBodyweight,
+  isCompound,
   onComplete,
   onSkip,
 }) {
-  const weightUnit = useStore((s) => s.weightUnit);
   const [weight, setWeight] = useState(nextSetWeight || '');
   const [seconds, setSeconds] = useState(duration);
 
@@ -245,7 +260,7 @@ export default function RestTimer({
 
         {/* Type badge */}
         <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '24px' }}>
-          {duration === 90 ? 'Compound · 90s rest' : 'Isolation · 60s rest'}
+          {(isCompound ? 'Compound' : 'Isolation') + ' · ' + duration + 's rest'}
         </div>
 
         {nextSetKey && !isLastSet && !isBodyweight && (

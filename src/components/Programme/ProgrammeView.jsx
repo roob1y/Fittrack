@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAMMES } from '../../data/program';
-import { getCurrentWeek } from '../../utils/week';
 
 const PROGRAMME_ICONS = {
   '5day': '📅',
@@ -17,6 +16,7 @@ export default function ProgrammeView() {
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
   const setActiveProgramme = useStore((s) => s.setActiveProgramme);
   const programmeData = useStore((s) => s.programmeData);
+  const currentWeek = useStore((s) => s.currentWeek);
   const [confirmId, setConfirmId] = useState(null);
 
   const activeProgramme = PROGRAMMES[activeProgrammeId];
@@ -35,8 +35,10 @@ export default function ProgrammeView() {
     const slice = programmeData[progId];
     if (!slice) return { workouts: 0, week: 1 };
     const workouts = Object.keys(slice.completedDays || {}).length;
-    const week = getCurrentWeek(slice.programmeStartDate);
-    return { workouts, week };
+    // `currentWeek` is global, not per-programme — the same caveat the old
+    // getCurrentWeek stub had, except this one tracks the week the user is
+    // actually on instead of always reporting 1.
+    return { workouts, week: currentWeek };
   }
 
   return (

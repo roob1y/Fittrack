@@ -1,18 +1,23 @@
 import React, { useEffect } from 'react';
 import useStore from '../../store/useStore';
+import { setKey, dayKey } from '../../utils/setKeys';
 import MuscleIcon from './MuscleIcon';
 import { getDailyQuote } from '../../data/quotes';
 // getCurrentWeek replaced by manual currentWeek in store
 import { PROGRAMMES } from '../../data/program';
+import { EMPTY } from '../../store/shape';
+import { activeExercises } from '../../utils/slots';
 
 export default function WeekOverview({ onSelectDay }) {
   const quoteTone = useStore((s) => s.quoteTone);
-  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? EMPTY);
   const currentWeek = useStore((s) => s.currentWeek);
   const setCurrentWeek = useStore((s) => s.setCurrentWeek);
-  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
-  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
-  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? EMPTY);
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? EMPTY);
+  const slotChoices = useStore((s) => s.programmeData[s.activeProgrammeId]?.slotChoices ?? EMPTY);
+  const equipment = useStore((s) => s.equipment);
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? EMPTY);
 
   // Highest week that has any logged set data
   const maxActiveWeek = React.useMemo(() => {
@@ -44,26 +49,29 @@ export default function WeekOverview({ onSelectDay }) {
   const nextDayId = trainedToday
     ? null
     : PROGRAM.find((d) => {
-        const k = `week${weekNum}_${d.id}`;
+        const k = dayKey(weekNum, d.id);
         return !completedDays[k] && !skippedDays?.[k];
       })?.id;
 
   function getDayProgress(dayId, exercises) {
     let total = 0,
       done = 0;
-    exercises.forEach((ex, ei) => {
+    exercises.forEach((ex) => {
       for (let s = 0; s < ex.sets; s++) {
         total++;
-        const key = `week${weekNum}_${dayId}_${ei}_${s}`;
+        const key = setKey(weekNum, dayId, ex, s);
         if (setData[key]?.done) done++;
       }
     });
     return total ? Math.round((done / total) * 100) : 0;
   }
 
+  // Both of these count one exercise per SLOT. The two leg presses are one thing
+  // to do on whichever machine is free, so counting both inflates the estimate and
+  // leaves the Legs progress bar unable to reach 100%.
   function estimateDuration(day) {
     let minutes = 0;
-    day.exercises.forEach((ex) => {
+    activeExercises(day, { weekNum, dayId: day.id, setData, slotChoices, equipment }).forEach((ex) => {
       const isCompound = [
         'Deadlifts',
         'Squats',
@@ -203,10 +211,13 @@ export default function WeekOverview({ onSelectDay }) {
       </div>
       <div className="week-grid">
         {PROGRAM.map((day) => {
-          const doneKey = `week${weekNum}_${day.id}`;
+          const doneKey = dayKey(weekNum, day.id);
           const done = !!completedDays[doneKey];
           const skipped = !!skippedDays?.[doneKey];
-          const progress = getDayProgress(day.id, day.exercises);
+          const progress = getDayProgress(
+            day.id,
+            activeExercises(day, { weekNum, dayId: day.id, setData, slotChoices, equipment }),
+          );
 
           return (
             <div

@@ -4,6 +4,7 @@ import { EQUIPMENT_LIST } from '../../data/program';
 import { exportCSV } from '../../utils/exportCSV';
 import { exportPDF } from '../../utils/exportPDF';
 import { exportJSON } from '../../utils/exportJSON';
+import HealthConnectPanel from './HealthConnectPanel';
 import { importJSON } from '../../utils/importJSON';
 
 const EQUIPMENT_GROUPS = [
@@ -29,8 +30,20 @@ const EQUIPMENT_GROUPS = [
   },
   {
     label: 'Machines',
-    items: ['Leg Curl Machine', 'Leg Extension Machine', 'Leg Press Machine', 'Chest Supported Row Machine'],
+    items: [
+      'Leg Curl Machine',
+      'Leg Extension Machine',
+      'Leg Press Machine',
+      'Hack Squat Machine',
+      'Calf Press Machine',
+      'Chest Supported Row Machine',
+    ],
     emoji: '🦵',
+  },
+  {
+    label: 'Cables & Dips',
+    items: ['Cable Machine', 'Chest Fly Machine', 'Assisted Chin/Dip Machine', 'Lat Pulldown Machine'],
+    emoji: '🔗',
   },
   {
     label: 'Accessories',
@@ -47,29 +60,15 @@ const PRESETS = [
   { label: 'Dumbbells Only', items: ['Dumbbells', 'Flat Bench'] },
   {
     label: 'Full Commercial Gym',
-    items: [
-      'Barbell',
-      'Flat Bench',
-      'Incline Bench',
-      'Squat Rack',
-      'Dumbbells',
-      'Leg Curl Machine',
-      'Leg Extension Machine',
-      'Leg Press Machine',
-      'Chest Supported Row Machine',
-      'Resistance Bands',
-      'Pull Up Bar',
-    ],
+    // Derived from EQUIPMENT_LIST so new equipment types can't silently
+    // fall out of this preset the way they did when cables were added.
+    items: [...EQUIPMENT_LIST],
   },
 ];
 
 function EquipmentPicker({ onSave }) {
   const equipment = useStore((s) => s.equipment);
-  const barWeights = useStore((s) => s.barWeights);
-  const setBarWeights = useStore((s) => s.setBarWeights);
   const [selected, setSelected] = useState(equipment || []);
-  const [bar7ft, setBar7ft] = useState(String(barWeights?.['7ft'] ?? 20));
-  const [bar5ft, setBar5ft] = useState(String(barWeights?.['5ft'] ?? 15));
 
   function toggle(item) {
     setSelected((prev) => (prev.includes(item) ? prev.filter((e) => e !== item) : [...prev, item]));
@@ -235,6 +234,8 @@ export default function SettingsView({ onEquipmentSaved }) {
   const equipment = useStore((s) => s.equipment);
   const setEquipment = useStore((s) => s.setEquipment);
   const resetAll = useStore((s) => s.resetAll);
+  const clearAllPBs = useStore((s) => s.clearAllPBs);
+  const pbCount = useStore((s) => Object.keys(s.pbs ?? {}).length);
   const quoteTone = useStore((s) => s.quoteTone);
   const setQuoteTone = useStore((s) => s.setQuoteTone);
 
@@ -244,6 +245,7 @@ export default function SettingsView({ onEquipmentSaved }) {
 
   const [editing, setEditing] = useState(!equipment);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [pbsCleared, setPbsCleared] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showUnitModal, setShowUnitModal] = useState(false);
   const [pendingUnit, setPendingUnit] = useState(null);
@@ -288,8 +290,6 @@ export default function SettingsView({ onEquipmentSaved }) {
       },
     );
   }
-
-  const savePB = useStore((s) => s.savePB);
 
   async function handleExportCSV() {
     exportCSV(state);
@@ -507,6 +507,8 @@ export default function SettingsView({ onEquipmentSaved }) {
           })}
         </div>
 
+        <HealthConnectPanel />
+
         {/* Backup & Restore */}
         <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
           <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '4px' }}>Backup & Restore</div>
@@ -594,6 +596,33 @@ export default function SettingsView({ onEquipmentSaved }) {
               Export PDF
             </button>
           </div>
+        </div>
+        <div
+          onClick={() => {
+            clearAllPBs();
+            setPbsCleared(true);
+            setTimeout(() => setPbsCleared(false), 2500);
+          }}
+          style={{
+            padding: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            cursor: 'pointer',
+            borderBottom: '1px solid var(--border)',
+          }}
+        >
+          <div>
+            <div style={{ fontWeight: 600, fontSize: '15px' }}>Clear Personal Bests</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>
+              {pbsCleared
+                ? 'Cleared — PBs will rebuild from your logged sets'
+                : pbCount
+                  ? `Reset ${pbCount} stored PB${pbCount === 1 ? '' : 's'}. Workout data is kept`
+                  : 'No PBs stored yet'}
+            </div>
+          </div>
+          <div style={{ color: 'var(--muted)', fontSize: '18px' }}>{pbsCleared ? '✓' : '›'}</div>
         </div>
         <div
           onClick={() => setShowResetModal(true)}

@@ -2,3 +2,9 @@ node_modules/
 android/
 dist/
 .DS_Store
+
+Claude outputs/
+.env
+
+Claude outputs/
+.env
