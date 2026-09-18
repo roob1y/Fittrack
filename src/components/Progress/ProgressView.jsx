@@ -82,13 +82,22 @@ function NavCard({ title, detail, accent, onClick }) {
   );
 }
 
-export default function ProgressView() {
+export default function ProgressView({ initialScreen = null, onScreenConsumed }) {
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
   const slice = useStore((s) => s.programmeData[s.activeProgrammeId]);
   const currentWeek = useStore((s) => s.currentWeek);
   const days = PROGRAMMES[activeProgrammeId]?.days ?? [];
 
-  const [screen, setScreen] = React.useState(null);
+  const [screen, setScreen] = React.useState(initialScreen);
+  // A deep link from the header (rank chip → Ranks) arrives as a prop; take it
+  // once, then hand navigation back to local state.
+  React.useEffect(() => {
+    if (initialScreen) {
+      setScreen(initialScreen);
+      onScreenConsumed?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialScreen]);
 
   const workoutDates = slice?.workoutDates ?? {};
   const completedDays = slice?.completedDays ?? {};
