@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import useStore from '../../store/useStore';
+import { setKey } from '../../utils/setKeys';
+import { dayKey } from '../../utils/setKeys';
 import { PROGRAMMES } from '../../data/program';
+import { EMPTY } from '../../store/shape';
+import { activeExercises } from '../../utils/slots';
 
 export default function WorkoutSummaryScreen({ dayId, weekNum, mins, noteKey, onDismiss }) {
   const [visible, setVisible] = useState(false);
-  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? {});
+  const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? EMPTY);
+  const sessionHealth = useStore((s) => s.programmeData[s.activeProgrammeId]?.sessionHealth ?? EMPTY);
+  const healthEnabled = useStore((s) => s.healthEnabled);
   const pbs = useStore((s) => s.pbs);
-  const notes = useStore((s) => s.programmeData[s.activeProgrammeId]?.notes ?? {});
+  const notes = useStore((s) => s.programmeData[s.activeProgrammeId]?.notes ?? EMPTY);
   const saveNote = useStore((s) => s.saveNote);
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const slotChoices = useStore((s) => s.programmeData[s.activeProgrammeId]?.slotChoices ?? EMPTY);
+  const equipment = useStore((s) => s.equipment);
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 50);
@@ -17,22 +25,28 @@ export default function WorkoutSummaryScreen({ dayId, weekNum, mins, noteKey, on
   const day = PROGRAMMES[activeProgrammeId]?.days.find((d) => d.id === dayId);
   if (!day) return null;
 
-  // Sets completed vs total
+  // Health Connect usually has not synced by the time this screen appears, so an
+  // absent reading is the normal case and is shown as pending rather than as zero.
+  const health = sessionHealth?.[dayKey(weekNum, dayId)];
+
+  // Sets completed vs total — one exercise per slot, or a Legs session counts the
+  // sets of a leg press he was never going to touch and can never read 100%.
   let totalSets = 0;
   let completedSets = 0;
-  day.exercises.forEach((ex, ei) => {
+  activeExercises(day, { weekNum, dayId, setData, slotChoices, equipment }).forEach((ex) => {
     for (let si = 0; si < ex.sets; si++) {
       totalSets++;
-      const key = `week${weekNum}_${dayId}_${ei}_${si}`;
+      const key = setKey(weekNum, dayId, ex, si);
       if (setData[key]?.done) completedSets++;
     }
   });
 
-  // PBs hit this session
+  // PBs scan every programme entry, including the slot option not on show — a PB
+  // set on the plate-loaded machine still counts if he swapped tiles afterwards.
   const sessionPBs = [];
-  day.exercises.forEach((ex, ei) => {
+  day.exercises.forEach((ex) => {
     for (let si = 0; si < ex.sets; si++) {
-      const key = `week${weekNum}_${dayId}_${ei}_${si}`;
+      const key = setKey(weekNum, dayId, ex, si);
       const saved = setData[key];
       if (!saved?.done || !saved?.weight || !saved?.reps) continue;
       const currentE1rm = parseFloat(saved.weight) * (1 + parseInt(saved.reps) / 30);
@@ -205,6 +219,67 @@ export default function WorkoutSummaryScreen({ dayId, weekNum, mins, noteKey, on
               {setsPercent === 100 ? '✓ All sets done' : `${setsPercent}% complete`}
             </div>
           </div>
+
+          {/* Heart rate from the Fit 3, via Samsung Health -> Health Connect.
+            Samsung Health syncs on its own schedule, so straight after a session
+            this is normally still pending — say so rather than showing a blank. */}
+          {healthEnabled && (
+            <div
+              style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: '20px',
+                marginBottom: '20px',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--muted)',
+                  fontWeight: 600,
+                  letterSpacing: '0.5px',
+                  marginBottom: '8px',
+                }}
+              >
+                HEART RATE
+              </div>
+              {health?.hr ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px' }}>
+                    <div>
+                      <span
+                        style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '44px', color: 'var(--accent)' }}
+                      >
+                        {health.hr.avg}
+                      </span>
+                      <span style={{ fontSize: '14px', color: 'var(--muted)' }}> avg</span>
+                    </div>
+                    <div>
+                      <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '28px', color: 'var(--text)' }}>
+                        {health.hr.max}
+                      </span>
+                      <span style={{ fontSize: '13px', color: 'var(--muted)' }}> peak</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '6px' }}>
+                    {health.hr.count} readings
+                    {health.hr.minutesElevated != null ? ` · ~${health.hr.minutesElevated} min above 130` : ''}
+                  </div>
+                  {health.sleepMinutes != null && (
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '10px', lineHeight: 1.6 }}>
+                      {`Slept ${Math.floor(health.sleepMinutes / 60)}h ${health.sleepMinutes % 60}m the night before`}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
+                  Waiting on Samsung Health to sync. It usually lands within an hour — it will fill itself in, or you
+                  can tap Sync now in Settings.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* PBs */}

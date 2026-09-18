@@ -1,3 +1,5 @@
+import { setKey, exerciseNoteKey, dayKey } from './setKeys';
+import { buildDataNotes } from './exportFlags';
 import { jsPDF } from 'jspdf';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
@@ -55,7 +57,7 @@ export async function exportPDF(store) {
   const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
   const slice = store.programmeData?.[activeProgrammeId] ?? {};
   const { weightLog, weightUnit } = store;
-  const { setData, workoutDates, sessionTimes } = slice;
+  const { setData, workoutDates, sessionTimes, notes, exerciseNotes } = slice;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageW = 210,
     pageH = 297,
@@ -120,6 +122,21 @@ export async function exportPDF(store) {
     y += 7;
   }
 
+  // A note under the row it belongs to. The history table has no room for a note
+  // column at A4 width, and a cramped one would be less readable than this, not more.
+  function noteLine(text, indent = 6) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7);
+    setTextColor(doc, ACCENT);
+    const wrapped = doc.splitTextToSize(String(text), contentW - indent - 6);
+    for (const line of wrapped) {
+      checkPageBreak(5);
+      doc.text(line, margin + indent, y + 3.6);
+      y += 4.4;
+    }
+    y += 1.2;
+  }
+
   function tableRow(cols, values, isAlt) {
     checkPageBreak(6.5);
     if (isAlt) {
@@ -160,12 +177,12 @@ export async function exportPDF(store) {
     totalSets = 0;
   for (let week = 1; week <= 52; week++) {
     for (const day of PROGRAM) {
-      const key = `week${week}_${day.id}`;
+      const key = dayKey(week, day.id);
       if (!workoutDates?.[key]) continue;
       totalWorkouts++;
-      day.exercises.forEach((ex, ei) => {
+      day.exercises.forEach((ex) => {
         for (let si = 0; si < ex.sets; si++) {
-          if (setData?.[`week${week}_${day.id}_${ei}_${si}`]?.done) totalSets++;
+          if (setData?.[setKey(week, day.id, ex, si)]?.done) totalSets++;
         }
       });
     }
@@ -214,18 +231,29 @@ export async function exportPDF(store) {
   ];
   tableHeader(wCols);
 
+  const placedNotes = new Set();
   let rowCount = 0;
   for (let week = 1; week <= 52; week++) {
     for (const day of PROGRAM) {
-      const dateKey = `week${week}_${day.id}`;
+      const dateKey = dayKey(week, day.id);
       const date = workoutDates?.[dateKey];
       if (!date) continue;
-      day.exercises.forEach((ex, ei) => {
+      let sessionNoteDrawn = false;
+      day.exercises.forEach((ex) => {
         const repTargets = ex.reps.split('/');
+        let exNoteDrawn = false;
         for (let si = 0; si < ex.sets; si++) {
-          const setKey = `week${week}_${day.id}_${ei}_${si}`;
-          const saved = setData?.[setKey];
+          const key = setKey(week, day.id, ex, si);
+          const saved = setData?.[key];
           if (!saved?.done) continue;
+
+          const sessNote = notes?.[dateKey];
+          if (sessNote && !sessionNoteDrawn) {
+            noteLine(`${date} — ${sessNote}`, 3);
+            placedNotes.add(dateKey);
+            sessionNoteDrawn = true;
+          }
+
           const repTarget = repTargets[si] ?? repTargets[repTargets.length - 1] ?? ex.reps;
           const displayReps = saved.reps || repTarget || '—';
           const displayWeight = saved.weight || (ex.defaultWeight != null ? ex.defaultWeight : '—');
@@ -235,6 +263,13 @@ export async function exportPDF(store) {
             rowCount % 2 === 1,
           );
           rowCount++;
+
+          const nKey = exerciseNoteKey(week, day.id, ex);
+          if (exerciseNotes?.[nKey] && !exNoteDrawn) {
+            noteLine(exerciseNotes[nKey]);
+            placedNotes.add(nKey);
+            exNoteDrawn = true;
+          }
         }
       });
     }
@@ -254,7 +289,7 @@ export async function exportPDF(store) {
   rowCount = 0;
   for (let week = 1; week <= 52; week++) {
     for (const day of PROGRAM) {
-      const key = `week${week}_${day.id}`;
+      const key = dayKey(week, day.id);
       const date = workoutDates?.[key];
       const mins = sessionTimes?.[key];
       if (!date || mins == null) continue;
@@ -262,6 +297,54 @@ export async function exportPDF(store) {
       rowCount++;
     }
   }
+
+  // ── Notes that had no row to sit on ──────────────────
+  const orphanNotes = [];
+  for (let week = 1; week <= 52; week++) {
+    for (const day of PROGRAM) {
+      const dKey = dayKey(week, day.id);
+      const date = workoutDates?.[dKey];
+      if (!date) continue;
+      if (notes?.[dKey] && !placedNotes.has(dKey)) orphanNotes.push([date, '(whole session)', notes[dKey]]);
+      for (const ex of day.exercises) {
+        const nKey = exerciseNoteKey(week, day.id, ex);
+        if (exerciseNotes?.[nKey] && !placedNotes.has(nKey)) orphanNotes.push([date, ex.name, exerciseNotes[nKey]]);
+      }
+    }
+  }
+
+  if (orphanNotes.length) {
+    sectionTitle('NOTES WITH NO LOGGED SETS');
+    const oCols = [
+      { label: 'Date', width: 26 },
+      { label: 'Exercise', width: 52 },
+      { label: 'Note', width: 100 },
+    ];
+    tableHeader(oCols);
+    rowCount = 0;
+    for (const o of orphanNotes) {
+      tableRow(oCols, o, rowCount % 2 === 1);
+      rowCount++;
+    }
+  }
+
+  // ── Data notes ───────────────────────────────────────
+  sectionTitle('DATA NOTES (GENERATED)');
+
+  const dCols = [
+    { label: 'Date', width: 26 },
+    { label: 'Exercise', width: 48 },
+    { label: 'Observation', width: 104 },
+  ];
+  tableHeader(dCols);
+
+  rowCount = 0;
+  const dataNotes = buildDataNotes(PROGRAM, setData, workoutDates);
+  for (const n of dataNotes) {
+    tableRow(dCols, [n.date, n.exercise, n.flag], rowCount % 2 === 1);
+    rowCount++;
+  }
+  if (rowCount === 0) tableRow(dCols, ['—', 'Nothing flagged', ''], false);
 
   // ── Body Weight ──────────────────────────────────────
   sectionTitle(`BODY WEIGHT LOG (${weightUnit.toUpperCase()})`);

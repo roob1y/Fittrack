@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAMMES } from '../../data/program';
-import { getCurrentWeek } from '../../utils/week';
+import { dayKey } from '../../utils/setKeys';
+import { EMPTY } from '../../store/shape';
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -10,7 +11,7 @@ function todayStr() {
 function getDayStatus(dateStr, completedDays, skippedDays, workoutDates, days) {
   for (const day of days) {
     for (let week = 1; week <= 52; week++) {
-      const key = `week${week}_${day.id}`;
+      const key = dayKey(week, day.id);
       if (completedDays?.[key] && workoutDates?.[key] === dateStr) return 'trained';
       if (skippedDays?.[key] && workoutDates?.[key] === dateStr) return 'skipped';
     }
@@ -21,7 +22,7 @@ function getDayStatus(dateStr, completedDays, skippedDays, workoutDates, days) {
 function getWorkoutForDate(dateStr, completedDays, skippedDays, workoutDates, days) {
   for (const day of days) {
     for (let week = 1; week <= 52; week++) {
-      const key = `week${week}_${day.id}`;
+      const key = dayKey(week, day.id);
       if (workoutDates?.[key] === dateStr) {
         const status = completedDays?.[key]
           ? '✓ Completed'
@@ -183,11 +184,11 @@ function MonthGrid({
 
 export default function CalendarView() {
   const programmeStartDate = useStore((s) => s.programmeData[s.activeProgrammeId]?.programmeStartDate ?? null);
-  const setProgrammeStartDate = useStore((s) => s.setProgrammeStartDate);
-  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
-  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? {});
-  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? {});
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? EMPTY);
+  const skippedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.skippedDays ?? EMPTY);
+  const workoutDates = useStore((s) => s.programmeData[s.activeProgrammeId]?.workoutDates ?? EMPTY);
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
+  const currentWeek = useStore((s) => s.currentWeek);
   const PROGRAM = PROGRAMMES[activeProgrammeId]?.days ?? [];
 
   const [mode, setMode] = useState('week');
@@ -198,7 +199,7 @@ export default function CalendarView() {
     if (!programmeStartDate) return <WelcomeScreen />;
   }
 
-  const weekNum = getCurrentWeek(programmeStartDate);
+  const weekNum = currentWeek;
   const today = todayStr();
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 

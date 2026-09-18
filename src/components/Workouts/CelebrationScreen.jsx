@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import fanfareSrc from '../../assets/sounds/celebration-fanfare.mp3';
 import popSrc from '../../assets/sounds/pop.mp3';
 
@@ -294,12 +294,10 @@ function ConfettiCanvas() {
 }
 
 export default function CelebrationScreen({ mins, dayFocus, tone, onDismiss }) {
-  const [visible, setVisible] = useState(false);
   const messages = MESSAGES[tone] || MESSAGES.positive;
   const message = useMemo(() => messages[Math.floor(Math.random() * messages.length)], [tone]);
 
   useEffect(() => {
-    setTimeout(() => setVisible(true), 50);
     try {
       new Audio(fanfareSrc).play();
       new Audio(popSrc).play();

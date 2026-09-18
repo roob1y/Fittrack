@@ -6,7 +6,9 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "sync": "vite build && npx cap sync android"
+    "sync": "vite build && npx cap sync android",
+    "postinstall": "patch-package",
+    "lint": "eslint src scripts"
   },
   "repository": {
     "type": "git",
@@ -22,7 +24,12 @@
   "homepage": "https://github.com/roob1y/Fittrack#readme",
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
     "live-server": "^1.2.0",
+    "patch-package": "^8.0.1",
     "vite": "^8.0.3"
   },
   "dependencies": {
@@ -36,6 +43,7 @@
     "@capacitor/local-notifications": "^8.0.2",
     "@capacitor/share": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
+    "@capgo/capacitor-health": "^8.10.4",
     "framer-motion": "^12.38.0",
     "jspdf": "^4.2.1",
     "react": "^19.2.4",

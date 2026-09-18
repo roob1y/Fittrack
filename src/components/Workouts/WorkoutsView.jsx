@@ -6,9 +6,10 @@ import { keepScreenAwake, allowScreenSleep } from '../../plugins/keepAwake';
 import { registerBackButton } from '../../hooks/useBackButton';
 import useStore from '../../store/useStore';
 import { PROGRAMMES } from '../../data/program';
+import { EMPTY } from '../../store/shape';
 
 export default function WorkoutsView() {
-  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? {});
+  const completedDays = useStore((s) => s.programmeData[s.activeProgrammeId]?.completedDays ?? EMPTY);
   const currentWeek = useStore((s) => s.currentWeek);
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
   const resetDaySession = useStore((s) => s.resetDaySession);
