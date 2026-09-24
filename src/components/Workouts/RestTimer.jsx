@@ -151,192 +151,143 @@ export default function RestTimer({
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [duration, exerciseName]);
 
-  const progress = seconds / totalRef.current; // 1 → 0
-  const radius = 54;
-  const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference * (1 - progress);
-
   // Colour shifts from accent → red as time runs low
   const isLow = seconds <= 10;
   const arcColour = isLow ? 'var(--red)' : 'var(--accent)';
 
+  // ±30 s: move the wall-clock start rather than the countdown, so the tick,
+  // the resync after backgrounding and the notification all agree.
+  function adjust(delta) {
+    startTimeRef.current -= delta * 1000;
+    totalRef.current = Math.max(1, totalRef.current + delta);
+    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    setSeconds(Math.max(0, duration - elapsed));
+  }
+  const bump = (delta) => {
+    const next = Math.max(0, (parseFloat(weight) || 0) + delta);
+    const str = String(Math.round(next * 100) / 100);
+    setWeight(str);
+    weightRef.current = str;
+  };
+  const mm = Math.floor(seconds / 60);
+  const ss = String(seconds % 60).padStart(2, '0');
+  const R = 100;
+  const C = 2 * Math.PI * R;
+
   return (
     <>
-      {/* Backdrop — no onClick, user must use buttons to dismiss */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.55)',
-          zIndex: 110,
-        }}
-      />
-      {/* Sheet */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          background: 'var(--surface)',
-          borderBottom: '1px solid var(--border)',
-          borderRadius: '0 0 20px 20px',
-          zIndex: 120,
-          padding: 'calc(env(safe-area-inset-top, 0px) + 20px) 24px 28px',
-          maxWidth: '480px',
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        {/* Exercise label */}
-        <div
-          style={{
-            fontSize: '12px',
-            color: 'var(--muted)',
-            fontWeight: 600,
-            letterSpacing: '0.5px',
-            textTransform: 'uppercase',
-            marginBottom: '4px',
-          }}
-        >
-          Rest
-        </div>
-        <div
-          style={{
-            fontSize: '15px',
-            fontWeight: 600,
-            color: 'var(--text)',
-            marginBottom: '24px',
-            textAlign: 'center',
-          }}
-        >
-          {exerciseName}
+      <div className="scrim" style={{ zIndex: 110 }} />
+      <div className="bottom-sheet stack" style={{ zIndex: 120, alignItems: 'center', gap: 16, overflow: 'visible' }}>
+        <div className="sheet-handle" style={{ margin: '0 auto 4px' }} />
+        <div className="stack" style={{ alignItems: 'center', gap: 2 }}>
+          <span className="eyebrow">Resting</span>
+          <span className="meta-2" style={{ fontWeight: 600 }}>
+            {exerciseName}
+          </span>
         </div>
 
-        {/* Circular countdown */}
-        <div style={{ position: 'relative', width: '140px', height: '140px', marginBottom: '28px' }}>
-          <svg width="140" height="140" style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
-            <circle cx="70" cy="70" r={radius} fill="none" stroke="var(--border)" strokeWidth="8" />
+        <div
+          style={{
+            position: 'relative',
+            width: 220,
+            height: 220,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <svg
+            width="220"
+            height="220"
+            viewBox="0 0 220 220"
+            style={{ position: 'absolute', inset: 0 }}
+            aria-hidden="true"
+          >
+            <circle cx="110" cy="110" r={R} fill="none" stroke="var(--border)" strokeWidth="8" />
             <circle
-              cx="70"
-              cy="70"
-              r={radius}
+              cx="110"
+              cy="110"
+              r={R}
               fill="none"
               stroke={arcColour}
               strokeWidth="8"
               strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={dashOffset}
+              strokeDasharray={C}
+              strokeDashoffset={C * (1 - Math.min(1, seconds / totalRef.current))}
+              transform="rotate(-90 110 110)"
               style={{ transition: 'stroke-dashoffset 0.5s linear, stroke 0.3s' }}
             />
           </svg>
-
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div
+          <div className="stack" style={{ alignItems: 'center', gap: 2 }}>
+            <span
+              className="display"
               style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '52px',
-                color: isLow ? 'var(--red)' : 'var(--accent)',
-                lineHeight: 1,
-                transition: 'color 0.3s',
+                fontSize: 64,
+                fontVariationSettings: "'wdth' 75",
+                fontVariantNumeric: 'tabular-nums',
+                color: isLow ? 'var(--down)' : undefined,
               }}
             >
-              {seconds}
-            </div>
-            <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.5px' }}>SEC</div>
+              {mm}:{ss}
+            </span>
+            <span className="meta" style={{ fontWeight: 600 }}>
+              of {Math.floor(totalRef.current / 60)}:{String(totalRef.current % 60).padStart(2, '0')} ·{' '}
+              {isCompound ? 'compound' : 'isolation'}
+            </span>
           </div>
         </div>
 
-        {/* Type badge */}
-        <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '24px' }}>
-          {(isCompound ? 'Compound' : 'Isolation') + ' · ' + duration + 's rest'}
-        </div>
-
-        {nextSetKey && !isLastSet && !isBodyweight && (
-          <div style={{ width: '100%', marginBottom: '16px' }}>
-            <div
-              style={{
-                fontSize: '11px',
-                color: 'var(--muted)',
-                fontWeight: 600,
-                letterSpacing: '0.5px',
-                marginBottom: '6px',
-              }}
-            >
-              NEXT SET WEIGHT (KG)
+        {nextSetInfo && (
+          <div className="card row" style={{ width: '100%', gap: 12, padding: '12px 14px' }}>
+            <div className="grow">
+              <div className="eyebrow" style={{ fontSize: 10 }}>
+                {nextSetInfo.type === 'set'
+                  ? `Next · set ${nextSetInfo.setNum} of ${nextSetInfo.totalSets}`
+                  : 'Next exercise'}
+              </div>
+              <div style={{ fontWeight: 600, fontSize: 14, marginTop: 2 }}>
+                {nextSetInfo.type === 'set' ? `${exerciseName} · ${nextSetInfo.reps} reps` : nextSetInfo.name}
+              </div>
             </div>
-            <input
-              type="number"
-              inputMode="decimal"
-              value={weight}
-              onChange={(e) => {
-                setWeight(e.target.value);
-                weightRef.current = e.target.value;
-              }}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                color: 'var(--text)',
-                fontSize: '20px',
-                fontWeight: 700,
-                textAlign: 'center',
-                boxSizing: 'border-box',
-              }}
-            />
+            {nextSetKey && !isLastSet && !isBodyweight && (
+              <div className="stepper sm" style={{ flexShrink: 0 }}>
+                <button onClick={() => bump(-2.5)} aria-label="Less weight">
+                  −
+                </button>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={weight}
+                  aria-label="Next set weight"
+                  onChange={(e) => {
+                    setWeight(e.target.value);
+                    weightRef.current = e.target.value;
+                  }}
+                  style={{ width: 64, minWidth: 0 }}
+                />
+                <button onClick={() => bump(2.5)} aria-label="More weight">
+                  +
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Buttons */}
-        <div style={{ width: '100%' }}>
+        <div className="row" style={{ width: '100%', gap: 8 }}>
+          <button className="btn grow" onClick={() => adjust(-30)}>
+            −30 s
+          </button>
+          <button className="btn grow" onClick={() => adjust(30)}>
+            +30 s
+          </button>
           <button
+            className="btn btn-primary"
+            style={{ flexGrow: 2, fontSize: 16 }}
             onClick={() => handleComplete(weight)}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: 'var(--accent)',
-              border: 'none',
-              borderRadius: 'var(--radius)',
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: '18px',
-              letterSpacing: '1px',
-              color: '#0d0d0f',
-              cursor: 'pointer',
-            }}
           >
-            DONE RESTING
+            Skip rest
           </button>
         </div>
-
-        {/* Next set info footer */}
-        {nextSetInfo && (
-          <div
-            style={{
-              marginTop: '20px',
-              fontSize: '12px',
-              color: 'var(--muted)',
-              textAlign: 'center',
-              letterSpacing: '0.3px',
-            }}
-          >
-            {nextSetInfo.type === 'set'
-              ? `NEXT · SET ${nextSetInfo.setNum} OF ${nextSetInfo.totalSets} · ${nextSetInfo.reps} REPS`
-              : `NEXT EXERCISE · ${nextSetInfo.name.toUpperCase()}`}
-          </div>
-        )}
       </div>
     </>
   );

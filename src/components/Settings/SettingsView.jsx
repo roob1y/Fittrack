@@ -4,7 +4,9 @@ import { EQUIPMENT_LIST } from '../../data/program';
 import { exportCSV } from '../../utils/exportCSV';
 import { exportPDF } from '../../utils/exportPDF';
 import { exportJSON } from '../../utils/exportJSON';
+import { exportBodyCSV } from '../../utils/exportSlices';
 import HealthConnectPanel from './HealthConnectPanel';
+import ExportSliceSheet from './ExportSliceSheet';
 import { importJSON } from '../../utils/importJSON';
 
 const EQUIPMENT_GROUPS = [
@@ -250,6 +252,7 @@ export default function SettingsView({ onEquipmentSaved }) {
   const [showUnitModal, setShowUnitModal] = useState(false);
   const [pendingUnit, setPendingUnit] = useState(null);
   const [pendingFile, setPendingFile] = useState(null);
+  const [sliceSheet, setSliceSheet] = useState(null); // 'session' | 'exercise' | null
   const state = useStore((s) => s);
 
   function handleUnitChange(unit) {
@@ -596,7 +599,37 @@ export default function SettingsView({ onEquipmentSaved }) {
               Export PDF
             </button>
           </div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', margin: '16px 0 10px' }}>
+            Or just one thing, as CSV
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {[
+              ['One session', () => setSliceSheet('session')],
+              ['One exercise', () => setSliceSheet('exercise')],
+              ['Body stats', () => exportBodyCSV(state)],
+            ].map(([label, onClick]) => (
+              <button
+                key={label}
+                onClick={onClick}
+                style={{
+                  flex: 1,
+                  padding: '12px 6px',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
+        {sliceSheet && <ExportSliceSheet kind={sliceSheet} state={state} onClose={() => setSliceSheet(null)} />}
         <div
           onClick={() => {
             clearAllPBs();

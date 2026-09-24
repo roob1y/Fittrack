@@ -13,6 +13,8 @@ const GLOBAL_KEYS = [
   'heightCm',
   'gender',
   'measurementGoals',
+  'bodyScans',
+  'weightGoalKg',
   'barWeights',
 ];
 

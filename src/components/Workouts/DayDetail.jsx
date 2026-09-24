@@ -1,19 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useStore from '../../store/useStore';
 import { PROGRAMMES } from '../../data/program';
-import CelebrationScreen from './CelebrationScreen';
-import WorkoutSummaryScreen from './WorkoutSummaryScreen';
+import RecapScreen from './RecapScreen';
+import RankUpScreen from '../Ranks/RankUpScreen';
+import { rankBoard, rankUps as diffRanks } from '../../utils/ranks';
 import RestTimer, { getRestDuration } from './RestTimer';
 import { hapticsImpact } from '../../hooks/useHaptics';
 import ExerciseDetailSheet from './ExerciseDetailSheet';
 import { scheduleLocalNotification, cancelLocalNotification } from '../../plugins/localNotifications';
-import { setKey, exerciseNoteKey, dayKey, holdKey, exerciseKeyPart } from '../../utils/setKeys';
+import { setKey, exerciseNoteKey, dayKey, holdKey, exerciseKeyPart, swapKey } from '../../utils/setKeys';
 import { dayTiles, pickOption, slotChoiceKey, loggedSetCount } from '../../utils/slots';
 import { lastLoggedValue, lastUsedBestWeight } from '../../utils/history';
 import { captureSessionWindow } from '../../utils/healthSync';
 import { isAssisted, bodyweightAt, effectiveFromAssist } from '../../utils/loads';
 import { sessionsFor } from '../../utils/progressStats';
-import { nextTarget, tidy } from '../../utils/increments';
+import { nextTarget, tidy, incrementFor } from '../../utils/increments';
+import Icon from '../ui/Icon';
 import { EMPTY } from '../../store/shape';
 
 const THIRTY_MINS = 30 * 60 * 1000;
@@ -23,6 +25,14 @@ const THIRTY_MINS = 30 * 60 * 1000;
 const LAST_SET_GRACE = 10 * 60 * 1000;
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
+const truncate = (str, n) => (str && str.length > n ? str.slice(0, n - 1) + '…' : str);
+// Strip pills need to fit: drop the bracketed qualifier and the "Optional Finisher —" prefix.
+const shortName = (name) =>
+  String(name)
+    .replace(/^Optional Finisher\s*[—-]\s*/i, '')
+    .replace(/\s*\(.*?\)\s*$/, '')
+    .replace(/^(Dumbbell|Barbell|Cable|Machine|Seated|Assisted)\s+/i, '')
+    .trim();
 
 function useToast() {
   function showToast(msg) {
@@ -42,8 +52,9 @@ function useToast() {
 
 function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, readOnly, slotOptions, onSlotSwap }) {
   const showToast = useToast();
-  const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  // Which set is being worked on: null = the first one not yet logged.
+  const [pickedSi, setPickedSi] = useState(null);
   const [noteOpen, setNoteOpen] = useState(false);
 
   const setData = useStore((s) => s.programmeData[s.activeProgrammeId]?.setData ?? EMPTY);
@@ -71,6 +82,23 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
 
   const resolvedEx = resolveExercise(ex);
   const assisted = isAssisted(resolvedEx);
+
+  // Which exercise these sets are really being done on. Null means the programmed
+  // one; a name means the alternative — via a manual ⇄ swap or an equipment
+  // substitution. Every set with anything in it carries it as `via`, so the
+  // scoring and overload code can tell a Smith machine session from a barbell one
+  // later. Only while the session is live: a finished day is not re-stamped from
+  // whatever the equipment list says today.
+  const performedVia = resolvedEx.status === 'swapped' || resolvedEx.status === 'alternative' ? resolvedEx.name : null;
+  useEffect(() => {
+    if (readOnly) return;
+    for (let si = 0; si < ex.sets; si++) {
+      const k = setKey(weekNum, dayId, ex, si);
+      const d = setData[k];
+      if (!d || !(d.done || d.weight || d.reps || d.assist)) continue;
+      if ((d.via ?? null) !== performedVia) saveSetData(k, 'via', performedVia);
+    }
+  }, [performedVia, setData, readOnly, ex, weekNum, dayId, saveSetData]);
   // Bodyweight as of this session, for turning an assist into an effective load.
   const bw = assisted ? bodyweightAt(weightLog, workoutDates[dayKey(weekNum, dayId)] ?? todayISO()) : null;
 
@@ -98,7 +126,9 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
   // write: the number only enters the log when the button is pressed, because a
   // pre-filled weight you did not lift is worse than no weight at all.
   const suggestion = React.useMemo(() => {
-    const history = sessionsFor(days, log, dayId, ex).filter((s) => !(s.dayId === dayId && s.week >= weekNum));
+    const history = sessionsFor(days, log, dayId, ex).filter(
+      (s) => !(s.dayId === dayId && s.week >= weekNum) && (s.via ?? null) === performedVia,
+    );
     if (!history.length) return null;
     if (held) return null;
     const target = nextTarget(resolvedEx, history[history.length - 1]);
@@ -110,7 +140,7 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
       return { ...target, apply: String(assist), label: `${assist} kg assist`, effective: target.nextLoad };
     }
     return { ...target, apply: String(target.nextLoad), label: `${target.nextLoad} kg` };
-  }, [setData, workoutDates, dayId, ex, weekNum, resolvedEx, assisted, bw?.kg, held]);
+  }, [setData, workoutDates, dayId, ex, weekNum, resolvedEx, assisted, bw?.kg, held, performedVia]);
 
   function applySuggestion() {
     if (!suggestion) return;
@@ -249,11 +279,11 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
       const currentSetValue = assisted ? freshSet?.assist : freshSet?.weight;
       const carried = assisted
         ? currentSetValue ||
-          lastLoggedValue(days, log, dayId, ex, si + 1, 'assist', weekNum) ||
+          lastLoggedValue(days, log, dayId, ex, si + 1, 'assist', weekNum, performedVia) ||
           resolvedEx.defaultAssist ||
           ''
         : currentSetValue ||
-          lastLoggedValue(days, log, dayId, ex, si + 1, 'weight', weekNum) ||
+          lastLoggedValue(days, log, dayId, ex, si + 1, 'weight', weekNum, performedVia) ||
           resolvedEx.defaultWeight ||
           '';
       onSetTicked(
@@ -287,386 +317,415 @@ function ExerciseCard({ ex, ei, dayId, weekNum, onSetTicked, swapped, onSwap, re
     }
   }
 
+  // ── Render: one focused exercise ──────────────────────────────────────────
+  // The session shows ONE exercise at a time (the strip above it switches). Done
+  // sets collapse to a line, the working set gets steppers and a big Log button,
+  // pending sets are dashed. Tapping any set makes it the working one, which is
+  // how a wrong entry gets corrected.
+  const step = incrementFor(resolvedEx) || 2.5;
+  const setStates = repsArr.map((rep, si) => ({ rep, si, saved: setData[setKey(weekNum, dayId, ex, si)] || {} }));
+  const firstUndone = setStates.find((s) => !s.saved.done)?.si ?? null;
+  const activeSi = readOnly ? null : (pickedSi ?? firstUndone);
+  const doneCount = setStates.filter((s) => s.saved.done).length;
+  const lastSessionLine = (() => {
+    const prev = sessionsFor(days, log, dayId, ex)
+      .filter((s) => !(s.dayId === dayId && s.week >= weekNum) && (s.via ?? null) === performedVia)
+      .pop();
+    if (!prev) return null;
+    const parts = prev.sets.map((s) => (s.weight ? `${s.reps}@${s.weight}` : `${s.reps}`));
+    return { date: prev.date, text: parts.join(' · ') };
+  })();
+  const repBottom = (rep) => parseInt(String(rep).split('-')[0], 10) || '';
+
+  function shownReps(si, rep, saved) {
+    if (saved.reps) return String(saved.reps);
+    return String(lastLoggedValue(days, log, dayId, ex, si, 'reps', weekNum, performedVia) || repBottom(rep) || '');
+  }
+  function shownLoad(si, saved) {
+    if (assisted) {
+      return String(
+        saved.assist ||
+          lastLoggedValue(days, log, dayId, ex, si, 'assist', weekNum, performedVia) ||
+          resolvedEx.defaultAssist ||
+          '',
+      );
+    }
+    return String(
+      saved.weight ||
+        lastLoggedValue(days, log, dayId, ex, si, 'weight', weekNum, performedVia) ||
+        resolvedEx.defaultWeight ||
+        '',
+    );
+  }
+  function nudge(si, field, delta, current) {
+    const k = setKey(weekNum, dayId, ex, si);
+    const base = parseFloat(current) || 0;
+    const next = Math.max(0, tidy(base + delta));
+    if (field === 'reps') saveSetData(k, 'reps', String(Math.round(next)));
+    else if (assisted) saveAssist(k, String(next));
+    else saveSetData(k, 'weight', String(next));
+  }
+  // Log = commit what is shown (pre-fills included, so the log is never blank), then tick.
+  function logSet(si, rep, saved) {
+    const k = setKey(weekNum, dayId, ex, si);
+    const r = shownReps(si, rep, saved);
+    const l = shownLoad(si, saved);
+    if (!saved.reps && r) saveSetData(k, 'reps', r);
+    if (assisted) {
+      if (!saved.assist && l) saveAssist(k, l);
+    } else if (!saved.weight && l) saveSetData(k, 'weight', l);
+    setPickedSi(null);
+    toggleSet(si, rep);
+  }
+
+  const swapBtn =
+    slotAlt && onSlotSwap ? (
+      <button
+        className={`icon-btn${slotAltSets > 0 ? ' active' : ''}`}
+        style={{ width: 36, height: 36, borderRadius: 10 }}
+        onClick={() => onSlotSwap(slotAlt)}
+        aria-label={'Switch to ' + slotAlt.name}
+      >
+        <Icon name="swap" size={16} />
+      </button>
+    ) : (
+      isBarbbellDumbbellPair(ex) &&
+      onSwap && (
+        <button
+          className={`icon-btn${swapped ? ' active' : ''}`}
+          style={{ width: 36, height: 36, borderRadius: 10 }}
+          onClick={() => onSwap(ei)}
+          aria-label={swapped ? 'Switch back to ' + ex.name : 'Switch to ' + ex.alternative?.name}
+        >
+          <Icon name="swap" size={16} />
+        </button>
+      )
+    );
+
   return (
-    <div className="exercise-card">
-      {detailOpen && <ExerciseDetailSheet ex={resolvedEx} onClose={() => setDetailOpen(false)} />}{' '}
-      <div className="exercise-header" onClick={() => setOpen((o) => !o)}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div
-              style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '6px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 700,
-                color: 'var(--muted)',
-                flexShrink: 0,
-              }}
-            >
-              {ei + 1}
-            </div>
-            <div
-              className="exercise-name"
-              style={{ color: resolvedEx.status === 'unavailable' ? 'var(--muted)' : 'var(--text)' }}
-            >
-              {resolvedEx.name}
-              {resolvedEx.superset ? ` + ${resolvedEx.superset.name}` : ''}
-              {resolvedEx.status === 'alternative' && (
-                <span style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: 400, marginLeft: '6px' }}>
-                  (sub for {ex.name})
-                </span>
-              )}
-              {hasPB && (
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    color: '#0d0d0f',
-                    background: '#ffd700',
-                    borderRadius: '6px',
-                    padding: '2px 6px',
-                    marginLeft: '8px',
-                    verticalAlign: 'middle',
-                  }}
-                >
-                  🏆 PB
-                </span>
-              )}
-            </div>
+    <div className="card card-lg stack stack-12" style={{ padding: 18 }}>
+      {detailOpen && <ExerciseDetailSheet ex={resolvedEx} onClose={() => setDetailOpen(false)} />}
+
+      <div className="row" style={{ alignItems: 'flex-start', gap: 12 }}>
+        <div className="grow stack stack-4">
+          <div
+            className="display display-md"
+            style={{ color: resolvedEx.status === 'unavailable' ? 'var(--muted)' : undefined }}
+          >
+            {resolvedEx.name}
+            {resolvedEx.superset ? ` + ${resolvedEx.superset.name}` : ''}
           </div>
-          <div className="exercise-meta">
+          <div className="meta" style={{ fontWeight: 500 }}>
             {resolvedEx.status === 'unavailable'
-              ? '⚠ No alternative available for your equipment'
-              : `${resolvedEx.sets} sets · ${resolvedEx.reps}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`}
-            {resolvedEx.status === 'alternative' && <span style={{ color: 'var(--accent)' }}> · Substituted</span>}
-            {resolvedEx.status === 'swapped' && <span style={{ color: 'var(--accent)' }}> · Swapped</span>}
-            {resolvedEx.status !== 'unavailable' &&
-              (() => {
-                const lastW = lastUsedBestWeight(days, log, dayId, ex, weekNum);
-                if (!lastW) return null;
-                return (
-                  <span style={{ marginLeft: '6px', color: 'var(--accent)', fontWeight: 600, opacity: 0.8 }}>
-                    · {lastW}kg last used
-                  </span>
-                );
-              })()}
+              ? 'No alternative available for your equipment'
+              : `${resolvedEx.sets} × ${String(resolvedEx.reps).split('/')[0]}${resolvedEx.superset ? ' → ' + resolvedEx.superset.reps : ''}${resolvedEx.note ? ' · ' + resolvedEx.note : ''}`}
+            {resolvedEx.status === 'alternative' && (
+              <span style={{ color: 'var(--accent)' }}> · substituted for {ex.name}</span>
+            )}
+            {resolvedEx.status === 'swapped' && (
+              <span style={{ color: 'var(--accent)' }}> · swapped from {ex.name}</span>
+            )}
+          </div>
+          <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+            {hasPB && (
+              <span className="pill accent" style={{ padding: '3px 8px', fontSize: 11 }}>
+                <Icon name="trophy" size={12} strokeWidth={2.5} /> PB
+              </span>
+            )}
+            {held && (
+              <span className="pill" style={{ padding: '3px 8px', fontSize: 11, color: 'var(--accent2)' }}>
+                <Icon name="pause" size={12} /> held since {held.since?.slice(5) ?? ''}
+              </span>
+            )}
             {slotAltSets > 0 && (
-              <span style={{ display: 'block', marginTop: '3px', color: 'var(--accent)', fontWeight: 600 }}>
-                ⇄ {slotAlt.name} also has {slotAltSets} set{slotAltSets === 1 ? '' : 's'} logged today
+              <span className="pill accent-soft" style={{ padding: '3px 8px', fontSize: 11 }}>
+                {slotAlt.name} has {slotAltSets} set{slotAltSets === 1 ? '' : 's'} logged today
               </span>
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {slotAlt && onSlotSwap ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSlotSwap(slotAlt);
-              }}
-              title={'Switch to ' + slotAlt.name}
-              style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                border: '1px solid ' + (slotAltSets > 0 ? 'var(--accent)' : 'var(--border)'),
-                background: slotAltSets > 0 ? 'rgba(200,241,53,0.15)' : 'var(--surface)',
-                color: slotAltSets > 0 ? 'var(--accent)' : 'var(--muted)',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                flexShrink: 0,
-              }}
-            >
-              ⇄
-            </button>
-          ) : (
-            isBarbbellDumbbellPair(ex) &&
-            onSwap && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSwap(ei);
-                }}
-                title={swapped ? 'Switch back to ' + ex.name : 'Switch to ' + ex.alternative?.name}
-                style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
-                  border: '1px solid ' + (swapped ? 'var(--accent)' : 'var(--border)'),
-                  background: swapped ? 'rgba(200,241,53,0.15)' : 'var(--surface)',
-                  color: swapped ? 'var(--accent)' : 'var(--muted)',
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                }}
-              >
-                ⇄
-              </button>
-            )
-          )}
+        <div className="row" style={{ gap: 6, flexShrink: 0 }}>
+          {swapBtn}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setDetailOpen(true);
-            }}
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              color: 'var(--muted)',
-              fontSize: '13px',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              flexShrink: 0,
-              fontFamily: 'Georgia, serif',
-            }}
+            className="icon-btn"
+            style={{ width: 36, height: 36, borderRadius: 10 }}
+            onClick={() => setDetailOpen(true)}
+            aria-label="Exercise info"
           >
-            i
+            <Icon name="info" size={16} />
           </button>
-          <div
-            className={`exercise-toggle${open ? ' open' : ''}`}
-            style={{ opacity: resolvedEx.status === 'unavailable' ? 0.3 : 1 }}
-          >
-            +
-          </div>
         </div>
       </div>
-      {open && (
-        <div className="sets-table open">
-          {suggestion && !readOnly && (
-            <div
-              style={{
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                borderColor: 'var(--accent)',
-                borderRadius: '10px',
-                padding: '10px 12px',
-                margin: '0 0 10px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '11px', color: 'var(--accent)', letterSpacing: '0.5px' }}>
-                  SUGGESTED INCREASE
+
+      {resolvedEx.status !== 'unavailable' && (
+        <div className="grid-2">
+          <div className="tile-inset stack stack-4">
+            <span className="eyebrow" style={{ fontSize: 10 }}>
+              Target
+            </span>
+            <span className="num" style={{ fontSize: 18 }}>
+              {(() => {
+                const lastW = lastUsedBestWeight(days, log, dayId, ex, weekNum, performedVia);
+                return lastW
+                  ? `${lastW} kg`
+                  : resolvedEx.defaultWeight
+                    ? `${resolvedEx.defaultWeight} kg`
+                    : 'bodyweight';
+              })()}
+            </span>
+          </div>
+          <div className="tile-inset stack stack-4">
+            <span className="eyebrow" style={{ fontSize: 10 }}>
+              {lastSessionLine
+                ? `Last time · ${lastSessionLine.date.slice(8, 10)}/${lastSessionLine.date.slice(5, 7)}`
+                : 'Last time'}
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)' }}>
+              {lastSessionLine ? lastSessionLine.text : 'first session'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {suggestion && !readOnly && (
+        <div
+          className="row"
+          style={{ gap: 10, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--accent)' }}
+        >
+          <div className="grow stack stack-4">
+            <span className="eyebrow accent" style={{ fontSize: 10 }}>
+              Suggested increase
+            </span>
+            <span style={{ fontSize: 13 }}>
+              {suggestion.label}
+              {suggestion.effective ? ` · ${suggestion.effective} kg effective` : ''}
+            </span>
+            <span className="meta" style={{ fontSize: 11, lineHeight: 1.4 }}>
+              {suggestion.note}
+            </span>
+          </div>
+          <button className="btn btn-primary btn-sm" style={{ fontSize: 12 }} onClick={applySuggestion}>
+            Use
+          </button>
+        </div>
+      )}
+
+      {resolvedEx.status !== 'unavailable' && (
+        <div className="stack stack-8">
+          {setStates.map(({ rep, si, saved }) => {
+            const isActive = activeSi === si;
+            const key = setKey(weekNum, dayId, ex, si);
+            if (isActive) {
+              const r = shownReps(si, rep, saved);
+              const l = shownLoad(si, saved);
+              return (
+                <div
+                  key={si}
+                  className="stack stack-10"
+                  style={{
+                    padding: '14px 12px',
+                    borderRadius: 14,
+                    background: 'var(--bg)',
+                    border: '1px solid var(--accent)',
+                  }}
+                >
+                  <div className="row-between">
+                    <span className="eyebrow accent" style={{ fontSize: 11 }}>
+                      Set {si + 1} · {saved.done ? 'logged' : 'working'}
+                    </span>
+                    <span className="meta">{rep === 'Failure' ? 'to failure' : `${rep} reps`}</span>
+                  </div>
+                  <div className="grid-2" style={{ gap: 10 }}>
+                    <div className="stack stack-4">
+                      <label className="eyebrow" style={{ fontSize: 10 }} htmlFor={`reps-${key}`}>
+                        Reps
+                      </label>
+                      <div className={`stepper${isRepsSuspect(saved.reps) ? ' suspect' : ''}`}>
+                        <button onClick={() => nudge(si, 'reps', -1, r)} aria-label="Fewer reps">
+                          −
+                        </button>
+                        <input
+                          id={`reps-${key}`}
+                          type="number"
+                          inputMode="numeric"
+                          value={saved.reps || ''}
+                          placeholder={r}
+                          onChange={(e) => saveSetData(key, 'reps', e.target.value)}
+                        />
+                        <button onClick={() => nudge(si, 'reps', 1, r)} aria-label="More reps">
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <div className="stack stack-4">
+                      <label className="eyebrow" style={{ fontSize: 10 }} htmlFor={`load-${key}`}>
+                        {assisted ? 'Assist kg' : 'Kg'}
+                      </label>
+                      <div className={`stepper${isWeightSuspect(saved.weight, resolvedEx) ? ' suspect' : ''}`}>
+                        <button onClick={() => nudge(si, 'load', -step, l)} aria-label="Less weight">
+                          −
+                        </button>
+                        <input
+                          id={`load-${key}`}
+                          type="number"
+                          inputMode="decimal"
+                          value={(assisted ? saved.assist : saved.weight) || ''}
+                          placeholder={l}
+                          onChange={(e) =>
+                            assisted ? saveAssist(key, e.target.value) : saveSetData(key, 'weight', e.target.value)
+                          }
+                        />
+                        <button onClick={() => nudge(si, 'load', step, l)} aria-label="More weight">
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {assisted && saved.assist && (
+                    <span className="meta" style={{ fontSize: 11 }}>
+                      {saved.weight ? (
+                        <span style={{ color: bw?.stale ? 'var(--down)' : undefined }}>
+                          = {saved.weight} kg effective{bw?.stale ? ' · weigh-in is old' : ''}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--down)' }}>log a bodyweight</span>
+                      )}
+                    </span>
+                  )}
+                  {(isRepsSuspect(saved.reps) || isWeightSuspect(saved.weight, resolvedEx)) && (
+                    <span className="meta" style={{ color: 'var(--down)', fontSize: 11 }}>
+                      Check that number
+                    </span>
+                  )}
+                  {saved.done ? (
+                    <button className="btn btn-ghost btn-block" onClick={() => toggleSet(si, rep)}>
+                      <Icon name="x" size={14} /> Unlog set {si + 1}
+                    </button>
+                  ) : (
+                    <button className="btn btn-primary btn-block" onClick={() => logSet(si, rep, saved)}>
+                      Log set {si + 1}
+                      <Icon name="check" size={18} strokeWidth={3} />
+                    </button>
+                  )}
                 </div>
-                <div style={{ fontSize: '13px', color: 'var(--text)', marginTop: '2px' }}>
-                  {suggestion.label}
-                  {suggestion.effective ? ` · ${suggestion.effective} kg effective` : ''}
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '3px', lineHeight: 1.4 }}>
-                  {suggestion.note}
-                </div>
-              </div>
+              );
+            }
+            if (saved.done) {
+              return (
+                <button
+                  key={si}
+                  className="row"
+                  onClick={() => !readOnly && setPickedSi(si)}
+                  style={{
+                    gap: 12,
+                    minHeight: 52,
+                    padding: '0 12px',
+                    borderRadius: 12,
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    textAlign: 'left',
+                    width: '100%',
+                  }}
+                >
+                  <span className="check-dot done">
+                    <Icon name="check" size={12} strokeWidth={3.5} />
+                  </span>
+                  <span className="meta" style={{ fontWeight: 700, width: 44 }}>
+                    SET {si + 1}
+                  </span>
+                  <span className="grow num" style={{ fontSize: 18 }}>
+                    {saved.reps || '—'}{' '}
+                    <span className="meta" style={{ fontWeight: 500 }}>
+                      reps
+                    </span>
+                    {(assisted ? saved.assist : saved.weight) ? (
+                      <>
+                        &nbsp;·&nbsp;{assisted ? saved.assist : saved.weight}{' '}
+                        <span className="meta" style={{ fontWeight: 500 }}>
+                          {assisted ? 'assist' : 'kg'}
+                        </span>
+                      </>
+                    ) : null}
+                  </span>
+                  {saved.via && (
+                    <span className="meta" style={{ fontSize: 10 }}>
+                      {saved.via}
+                    </span>
+                  )}
+                </button>
+              );
+            }
+            return (
               <button
-                onClick={applySuggestion}
+                key={si}
+                className="row"
+                onClick={() => !readOnly && setPickedSi(si)}
                 style={{
-                  background: 'var(--accent)',
-                  color: '#0d0d0f',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                  flexShrink: 0,
+                  gap: 12,
+                  minHeight: 48,
+                  padding: '0 12px',
+                  borderRadius: 12,
+                  background: 'var(--surface)',
+                  border: '1px dashed var(--border)',
+                  textAlign: 'left',
+                  width: '100%',
                 }}
               >
-                USE
+                <span className="check-dot" />
+                <span className="meta" style={{ fontWeight: 700, width: 44 }}>
+                  SET {si + 1}
+                </span>
+                <span className="grow meta" style={{ fontSize: 13 }}>
+                  {rep === 'Failure' ? 'to failure' : `${rep} reps`}
+                  {shownLoad(si, saved) ? ` · ${shownLoad(si, saved)} ${assisted ? 'assist' : 'kg'}` : ''}
+                </span>
               </button>
-            </div>
-          )}
-          <div className="col-header">
-            <span>SET</span>
-            <span>REPS</span>
-            <span>KG</span>
-            <span></span>
-          </div>
-          {repsArr.map((rep, si) => {
-            const key = setKey(weekNum, dayId, ex, si);
-            const saved = setData[key] || {};
-
-            return (
-              <div key={si}>
-                <div className="set-row">
-                  <div className="set-label">S{si + 1}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <input
-                      className={`set-input${rep === 'Failure' ? ' failure-set' : ''}`}
-                      type="number"
-                      inputMode="numeric"
-                      placeholder={rep}
-                      value={saved.reps || ''}
-                      onChange={(e) => !readOnly && saveSetData(key, 'reps', e.target.value)}
-                      readOnly={readOnly}
-                      style={{ opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}
-                    />
-                    {isRepsSuspect(saved.reps) && (
-                      <div style={{ fontSize: '10px', color: 'var(--red)', marginTop: '3px', textAlign: 'center' }}>
-                        Check reps
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <input
-                      className="set-input"
-                      type="number"
-                      inputMode="decimal"
-                      placeholder={
-                        assisted
-                          ? lastLoggedValue(days, log, dayId, ex, si, 'assist', weekNum) ||
-                            resolvedEx.defaultAssist ||
-                            'assist'
-                          : lastLoggedValue(days, log, dayId, ex, si, 'weight', weekNum) ||
-                            resolvedEx.defaultWeight ||
-                            'kg'
-                      }
-                      value={(assisted ? saved.assist : saved.weight) || ''}
-                      onChange={(e) =>
-                        !readOnly &&
-                        (assisted ? saveAssist(key, e.target.value) : saveSetData(key, 'weight', e.target.value))
-                      }
-                      readOnly={readOnly}
-                      style={{ opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}
-                    />
-                    {assisted && saved.assist ? (
-                      <div style={{ fontSize: '10px', marginTop: '3px', textAlign: 'center', lineHeight: 1.3 }}>
-                        {saved.weight ? (
-                          <span style={{ color: bw?.stale ? 'var(--red)' : 'var(--muted)' }}>
-                            = {saved.weight}kg
-                            {bw?.stale ? ' · weigh-in is old' : ''}
-                          </span>
-                        ) : (
-                          <span style={{ color: 'var(--red)' }}>log a bodyweight</span>
-                        )}
-                      </div>
-                    ) : (
-                      isWeightSuspect(saved.weight, resolvedEx) && (
-                        <div style={{ fontSize: '10px', color: 'var(--red)', marginTop: '3px', textAlign: 'center' }}>
-                          Check weight
-                        </div>
-                      )
-                    )}
-                  </div>
-                  <button
-                    className={`check-btn${saved.done ? ' done' : ''}`}
-                    onClick={() => !readOnly && toggleSet(si, rep)}
-                    style={{ opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}
-                  >
-                    ✓
-                  </button>
-                </div>
-              </div>
             );
           })}
         </div>
       )}
-      {open && (
-        <div style={{ borderTop: '1px solid var(--border)', marginTop: '4px', padding: '10px 12px 4px' }}>
+
+      <div className="row" style={{ gap: 8, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+        <button
+          className={`btn btn-ghost btn-sm grow${exerciseNotes[exerciseNoteKey(weekNum, dayId, ex)] ? ' btn-outline-accent' : ''}`}
+          onClick={() => setNoteOpen((o) => !o)}
+        >
+          <Icon name="note" size={14} /> {exerciseNotes[exerciseNoteKey(weekNum, dayId, ex)] ? 'Note' : 'Add note'}
+        </button>
+        {!readOnly && (
           <button
-            onClick={() => setNoteOpen((o) => !o)}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: '4px 0',
-              cursor: 'pointer',
-              fontSize: '12px',
-              color: exerciseNotes[exerciseNoteKey(weekNum, dayId, ex)] ? 'var(--accent)' : 'var(--muted)',
-              fontWeight: 600,
-              letterSpacing: '0.5px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
+            className={`btn btn-ghost btn-sm grow${held ? ' btn-outline-accent' : ''}`}
+            onClick={() => toggleHeldExercise(holdKey(dayId, ex))}
           >
-            📝 {exerciseNotes[exerciseNoteKey(weekNum, dayId, ex)] ? 'NOTE ·' : 'ADD NOTE'}
+            <Icon name="pause" size={14} /> {held ? 'Resume increases' : 'Hold weight'}
           </button>
-          {!readOnly && (
-            <button
-              onClick={() => toggleHeldExercise(holdKey(dayId, ex))}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '4px 0',
-                cursor: 'pointer',
-                fontSize: '12px',
-                color: held ? 'var(--accent2)' : 'var(--muted)',
-                fontWeight: 600,
-                letterSpacing: '0.5px',
-              }}
-            >
-              {held ? `⏸ HELD SINCE ${held.since?.slice(5) ?? ''} · RESUME` : '⏸ HOLD THIS WEIGHT'}
-            </button>
-          )}
-          {held && (
-            <div style={{ fontSize: '11px', color: 'var(--muted)', lineHeight: 1.5, marginTop: '4px' }}>
-              Weight suggestions are paused for this exercise. Nothing else changes — reps and loads are still logged
-              and still graphed.
+        )}
+      </div>
+      {held && (
+        <span className="meta" style={{ fontSize: 11, lineHeight: 1.5 }}>
+          Weight suggestions are paused for this exercise. Reps and loads are still logged and graphed.
+        </span>
+      )}
+      {noteOpen && (
+        <div className="stack stack-8">
+          {weekNum > 1 && exerciseNotes[exerciseNoteKey(weekNum - 1, dayId, ex)] && (
+            <div className="tile-inset meta" style={{ lineHeight: 1.5 }}>
+              <span className="eyebrow" style={{ fontSize: 10, display: 'block', marginBottom: 4 }}>
+                Last week
+              </span>
+              {exerciseNotes[exerciseNoteKey(weekNum - 1, dayId, ex)]}
             </div>
           )}
-          {noteOpen && (
-            <div style={{ marginTop: '8px' }}>
-              {weekNum > 1 && exerciseNotes[exerciseNoteKey(weekNum - 1, dayId, ex)] && (
-                <div
-                  style={{
-                    fontSize: '12px',
-                    color: 'var(--muted)',
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius)',
-                    padding: '8px 10px',
-                    marginBottom: '8px',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  <div style={{ fontWeight: 600, letterSpacing: '0.5px', marginBottom: '4px', fontSize: '11px' }}>
-                    LAST WEEK
-                  </div>
-                  {exerciseNotes[exerciseNoteKey(weekNum - 1, dayId, ex)]}
-                </div>
-              )}
-              <textarea
-                value={exerciseNotes[exerciseNoteKey(weekNum, dayId, ex)] || ''}
-                onChange={(e) => saveExerciseNote(exerciseNoteKey(weekNum, dayId, ex), e.target.value)}
-                placeholder="Add a note for this exercise..."
-                rows={3}
-                style={{
-                  width: '100%',
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius)',
-                  color: 'var(--text)',
-                  fontSize: '14px',
-                  padding: '10px',
-                  resize: 'none',
-                  boxSizing: 'border-box',
-                  fontFamily: "'DM Sans', sans-serif",
-                  lineHeight: 1.5,
-                }}
-              />
-            </div>
-          )}
+          <textarea
+            className="input"
+            value={exerciseNotes[exerciseNoteKey(weekNum, dayId, ex)] || ''}
+            onChange={(e) => saveExerciseNote(exerciseNoteKey(weekNum, dayId, ex), e.target.value)}
+            placeholder="Add a note for this exercise…"
+            rows={3}
+          />
         </div>
       )}
+      <div style={{ display: 'none' }}>{doneCount}</div>
     </div>
   );
 }
@@ -685,7 +744,6 @@ export default function DayDetail({ dayId, onBack }) {
   const removeSkippedDay = useStore((s) => s.removeSkippedDay);
   const saveWorkoutDate = useStore((s) => s.saveWorkoutDate);
   const saveSessionTime = useStore((s) => s.saveSessionTime);
-  const quoteTone = useStore((s) => s.quoteTone);
   const setLastSetLoggedAt = useStore((s) => s.setLastSetLoggedAt);
   const restDurationOverride = useStore((s) => s.restDurationOverride);
   const saveSetData = useStore((s) => s.saveSetData);
@@ -701,14 +759,20 @@ export default function DayDetail({ dayId, onBack }) {
   const clearActiveSessionStart = useStore((s) => s.clearActiveSessionStart);
 
   const showToast = useToast();
-  const [celebrating, setCelebrating] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
-  const [swappedExercises, setSwappedExercises] = useState({});
+  const [showRecap, setShowRecap] = useState(false);
+  const [pendingRankUps, setPendingRankUps] = useState([]);
+  const [rankUpIdx, setRankUpIdx] = useState(0);
+  // The recap for a session finished earlier — opened from the bottom bar to share it.
+  const [showPastRecap, setShowPastRecap] = useState(false);
+  // Manual swaps live in the store, per session, so they survive leaving the
+  // screen and are still known when the session is scored later.
+  const sessionSwaps = useStore((s) => s.programmeData[s.activeProgrammeId]?.sessionSwaps ?? EMPTY);
+  const toggleSessionSwap = useStore((s) => s.toggleSessionSwap);
 
   function handleSwap(ei) {
-    setSwappedExercises((prev) => ({ ...prev, [ei]: !prev[ei] }));
+    const target = activeExs[ei];
+    if (target) toggleSessionSwap(swapKey(weekNum, dayId, target));
   }
-  const [celebMins, setCelebMins] = useState(0);
   const [restTimer, setRestTimer] = useState(null);
   const [prevNoteOpen, setPrevNoteOpen] = useState(false);
   // A completed day is read-only so a stray tap cannot rewrite finished data, but it
@@ -733,6 +797,30 @@ export default function DayDetail({ dayId, onBack }) {
     () => tiles.map((t) => pickOption(t, { weekNum, dayId, setData, slotChoices, equipment })),
     [tiles, weekNum, dayId, setData, slotChoices, equipment],
   );
+
+  // Which exercise the card shows. Starts on the first one with a set still to
+  // log; the strip and "Skip exercise" move it; finishing an exercise's last set
+  // advances it once the rest timer closes.
+  const setsTotal = activeExs.reduce((a, ex) => a + (ex.sets ?? 0), 0);
+  const setsDone = activeExs.reduce((a, ex) => {
+    let n = 0;
+    for (let si = 0; si < ex.sets; si++) if (setData[setKey(weekNum, dayId, ex, si)]?.done) n++;
+    return a + n;
+  }, 0);
+  const exerciseDone = (ex) => {
+    for (let si = 0; si < ex.sets; si++) if (!setData[setKey(weekNum, dayId, ex, si)]?.done) return false;
+    return ex.sets > 0;
+  };
+  const [focusIdx, setFocusIdx] = useState(() => {
+    const i = activeExs.findIndex((ex) => !exerciseDone(ex));
+    return i < 0 ? 0 : i;
+  });
+  const stripRef = useRef(null);
+  useEffect(() => {
+    const el = stripRef.current?.querySelector(`[data-strip-index="${focusIdx}"]`);
+    el?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    document.body.scrollTo?.({ top: 0, behavior: 'smooth' });
+  }, [focusIdx]);
 
   function handleSlotSwap(tile, option) {
     if (!tile.slot) return;
@@ -857,6 +945,11 @@ export default function DayDetail({ dayId, onBack }) {
   // What the rest timer types goes back where it came from. On an assisted exercise
   // that box holds the ASSIST, so it must be stored as `assist` with `weight` derived
   // — writing it straight to `weight` left the two fields describing different lifts.
+  function advanceFocus(fromIdx) {
+    const next = activeExs.findIndex((ex, i) => i > (fromIdx ?? focusIdx) && !exerciseDone(ex));
+    if (next >= 0) setFocusIdx(next);
+  }
+
   function writeCarriedValue(setKeyStr, value) {
     if (restTimer?.assisted) {
       saveSetData(setKeyStr, 'assist', value);
@@ -894,9 +987,21 @@ export default function DayDetail({ dayId, onBack }) {
     const existingDate = workoutDates?.[key];
     const existingMins = sessionTimes?.[key];
     const mins = existingMins != null ? existingMins : Math.round((end - start) / 60000);
+    // Rank board BEFORE this session counts (its date removed so sessionsFor skips
+    // it), then again after — the difference is the rank-up screens.
+    const st0 = useStore.getState();
+    const days0 = PROGRAMMES[st0.activeProgrammeId]?.days ?? [];
+    const bw0 = bodyweightAt(st0.weightLog, todayStr())?.kg ?? null;
+    const slice0 = st0.programmeData[st0.activeProgrammeId];
+    const before = rankBoard(days0, { ...slice0, workoutDates: { ...slice0?.workoutDates, [key]: undefined } }, bw0);
     saveCompletedDay(key);
     saveWorkoutDate(key, existingDate ?? todayStr());
     saveSessionTime(key, mins);
+    const st1 = useStore.getState();
+    const after = rankBoard(days0, st1.programmeData[st1.activeProgrammeId], bw0);
+    const ups = diffRanks(before, after).filter((u) => u.kind === 'muscle' || u.kind === 'overall');
+    setPendingRankUps(ups);
+    setRankUpIdx(0);
     // Say so rather than quietly recording a different number than the one that was
     // on screen a second ago.
     if (trimmed && existingMins == null) showToast(`${mins} min — timed to your last set, not the button`);
@@ -904,8 +1009,7 @@ export default function DayDetail({ dayId, onBack }) {
     // only, so re-completing a day cannot overwrite the real window with a stub.
     // Fire-and-forget: heart rate arriving or not must never hold up the summary.
     if (!existingDate) captureSessionWindow(key, start, end);
-    setCelebMins(mins);
-    setCelebrating(true);
+    setShowRecap(true);
     clearActiveSessionStart();
     if (workoutNotifIdRef.current !== null) {
       cancelLocalNotification(workoutNotifIdRef.current);
@@ -933,26 +1037,23 @@ export default function DayDetail({ dayId, onBack }) {
   }
 
   return (
-    <div>
-      {celebrating && (
-        <CelebrationScreen
-          mins={celebMins}
-          dayFocus={day.focus}
-          tone={quoteTone}
-          onDismiss={() => {
-            setCelebrating(false);
-            setShowSummary(true);
-          }}
+    <div className="session">
+      {showRecap && pendingRankUps[rankUpIdx] && (
+        <RankUpScreen
+          up={pendingRankUps[rankUpIdx]}
+          index={rankUpIdx}
+          total={pendingRankUps.length}
+          onContinue={() => setRankUpIdx((i) => i + 1)}
         />
       )}
-      {showSummary && (
-        <WorkoutSummaryScreen
+      {showPastRecap && <RecapScreen dayId={dayId} weekNum={weekNum} past onDismiss={() => setShowPastRecap(false)} />}
+      {showRecap && !pendingRankUps[rankUpIdx] && (
+        <RecapScreen
           dayId={dayId}
           weekNum={weekNum}
-          mins={celebMins}
-          noteKey={key}
+          rankUps={pendingRankUps}
           onDismiss={() => {
-            setShowSummary(false);
+            setShowRecap(false);
             onBack(true);
           }}
         />
@@ -977,117 +1078,147 @@ export default function DayDetail({ dayId, onBack }) {
                   writeCarriedValue(setKey(weekNum, dayId, ex, s), value);
                 }
               }
+              if (restTimer.isLastSet) advanceFocus(restTimer.exerciseIdx);
               setRestTimer(null);
             }}
             onSkip={(value) => {
               if (value && restTimer.nextSetKey) writeCarriedValue(restTimer.nextSetKey, value);
+              if (restTimer.isLastSet) advanceFocus(restTimer.exerciseIdx);
               setRestTimer(null);
             }}
           />
         </>
       )}
-      <div className="day-header">
-        <h2>{day.focus.toUpperCase()}</h2>
-        <p>
-          {day.label} · {tiles.length} exercises
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {day.equipment.map((e) => (
-              <span key={e} className="equip-tag">
-                {e}
-              </span>
-            ))}
-          </div>
-          {!isDone && (
-            <div
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '20px',
-                color: 'var(--muted)',
-                letterSpacing: '1px',
-                flexShrink: 0,
-                marginLeft: '12px',
-              }}
-            >
-              {sessionDisplay}
-            </div>
-          )}
+      {/* ── Sticky header: day, position in the session, timer ── */}
+      <div className="session-header">
+        <button className="icon-btn" onClick={() => onBack()} aria-label="Back to today">
+          <Icon name="arrowLeft" size={18} />
+        </button>
+        <div className="stack" style={{ alignItems: 'center', gap: 2 }}>
+          <span className="display" style={{ fontSize: 18, fontVariationSettings: "'wdth' 75" }}>
+            {day.focus}
+          </span>
+          <span className="meta" style={{ fontSize: 11, fontWeight: 600 }}>
+            Exercise {Math.min(focusIdx + 1, activeExs.length)} of {activeExs.length} · Set{' '}
+            {Math.min(setsDone + 1, setsTotal)} of {setsTotal}
+          </span>
         </div>
+        <span
+          className="num"
+          style={{ fontSize: 20, minWidth: 64, textAlign: 'right', color: isDone ? 'var(--muted)' : undefined }}
+        >
+          {isDone ? (sessionTimes[key] != null ? `${sessionTimes[key]}m` : '') : sessionDisplay}
+        </span>
+      </div>
+
+      {/* ── Exercise strip ── */}
+      <div className="strip" ref={stripRef}>
+        {activeExs.map((ex, i) => {
+          const done = exerciseDone(ex);
+          const cls = i === focusIdx ? 'strip-pill current' : done ? 'strip-pill done' : 'strip-pill';
+          return (
+            <button key={exerciseKeyPart(ex)} className={cls} onClick={() => setFocusIdx(i)} data-strip-index={i}>
+              {done && <Icon name="check" size={12} strokeWidth={3.5} />}
+              {shortName(ex.name)}
+            </button>
+          );
+        })}
       </div>
 
       {weekNum > 1 && notes[dayKey(weekNum - 1, dayId)] && (
-        <div
+        <button
+          className="card row"
           onClick={() => setPrevNoteOpen((o) => !o)}
-          style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            padding: '12px 16px',
-            marginBottom: '12px',
-            cursor: 'pointer',
-          }}
+          style={{ gap: 12, padding: '12px 16px', textAlign: 'left', width: '100%' }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '12px', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.5px' }}>
-              LAST WEEK'S NOTES
+          <div className="grow">
+            <div className="eyebrow" style={{ fontSize: 10 }}>
+              Last week's note
             </div>
-            <div style={{ color: 'var(--muted)', fontSize: '16px' }}>{prevNoteOpen ? '▲' : '▼'}</div>
+            <div className="meta-2" style={{ marginTop: 2, lineHeight: 1.4 }}>
+              {prevNoteOpen ? notes[dayKey(weekNum - 1, dayId)] : truncate(notes[dayKey(weekNum - 1, dayId)], 90)}
+            </div>
           </div>
-          {prevNoteOpen && (
-            <div style={{ fontSize: '14px', color: 'var(--text)', marginTop: '10px', lineHeight: 1.5 }}>
-              {notes[dayKey(weekNum - 1, dayId)]}
+          <Icon name={prevNoteOpen ? 'chevronDown' : 'chevronRight'} size={16} style={{ color: 'var(--muted)' }} />
+        </button>
+      )}
+
+      {tiles[focusIdx] && (
+        <ExerciseCard
+          key={tiles[focusIdx].slot ?? exerciseKeyPart(tiles[focusIdx].options[0])}
+          ex={activeExs[focusIdx]}
+          ei={focusIdx}
+          dayId={dayId}
+          weekNum={weekNum}
+          onSetTicked={handleSetTicked}
+          swapped={!!sessionSwaps[swapKey(weekNum, dayId, activeExs[focusIdx])]}
+          onSwap={handleSwap}
+          slotOptions={tiles[focusIdx].options}
+          onSlotSwap={(option) => handleSlotSwap(tiles[focusIdx], option)}
+          readOnly={isDone && !editing}
+        />
+      )}
+
+      {activeExs[focusIdx + 1] && (
+        <button
+          className="card row"
+          onClick={() => setFocusIdx(focusIdx + 1)}
+          style={{ gap: 12, padding: '14px 16px', textAlign: 'left', width: '100%' }}
+        >
+          <div className="grow">
+            <div className="eyebrow" style={{ fontSize: 10 }}>
+              Up next
             </div>
-          )}
-        </div>
-      )}
-
-      {tiles.map((tile, ei) => {
-        const ex = activeExs[ei];
-        return (
-          <ExerciseCard
-            key={tile.slot ?? exerciseKeyPart(tile.options[0])}
-            ex={ex}
-            ei={ei}
-            dayId={dayId}
-            weekNum={weekNum}
-            onSetTicked={handleSetTicked}
-            swapped={!!swappedExercises[ei]}
-            onSwap={handleSwap}
-            slotOptions={tile.options}
-            onSlotSwap={(option) => handleSlotSwap(tile, option)}
-            readOnly={isDone && !editing}
-          />
-        );
-      })}
-
-      {isDone && (
-        <button
-          className="save-day-btn"
-          onClick={() => setEditing((e) => !e)}
-          style={{
-            background: editing ? 'var(--accent)' : 'none',
-            border: '1px solid var(--accent)',
-            color: editing ? '#0d0d0f' : 'var(--accent)',
-            marginBottom: '10px',
-          }}
-        >
-          {editing ? 'FINISH EDITING' : 'EDIT THIS SESSION'}
+            <div style={{ fontWeight: 600, fontSize: 14, marginTop: 2 }}>
+              {activeExs[focusIdx + 1].name} · {activeExs[focusIdx + 1].sets} ×{' '}
+              {String(activeExs[focusIdx + 1].reps).split('/')[0]}
+            </div>
+          </div>
+          <Icon name="chevronRight" size={16} style={{ color: 'var(--muted)' }} />
         </button>
       )}
 
-      <button className="save-day-btn" onClick={handleComplete}>
-        {isDone ? 'UNDO COMPLETE' : 'MARK DAY COMPLETE'}
-      </button>
-      {!isDone && (
-        <button
-          className={`skip-day-btn${isSkipped ? ' skipped' : ''}`}
-          onClick={handleSkip}
-          style={{ marginBottom: '20px' }}
-        >
-          {isSkipped ? `UNSKIP DAY (${isSkipped})` : 'SKIP DAY'}
-        </button>
-      )}
+      {/* ── Bottom bar ── */}
+      <div className="session-bar">
+        {isDone ? (
+          <>
+            <button
+              className={`btn grow${editing ? ' btn-primary' : ' btn-outline-accent'}`}
+              onClick={() => setEditing((e) => !e)}
+            >
+              {editing ? 'Finish editing' : 'Edit session'}
+            </button>
+            <button className="btn btn-ghost grow" onClick={handleComplete}>
+              Undo complete
+            </button>
+            {!editing && (
+              <button
+                className="icon-btn"
+                style={{ width: 48, height: 48, color: 'var(--accent)', borderColor: 'var(--accent)' }}
+                onClick={() => setShowPastRecap(true)}
+                aria-label="Recap and share this session"
+              >
+                <Icon name="share" size={18} />
+              </button>
+            )}
+          </>
+        ) : (
+          <>
+            {activeExs[focusIdx + 1] ? (
+              <button className="btn btn-ghost grow" onClick={() => setFocusIdx(focusIdx + 1)}>
+                Skip exercise
+              </button>
+            ) : (
+              <button className={`btn btn-ghost grow${isSkipped ? ' btn-outline-accent' : ''}`} onClick={handleSkip}>
+                {isSkipped ? 'Unskip day' : 'Skip day'}
+              </button>
+            )}
+            <button className="btn btn-primary" style={{ flexGrow: 2, fontSize: 16 }} onClick={handleComplete}>
+              Finish session
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

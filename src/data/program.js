@@ -941,24 +941,6 @@ const PROGRAMMES = {
         equipment: ['Barbell', 'Dumbbells', 'Flat Bench', 'Incline Bench', 'Cable Machine', 'Chest Fly Machine'],
         exercises: [
           {
-            name: 'Push-Ups',
-            muscles: { primary: ['chest'], secondary: ['triceps', 'front-delts'] },
-            compound: true,
-            sets: 2,
-            reps: '12-15/12-15',
-            defaultWeight: null,
-            equipment: [],
-            alternative: null,
-            description:
-              'Activation, not a working set. Two lighter sets to prime the chest, shoulders and triceps and get blood into the joints before you load them. Stop several reps short of failure — this is preparation for the bench, not competition with it. Flagged compound because it is a multi-joint press; if the full compound rest feels excessive between two activation sets, just skip the timer.',
-            howTo: [
-              'Hands slightly wider than shoulder-width, body in one straight line from head to heels.',
-              'Squeeze your glutes and brace your core so your hips do not sag.',
-              'Chest to the floor on every rep — full range, no half reps.',
-              'Elevate your hands on a bench if 15 clean reps is a stretch. Leave 3–4 reps in the tank on both sets.',
-            ],
-          },
-          {
             // Requested 6 Sep — "Why cant I substitute this with the chest press on
             // smith machine?" It was added as an `alternative` that day, which was
             // the wrong shape twice over: the ⇄ button only renders for barbell ↔
@@ -1011,6 +993,39 @@ const PROGRAMMES = {
             ],
           },
           {
+            // Chest joined shoulders and arms as a size goal on 18 Sep. Volume was not
+            // the gap — 8 direct chest sets a Push day was already plenty in a deficit —
+            // the ANGLE was: flat bench, flat push-ups, flyes, and nothing for the upper
+            // chest he felt working on 14 Sep. This replaced Push-Ups, which had sat at
+            // 15/15 for four sessions and could not progress at 88 kg bodyweight.
+            //
+            // 30 kg is PAIR TOTAL (15 a hand) and deliberately light — an estimate off
+            // flat bench says 34-40, but badly-guessed accessory loads set too heavy are
+            // what caused the August problem. The first session calibrates it, and the
+            // first logged session seeds every later pre-fill, so log it as a pair.
+            //
+            // Third press on Push (bench, incline, shoulder press). Incline, not overhead,
+            // so not the impingement position — but if the left cuff ache comes back,
+            // this is the new variable.
+            name: 'Incline Dumbbell Press',
+            muscles: { primary: ['chest'], secondary: ['front-delts', 'triceps'] },
+            compound: true,
+            sets: 3,
+            reps: '8-12/8-12/8-12',
+            defaultWeight: 30,
+            equipment: ['Dumbbells', 'Incline Bench'],
+            alternative: null,
+            description:
+              'Upper-chest work after the flat press. Bench at about 30° — steeper turns it into a shoulder press. Weights are the PAIR TOTAL, like every dumbbell in this app: 30 means a 15 in each hand. Start light and let the first session tell you the number. Progression: total reps across the three sets within one of 36 at the same weight, then go up 2 kg.',
+            howTo: [
+              'Set the bench to about 30°. Kick the dumbbells up off your knees as you lie back.',
+              'Shoulder blades back and down, feet driving into the floor — the same setup that moved your flat bench.',
+              'Lower under control until the dumbbells are level with your upper chest and you feel the stretch, elbows about 45° from your body.',
+              'Press up and slightly in, without clanging the dumbbells together at the top.',
+              'Log the pair total. If the front of the shoulder complains, drop the angle before you drop the weight.',
+            ],
+          },
+          {
             name: 'Chest Flyes',
             muscles: { primary: ['chest'] },
             sets: 3,
@@ -1034,24 +1049,72 @@ const PROGRAMMES = {
             ],
           },
           {
+            // 20 Sep. Side delts were the least-trained muscle on the goal list —
+            // 6 direct sets a calendar week against 18 for biceps and 18 for chest,
+            // on the muscle named FIRST. Now on Push and Pull both, which doubles it
+            // to 12 without adding a session or touching anything else.
+            //
+            // Cable is the better movement: a dumbbell lateral has almost no tension
+            // at the bottom, where the delt is stretched, and that is the half of the
+            // range that grows it. The dumbbell version stays as the slot mate — it
+            // is the one he was coached on, and form matters more here than on
+            // anything else in the programme, so there has to be a version he can do
+            // properly when the cable station is taken.
+            //
+            // Two entries, not an `alternative`: a stack number and a pair total are
+            // not the same load, and an alternative logs under the primary's key —
+            // the bug-28 shape. The cable was previously an alternative here and
+            // would have been silently landing in the dumbbell history.
+            id: 'cable-lateral-raise-v2',
+            slot: 'lateral-raise',
+            historyGroup: 'cable-lateral-raises',
+            name: 'Cable Lateral Raise',
+            muscles: { primary: ['side-delts'] },
+            sets: 3,
+            reps: '12-15/12-15/12-15',
+            // No default. The first session seeds every future pre-fill, and the
+            // right number here is whatever the lightest useful pin turns out to be.
+            // `id` is deliberately NOT the old `cable-lateral-raises` slug — those
+            // sets were logged before 30 Aug on a different setup and should stay
+            // buried rather than pre-filling a movement he is relearning.
+            defaultWeight: null,
+            increment: 1.5,
+            equipment: ['Cable Machine'],
+            description:
+              'Side delts, one arm at a time, with the cable taking over the job the dumbbell cannot do — holding tension at the bottom of the range where the delt is stretched. That stretched position is where most of the growth stimulus lives, and it is the reason this is worth the extra station. Start on the lightest useful pin and work up across sessions; the number matters far less than the path.',
+            howTo: [
+              'Set the pulley at the bottom. Stand side-on, take the handle in the outside hand, and step away until there is tension with the arm hanging across your body.',
+              'Raise out and slightly FORWARD of your body — around 45°, not directly out to the side. Lead with the elbow, slight bend held throughout.',
+              'Stop at shoulder height. Going higher hands the work to your traps, which is the whole thing to avoid.',
+              'Lower in 3 seconds and let the arm come fully across at the bottom — that is the part the dumbbell version loses.',
+              'Finish all reps on one side, swap, then rest once. Stack numbers are machine-specific, so this figure does not read across to anything else.',
+            ],
+          },
+          {
+            // `id` pins the existing slug so every lateral raise logged since August
+            // stays attached and the PB survives. Load drops 16 → 12 PAIR TOTAL
+            // because the lean changes the lift: leaning out lengthens the moment arm
+            // at the bottom, so the same bell is harder in exactly the range being
+            // added. Under-setting an accessory is the cheap mistake here; over-
+            // setting one is what caused the August problem.
+            id: 'dumbbell-lateral-raises',
+            slot: 'lateral-raise',
+            historyGroup: 'dumbbell-lateral-raises',
             name: 'Dumbbell Lateral Raises',
             muscles: { primary: ['side-delts'] },
             sets: 3,
             reps: '12-15/12-15/12-15',
-            defaultWeight: 16,
+            defaultWeight: 12,
+            increment: 2,
             equipment: ['Dumbbells'],
-            alternative: {
-              name: 'Cable Lateral Raise',
-              muscles: { primary: ['side-delts'] },
-              equipment: ['Cable Machine'],
-            },
             description:
-              'Isolates the lateral deltoid — the muscle that builds shoulder width. Hands travel slightly forward of your body, around 45°, which sits in the scapular plane and keeps the shoulder joint happy.',
+              'The version to use when the cable station is taken. Leaning away from a rack upright is what buys back the bottom of the range — stood upright, a dumbbell lateral has almost no tension until the arm is already halfway up. Note 12 kg is the PAIR total, 6 kg in each hand, and it is deliberately below the 16 kg used stood upright: the lean makes the same bell heavier where it counts.',
             howTo: [
-              'Stand tall, dumbbells at your sides, slight bend in the elbows held throughout.',
-              'Raise out and slightly forward — about 45° from straight out to the side, not directly lateral.',
-              'Lead with your elbows and stop at shoulder height. No higher.',
-              'Lower in 3 seconds. Light weight, strict form — this is not an ego lift.',
+              'Hold a rack upright with one hand, feet close to its base, and lean out 15–20° so the working arm hangs clear of your body.',
+              'Raise out and slightly forward — about 45° from straight out to the side. Lead with the elbow, slight bend held throughout.',
+              'Stop at shoulder height. No higher, or your traps take it.',
+              'Lower in 3 seconds and let the arm hang fully at the bottom — that hang is the entire point of leaning.',
+              'Finish all reps on one side, swap hands, then rest once.',
             ],
           },
           {
@@ -1167,6 +1230,12 @@ const PROGRAMMES = {
             sets: 3,
             reps: '12-15/12-15/12-15',
             defaultWeight: 10,
+            // Equipment ceiling, stated 18 Sep: "The dymbells i can use that are also safe
+            // for this exercise only goes up to 20kg." At 20 kg a full house is the end of
+            // the road for load, not a cue to add it — nextTarget, isReadyToProgress and
+            // exportFlags all stop suggesting an increase here. Raise it if he gets a
+            // heavier safe option.
+            maxWeight: 20,
             equipment: ['Dumbbells'],
             alternative: { name: 'Bodyweight Crunches', muscles: { primary: ['abs'] }, equipment: [] },
             description:
@@ -1184,36 +1253,43 @@ const PROGRAMMES = {
         id: 'pull-v2',
         label: 'Day 2',
         focus: 'Pull',
-        equipment: ['Barbell', 'Dumbbells', 'Incline Bench', 'Squat Rack', 'Lat Pulldown Machine'],
+        equipment: ['Dumbbells', 'Incline Bench', 'Cable Machine', 'Assisted Chin/Dip Machine', 'Lat Pulldown Machine'],
         exercises: [
           {
-            name: 'Inverted Barbell Rows',
-            // 7 Sep: "on the last reps where i cant bring chest to bar i hold it
-            // there and squeeze" — an isometric added to every hard rep, and the
-            // count fell 31 → 22 the same session. That is a harder exercise, not
-            // a worse session, and it is the second such change (25 Aug was the
-            // switch from pulling high to a chest-led pull). Everything before
-            // this date still shows on the graph; it is simply not the same ruler.
-            compareFrom: '2026-09-07',
+            // 19 Sep: replaced Inverted Barbell Rows at his request — "a better
+            // exercise to progress on", it sits next to the assisted chin machine so
+            // the two are a quick switch, and he had come to hate the inverted rows.
+            // Inverted rows were bodyweight + body angle with no reproducible load
+            // (the pin was never logged); a cable stack progresses in real steps.
+            // The inverted-row history is still in storage and the JSON backup,
+            // under its own key — it simply no longer has a tile to show on.
+            name: 'Seated Cable Row',
             muscles: { primary: ['upper-back', 'lats'], secondary: ['biceps', 'rear-delts'] },
             compound: true,
-            sets: 4,
-            reps: '8-12/8-12/8-12/8-12',
-            defaultWeight: null,
-            equipment: ['Barbell', 'Squat Rack'],
+            sets: 3,
+            reps: '8-12/8-12/8-12',
+            // Deliberately light — the first logged session seeds every pre-fill,
+            // and an over-estimated accessory load is what went wrong in August.
+            // Chin-ups are at ~60 kg effective; this should end up above that.
+            defaultWeight: 40,
+            // ASSUMPTION until checked in the gym: a separate selectorised row
+            // station, typically 5 kg plates — not the 1.5 kg twin-cable stack.
+            increment: 5,
+            equipment: ['Cable Machine'],
             alternative: {
               name: 'Chest Supported Row',
               muscles: { primary: ['upper-back', 'lats'], secondary: ['biceps', 'rear-delts'] },
               equipment: ['Chest Supported Row Machine'],
             },
             description:
-              'Bodyweight horizontal pulling. Load is set by body angle rather than plates — the more horizontal your torso, the harder it gets. Scales cleanly without needing a weight you cannot yet handle.',
+              'Horizontal pulling for upper-back thickness, on a stack so every session can be matched or beaten by a real number. Right next to the assisted chin machine, so the two run back to back.',
             howTo: [
-              'Set a bar in the rack around hip height. Hang underneath with an overhand grip, body straight.',
-              'Pull your chest to the bar by driving your elbows back and squeezing the shoulder blades together.',
-              'Lower under control until your arms are fully extended and you feel the stretch across the upper back.',
-              'To make it harder, walk your feet further forward or elevate them. To make it easier, raise the bar.',
-              'Tested at pin 38 (9/8/5/8 reps). Log the pin number in the weight field — it is the only reproducible reference this exercise has.',
+              'Sit tall with feet on the platform and knees slightly bent. Close-grip V-handle unless the station only has a bar.',
+              'Start with arms long and shoulder blades pulled forward — a real stretch across the upper back.',
+              'Pull the handle to your lower ribs by driving the elbows back, chest up. Squeeze the shoulder blades together for a beat.',
+              'Keep the torso still. A small lean is fine; rocking back to move the weight means it is too heavy.',
+              'Return slowly to the full stretch before the next rep.',
+              'Log the number on the stack. First session at 40 kg is deliberately light — let it set the starting point.',
             ],
           },
           {
@@ -1267,6 +1343,57 @@ const PROGRAMMES = {
               'Raise out to the sides in a wide arc, leading with the elbows, until level with your torso.',
               'These need almost no weight to work. If your traps are doing the lifting, go lighter.',
               'Note: 12 kg is the PAIR total — 6 kg in each hand. Sitting just under the lateral raise is right; rear delts are normally the weaker of the two.',
+            ],
+          },
+          {
+            // 20 Sep. The second half of the side-delt fix — see the long note on the
+            // Push entry. Placed next to the rear delt flys so both dumbbell delt
+            // movements sit together and the cable station is one trip.
+            //
+            // `historyGroup` is what keeps this and the Push entry one timeline:
+            // storage stays per day (he trains both inside one programme week, so a
+            // shared key would have one session overwrite the other) while pre-fills,
+            // the weight suggestion and the graphs read across. Exactly the weighted
+            // crunch arrangement, and for the same reason it was needed there.
+            id: 'cable-lateral-raise-v2',
+            slot: 'lateral-raise',
+            historyGroup: 'cable-lateral-raises',
+            name: 'Cable Lateral Raise',
+            muscles: { primary: ['side-delts'] },
+            sets: 3,
+            reps: '12-15/12-15/12-15',
+            defaultWeight: null,
+            increment: 1.5,
+            equipment: ['Cable Machine'],
+            description:
+              'Side delts, one arm at a time, with the cable taking over the job the dumbbell cannot do — holding tension at the bottom of the range where the delt is stretched. That stretched position is where most of the growth stimulus lives, and it is the reason this is worth the extra station. Start on the lightest useful pin and work up across sessions; the number matters far less than the path.',
+            howTo: [
+              'Set the pulley at the bottom. Stand side-on, take the handle in the outside hand, and step away until there is tension with the arm hanging across your body.',
+              'Raise out and slightly FORWARD of your body — around 45°, not directly out to the side. Lead with the elbow, slight bend held throughout.',
+              'Stop at shoulder height. Going higher hands the work to your traps, which is the whole thing to avoid.',
+              'Lower in 3 seconds and let the arm come fully across at the bottom — that is the part the dumbbell version loses.',
+              'Finish all reps on one side, swap, then rest once. Stack numbers are machine-specific, so this figure does not read across to anything else.',
+            ],
+          },
+          {
+            id: 'dumbbell-lateral-raises',
+            slot: 'lateral-raise',
+            historyGroup: 'dumbbell-lateral-raises',
+            name: 'Dumbbell Lateral Raises',
+            muscles: { primary: ['side-delts'] },
+            sets: 3,
+            reps: '12-15/12-15/12-15',
+            defaultWeight: 12,
+            increment: 2,
+            equipment: ['Dumbbells'],
+            description:
+              'The version to use when the cable station is taken. Leaning away from a rack upright is what buys back the bottom of the range — stood upright, a dumbbell lateral has almost no tension until the arm is already halfway up. Note 12 kg is the PAIR total, 6 kg in each hand, and it is deliberately below the 16 kg used stood upright: the lean makes the same bell heavier where it counts.',
+            howTo: [
+              'Hold a rack upright with one hand, feet close to its base, and lean out 15–20° so the working arm hangs clear of your body.',
+              'Raise out and slightly forward — about 45° from straight out to the side. Lead with the elbow, slight bend held throughout.',
+              'Stop at shoulder height. No higher, or your traps take it.',
+              'Lower in 3 seconds and let the arm hang fully at the bottom — that hang is the entire point of leaning.',
+              'Finish all reps on one side, swap hands, then rest once.',
             ],
           },
           {
@@ -1368,6 +1495,12 @@ const PROGRAMMES = {
             sets: 3,
             reps: '12-15/12-15/12-15',
             defaultWeight: 10,
+            // Equipment ceiling, stated 18 Sep: "The dymbells i can use that are also safe
+            // for this exercise only goes up to 20kg." At 20 kg a full house is the end of
+            // the road for load, not a cue to add it — nextTarget, isReadyToProgress and
+            // exportFlags all stop suggesting an increase here. Raise it if he gets a
+            // heavier safe option.
+            maxWeight: 20,
             equipment: ['Dumbbells'],
             alternative: { name: 'Bodyweight Crunches', muscles: { primary: ['abs'] }, equipment: [] },
             description:
@@ -1583,6 +1716,151 @@ const PROGRAMMES = {
               'Press up onto your toes as high as possible and pause a full second at the top.',
               'Lower over 3 seconds. Safety catches engaged — do not do this with the sled unsupported.',
             ],
+          },
+        ],
+      },
+    ],
+  },
+
+  // One-off sessions at other gyms. Its own programme so its own storage slice:
+  // different machines mean stack numbers do not read across, and logged into
+  // pull-v2 these would land in the real history, move the graphs and could
+  // trigger a suggested increase off a machine he will never use again. Every
+  // id is prefixed `guest-` so nothing can collide with or merge into ppl-v2 —
+  // not even the crunches, which deliberately carry no historyGroup.
+  // First used 20 Sep 2026, Pull at a friend's gym.
+  guest: {
+    id: 'guest',
+    name: 'Guest Session',
+    shortDescription: 'One-off sessions at other gyms — kept out of your main history',
+    days: [
+      {
+        id: 'guest-pull',
+        label: 'Day 1',
+        focus: 'Pull',
+        equipment: ['Cable Machine', 'Dumbbells'],
+        exercises: [
+          {
+            id: 'guest-seated-row',
+            name: 'Seated Row (Machine)',
+            muscles: { primary: ['back'], secondary: ['biceps', 'rear-delts'] },
+            compound: true,
+            sets: 3,
+            reps: '6-10/6-10/6-10',
+            defaultWeight: 52,
+            equipment: ['Cable Machine'],
+            alternative: null,
+            description: 'Logged at another gym. Stack numbers are machine-specific.',
+            howTo: [],
+          },
+          {
+            id: 'guest-lat-pulldown',
+            name: 'Lat Pulldown (Cable)',
+            muscles: { primary: ['back'], secondary: ['biceps'] },
+            compound: true,
+            sets: 2,
+            reps: '6-10/6-10',
+            defaultWeight: 45,
+            equipment: ['Cable Machine'],
+            alternative: null,
+            description: 'Logged at another gym. Stack numbers are machine-specific.',
+            howTo: [],
+          },
+          {
+            id: 'guest-straight-arm-pulldown',
+            name: 'Straight Arm Lat Pulldown (Cable)',
+            muscles: { primary: ['back'] },
+            sets: 3,
+            reps: '8-12/8-12/8-12',
+            defaultWeight: 36,
+            equipment: ['Cable Machine'],
+            alternative: null,
+            description: 'Logged at another gym.',
+            howTo: [],
+          },
+          {
+            id: 'guest-cable-reverse-fly',
+            name: 'Rear Delt Reverse Fly (Cable)',
+            muscles: { primary: ['rear-delts'] },
+            sets: 3,
+            reps: '8-12/8-12/8-12',
+            defaultWeight: 18,
+            equipment: ['Cable Machine'],
+            alternative: null,
+            description: 'Logged at another gym.',
+            howTo: [],
+          },
+          {
+            id: 'guest-dumbbell-curl',
+            name: 'Bicep Curl (Dumbbell)',
+            muscles: { primary: ['biceps'] },
+            sets: 3,
+            reps: '8-12/8-12/8-12',
+            defaultWeight: 28,
+            equipment: ['Dumbbells'],
+            alternative: null,
+            description: 'PAIR TOTAL, as everywhere else in the app.',
+            howTo: [],
+          },
+          {
+            id: 'guest-crossbody-hammer',
+            name: 'Cross Body Hammer Curl',
+            muscles: { primary: ['biceps'], secondary: ['forearms'] },
+            sets: 2,
+            reps: '8-12/8-12',
+            defaultWeight: 28,
+            equipment: ['Dumbbells'],
+            alternative: null,
+            description: 'PAIR TOTAL.',
+            howTo: [],
+          },
+          {
+            id: 'guest-incline-curl',
+            name: 'Seated Incline Curl (Dumbbell)',
+            muscles: { primary: ['biceps'] },
+            sets: 2,
+            reps: '6-10/6-10',
+            defaultWeight: 24,
+            equipment: ['Dumbbells'],
+            alternative: null,
+            description: 'PAIR TOTAL.',
+            howTo: [],
+          },
+          {
+            id: 'guest-shrug',
+            name: 'Shrug (Dumbbell)',
+            muscles: { primary: ['traps'] },
+            sets: 2,
+            reps: '10-15/10-15',
+            defaultWeight: 40,
+            equipment: ['Dumbbells'],
+            alternative: null,
+            description: 'PAIR TOTAL.',
+            howTo: [],
+          },
+          {
+            id: 'guest-hanging-leg-raise',
+            name: 'Hanging Leg Raise',
+            muscles: { primary: ['abs'] },
+            sets: 1,
+            reps: '10-15',
+            defaultWeight: null,
+            equipment: [],
+            alternative: null,
+            description: 'Bodyweight — reps only.',
+            howTo: [],
+          },
+          {
+            id: 'guest-weighted-crunches',
+            name: 'Weighted Crunches',
+            muscles: { primary: ['abs'] },
+            sets: 3,
+            reps: '12-15/12-15/12-15',
+            defaultWeight: null,
+            equipment: ['Dumbbells'],
+            alternative: null,
+            description: 'Deliberately NOT in the weighted-crunches history group — this stays out of your main timeline.',
+            howTo: [],
           },
         ],
       },

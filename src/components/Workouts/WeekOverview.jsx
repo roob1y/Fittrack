@@ -72,14 +72,11 @@ export default function WeekOverview({ onSelectDay }) {
   function estimateDuration(day) {
     let minutes = 0;
     activeExercises(day, { weekNum, dayId: day.id, setData, slotChoices, equipment }).forEach((ex) => {
-      const isCompound = [
-        'Deadlifts',
-        'Squats',
-        'Bench Press',
-        'Front Barbell Squat',
-        'Straight-Legged Deadlifts',
-      ].some((name) => ex.name.includes(name));
-      const restTime = isCompound ? 3 : 1.25;
+      // Read the programme's own flag, as RestTimer does (bug 2). The name list this
+      // replaced was from the old programme: substring matching caught Hack Squats,
+      // both RDLs and Bench Press, and missed the leg press, the shoulder press and
+      // every Pull compound, so Pull days were estimated on isolation rest throughout.
+      const restTime = ex.restSeconds > 0 ? ex.restSeconds / 60 : ex.compound ? 3 : 1.25;
       const setTime = 0.75;
       const transitionTime = 1.5;
       if (ex.superset) {

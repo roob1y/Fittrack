@@ -85,15 +85,20 @@ function priorSessions(days, slice, dayId, ex, weekNum) {
 // The value to pre-fill for one set: what he last put in that box, anywhere in the
 // group. Prefers the matching set index, then any set in that session — he does
 // not always start on set 1, and a session's load is usually the same throughout.
-export function lastLoggedValue(days, slice, dayId, ex, si, field, weekNum) {
+//
+// `via` is the exercise the CURRENT session is being done on (null = the
+// programmed one). Only sets logged on the same exercise pre-fill: a Smith
+// machine weight must not land in the barbell box, and vice versa.
+export function lastLoggedValue(days, slice, dayId, ex, si, field, weekNum, via = null) {
   const sessions = priorSessions(days, slice, dayId, ex, weekNum);
+  const same = (d) => d && (d.via ?? null) === (via ?? null);
   for (let i = sessions.length - 1; i >= 0; i--) {
     const { entries } = sessions[i];
-    const exact = entries[si]?.[field];
-    if (exact) return exact;
+    const exact = entries[si];
+    if (same(exact) && exact[field]) return exact[field];
     for (const key of Object.keys(entries)) {
-      const v = entries[key]?.[field];
-      if (v) return v;
+      const d = entries[key];
+      if (same(d) && d?.[field]) return d[field];
     }
   }
   return null;
@@ -101,10 +106,11 @@ export function lastLoggedValue(days, slice, dayId, ex, si, field, weekNum) {
 
 // The heaviest weight carried in the most recent session of the group — the
 // "· 42.5kg last used" line on the tile.
-export function lastUsedBestWeight(days, slice, dayId, ex, weekNum) {
+export function lastUsedBestWeight(days, slice, dayId, ex, weekNum, via = null) {
   const sessions = priorSessions(days, slice, dayId, ex, weekNum);
   for (let i = sessions.length - 1; i >= 0; i--) {
     const ws = Object.values(sessions[i].entries)
+      .filter((d) => d && (d.via ?? null) === (via ?? null))
       .map((d) => parseFloat(d?.weight))
       .filter((w) => w > 0);
     if (ws.length) return Math.max(...ws);

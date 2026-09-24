@@ -62,3 +62,10 @@ export function holdKey(dayId, ex) {
 export function setKey(weekNum, dayId, ex, setIndex) {
   return `week${weekNum}_${dayId}_${exerciseKeyPart(ex)}_${setIndex}`;
 }
+
+// `week3_push-v2_bench-press` — a manual swap to the alternative for one session.
+// Same shape as the note key: week-scoped, because the swap is a fact about that
+// session ("the rack was taken"), not a standing preference.
+export function swapKey(weekNum, dayId, ex) {
+  return `week${weekNum}_${dayId}_${exerciseKeyPart(ex)}`;
+}
