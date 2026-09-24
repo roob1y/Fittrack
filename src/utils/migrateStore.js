@@ -444,7 +444,7 @@ const KNOWN_MISLOGGED = [
     programmeId: 'ppl-v2',
     week: 7,
     dayId: 'pull-v2',
-    exercise: 'Assisted Chin-Ups',
+    exercise: 'Assisted Pull-Ups',
     fromAssist: '47',
     toAssist: '49',
     // His own note on the session says so outright: "assisted chin, 49 lb assist".
@@ -456,7 +456,7 @@ const KNOWN_MISLOGGED = [
     programmeId: 'ppl-v2',
     week: 9,
     dayId: 'pull-v2',
-    exercise: 'Assisted Chin-Ups',
+    exercise: 'Assisted Pull-Ups',
     fromAssist: '47',
     toAssist: '42',
     // Sets 2 and 3 that day are already 42, and the note says "Today im doing

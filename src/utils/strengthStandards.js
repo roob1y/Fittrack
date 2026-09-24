@@ -130,7 +130,7 @@ export const STANDARDS = {
   ]),
   // ADDED WEIGHT, not total load — see note 4 in the header. A negative threshold
   // is the table's own way of saying "you are not doing one unassisted yet".
-  'Assisted Chin-Ups': {
+  'Assisted Pull-Ups': {
     ...T(false, [
       [0, 16, 35, 56, 77],
       [0, 17, 36, 57, 79],

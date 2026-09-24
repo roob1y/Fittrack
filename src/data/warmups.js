@@ -560,7 +560,7 @@ const WARMUPS = {
       ],
     },
     {
-      name: 'Light Assisted Chins',
+      name: 'Light Assisted Pull-Ups',
       description:
         'Same movement as your first working set. Groove the pattern and find the lats before you load them.',
       type: 'reps',

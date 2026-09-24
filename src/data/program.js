@@ -1293,7 +1293,10 @@ const PROGRAMMES = {
             ],
           },
           {
-            name: 'Assisted Chin-Ups',
+            // Renamed from 'Assisted Chin-Ups' (it is done overhand, as a pull-up).
+            // `id` pins the old slug so every logged set stays attached.
+            id: 'assisted-chin-ups',
+            name: 'Assisted Pull-Ups',
             muscles: { primary: ['lats'], secondary: ['biceps', 'upper-back'] },
             compound: true,
             // The stack is a COUNTERWEIGHT: more of it means less work. Logged as
@@ -1312,9 +1315,9 @@ const PROGRAMMES = {
               defaultWeight: null,
             },
             description:
-              'Vertical pulling for lat width. Chosen over the lat pulldown because it trains the same pattern while progressing toward unassisted chin-ups, which a pulldown never does — and the pulldown is always occupied. Swap to the pulldown from the exercise card if the machine is taken.',
+              'Vertical pulling for lat width. Chosen over the lat pulldown because it trains the same pattern while progressing toward unassisted pull-ups, which a pulldown never does — and the pulldown is always occupied. Swap to the pulldown from the exercise card if the machine is taken.',
             howTo: [
-              'Kneel on the pad, hands slightly wider than shoulder-width, palms facing you for chins.',
+              'Kneel on the pad, hands slightly wider than shoulder-width, palms facing away.',
               'Pull your chest toward the bar leading with the elbows, chest up throughout.',
               'Squeeze the lats hard at the top — think elbows into your back pockets.',
               'Lower under control to a full stretch. Do not let the pad throw you back up.',
