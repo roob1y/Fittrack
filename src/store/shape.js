@@ -28,6 +28,12 @@ export const emptyProgrammeData = () => ({
   // leg presses — and this records which one he picked that session.
   //   { 'week9_legs-v2_leg-press': 'leg-press-machine' }
   slotChoices: {},
+  // A manual ⇄ swap to an exercise's `alternative`, keyed by swapKey(). Used to
+  // live in DayDetail's component state and was lost the moment he left the
+  // screen mid-session; it also has to be readable later, because a Smith
+  // machine session must score on the Smith table, not the barbell one.
+  //   { 'week14_push-v2_bench-press': true }
+  sessionSwaps: {},
   programmeStartDate: null,
 });
 

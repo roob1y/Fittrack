@@ -14,12 +14,11 @@
 // says nothing trustworthy about what the triceps could lift alone, so secondary
 // involvement is excluded entirely rather than weighted down.
 //
-// COVERAGE IS PARTIAL AND THAT IS THE HONEST STATE. Only free-weight and
-// bodyweight lifts have portable standards; cable and machine numbers mean
-// something different on every machine, so triceps (all cable), quads and
-// hamstrings (all machine) currently score nothing at all. A muscle with no
-// scorable lift returns `covered: 0` and the screen says so rather than inventing
-// a figure from the lifts it does have.
+// COVERAGE: since 18 Sep every lift in the v2 programme has a table. Free-weight
+// and bodyweight lifts are portable; machine and cable lifts are scored on the
+// published table for that machine type and carry `proxy` so the screen can say
+// which — a stack number still differs machine to machine. A muscle with no
+// scorable lift (only possible on older programmes now) returns `covered: 0`.
 
 import { sessionsFor } from './progressStats';
 import { scoreExercise, STANDARDS } from './strengthStandards';
@@ -33,17 +32,71 @@ export function muscleBreakdown(days, slice, muscle, bodyweightKg) {
     for (const ex of day.exercises ?? []) {
       if (!(ex.muscles?.primary ?? []).includes(muscle)) continue;
       const sessions = sessionsFor(days, slice, day.id, ex);
+      // Score the exercise as it is CURRENTLY done. Sessions logged on the
+      // alternative (`via`) belong to a different lift with its own table, and
+      // showing both rows at once (18 Sep) double-counted a movement he only does
+      // one way now. So: the variant of the most recent session is the row; any
+      // other variants are listed on it, not scored beside it.
+      const groups = new Map();
+      for (const s of sessions) {
+        const name = s.via ?? ex.name;
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push(s);
+      }
+      const latest = sessions[sessions.length - 1];
+      const name = latest ? (latest.via ?? ex.name) : ex.name;
+      const group = groups.get(name) ?? [];
+      const scored = name === ex.name ? ex : { ...ex, name };
+      const otherVariants = [...groups.entries()]
+        .filter(([n]) => n !== name)
+        .map(([n, g]) => ({ name: n, sessions: g.length, lastDate: g[g.length - 1].date }));
       rows.push({
         ex,
+        name,
+        performedVia: name === ex.name ? null : name,
+        otherVariants,
         dayId: day.id,
         focus: day.focus,
-        sessions,
-        hasStandard: !!STANDARDS[ex.name],
-        score: scoreExercise(ex, sessions, bodyweightKg),
+        sessions: group,
+        hasStandard: !!STANDARDS[name],
+        score: scoreExercise(scored, group, bodyweightKg),
       });
     }
   }
-  return rows.sort((a, b) => (b.score?.score ?? -1) - (a.score?.score ?? -1));
+  // Same rule for SLOT pairs — the two leg presses, the two RDLs, the two shoulder
+  // presses. They are separate programme entries with separate histories, and the
+  // screen was scoring both. He does whichever is free, so the one used most
+  // recently is the row; its slot-mate is listed on it and comes back if he
+  // switches. A slot with nothing logged on either keeps just the first entry.
+  const bySlot = new Map();
+  const out = [];
+  for (const r of rows) {
+    const slotId = r.ex.slot ? `${r.dayId}_${r.ex.slot}` : null;
+    if (!slotId) {
+      out.push(r);
+      continue;
+    }
+    const last = r.sessions[r.sessions.length - 1]?.date ?? '';
+    const cur = bySlot.get(slotId);
+    if (!cur) {
+      bySlot.set(slotId, { row: r, last });
+      out.push(r);
+      continue;
+    }
+    const loser = last > cur.last ? cur.row : r;
+    const winner = last > cur.last ? r : cur.row;
+    if (winner !== cur.row) {
+      out[out.indexOf(cur.row)] = winner;
+      bySlot.set(slotId, { row: winner, last });
+    }
+    if (loser.sessions.length) {
+      winner.otherVariants = [
+        ...(winner.otherVariants ?? []),
+        { name: loser.name, sessions: loser.sessions.length, lastDate: loser.sessions[loser.sessions.length - 1].date },
+      ];
+    }
+  }
+  return out.sort((a, b) => (b.score?.score ?? -1) - (a.score?.score ?? -1));
 }
 
 // One muscle's headline: the mean score across its scorable lifts.

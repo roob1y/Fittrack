@@ -757,6 +757,95 @@ header.app-header {
   transform: translateX(-50%) translateY(0);
 }
 
+/* ── In-session screen ── */
+.session {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: -4px calc(-1 * var(--gutter)) 0;
+  padding: 0 16px;
+}
+.session-header {
+  position: sticky;
+  top: calc(60px + var(--sat));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 -16px;
+  padding: 10px 16px;
+  background: rgba(12, 13, 16, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px;
+  padding: 2px 16px;
+}
+.strip::-webkit-scrollbar {
+  display: none;
+}
+.strip-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.strip-pill.done {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent);
+  font-weight: 700;
+}
+.strip-pill.current {
+  background: var(--text);
+  border-color: transparent;
+  color: var(--bg);
+  font-weight: 700;
+}
+.session-bar {
+  position: fixed;
+  bottom: calc(64px + var(--sab));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(12, 13, 16, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  z-index: 55;
+}
+.session {
+  padding-bottom: 72px;
+}
+.stepper.suspect {
+  border-color: var(--down);
+}
+@media (min-width: 768px) {
+  .session-bar {
+    max-width: 620px;
+  }
+}
+
 /* ══════════════════════════════════════════
    LEGACY CLASSES — used by screens not yet rebuilt.
    Restyled onto the tokens so the app reads as one thing meanwhile.

@@ -43,6 +43,10 @@ const useStore = create(
       heightCm: null,
       gender: 'male',
       measurementGoals: {},
+      // Boditrax (or any scale-that-scans) readings, keyed by scan date:
+      //   { '2026-08-20': { weightKg: 89.2, fatPct: 24.3, muscleKg: 64.2 } }
+      bodyScans: {},
+      weightGoalKg: null,
       barWeights: { '7ft': 20, '5ft': 15 },
       activeSessionStart: null,
       healthEnabled: false,
@@ -115,6 +119,14 @@ const useStore = create(
 
       // Hold an exercise at its current weight, or release it. Records the date so a
       // hold set months ago is visibly old rather than silently permanent.
+      toggleSessionSwap: (key) =>
+        get()._updateActive((slice) => {
+          const swaps = { ...(slice.sessionSwaps ?? {}) };
+          if (swaps[key]) delete swaps[key];
+          else swaps[key] = true;
+          return { sessionSwaps: swaps };
+        }),
+
       toggleHeldExercise: (key) =>
         get()._updateActive((slice) => {
           const held = { ...(slice.heldExercises ?? {}) };
@@ -267,6 +279,15 @@ const useStore = create(
         })),
 
       setWeightUnit: (unit) => set({ weightUnit: unit }),
+      // A mistyped weigh-in skews every chin-up load and strength score, so it has
+      // to be removable, not just overwritable on the same day.
+      deleteWeight: (date) =>
+        set((state) => {
+          const weightLog = { ...state.weightLog };
+          delete weightLog[date];
+          return { weightLog };
+        }),
+      setWeightGoal: (kg) => set({ weightGoalKg: kg }),
 
       convertSetDataUnits: (fromUnit, toUnit) => {
         const factor = fromUnit === 'kg' && toUnit === 'lbs' ? 2.2046 : 1 / 2.2046;
@@ -305,6 +326,33 @@ const useStore = create(
           },
         })),
 
+      // Log several measurements for one date in one write (the Log sheet).
+      logMeasurements: (date, values) =>
+        set((state) => ({
+          measurementLog: {
+            ...state.measurementLog,
+            [date]: { ...state.measurementLog[date], ...values },
+          },
+        })),
+      deleteMeasurement: (date, field) =>
+        set((state) => {
+          const day = { ...state.measurementLog[date] };
+          delete day[field];
+          const measurementLog = { ...state.measurementLog };
+          if (Object.keys(day).length) measurementLog[date] = day;
+          else delete measurementLog[date];
+          return { measurementLog };
+        }),
+      logBodyScan: (date, scan) =>
+        set((state) => ({
+          bodyScans: { ...state.bodyScans, [date]: scan },
+        })),
+      deleteBodyScan: (date) =>
+        set((state) => {
+          const bodyScans = { ...state.bodyScans };
+          delete bodyScans[date];
+          return { bodyScans };
+        }),
       setMeasurementUnit: (unit) => set({ measurementUnit: unit }),
       setHeight: (cm) => set({ heightCm: cm }),
       setProgressRange: (id) => set({ progressRange: id }),
@@ -336,6 +384,8 @@ const useStore = create(
           heightCm: null,
           gender: 'male',
           measurementGoals: {},
+          bodyScans: {},
+          weightGoalKg: null,
           activeSessionStart: null,
           currentWeek: 1,
           healthEnabled: false,

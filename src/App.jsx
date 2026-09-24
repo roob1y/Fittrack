@@ -49,7 +49,7 @@ export default function App() {
   }
 
   function openRanks() {
-    setProgressScreen('muscle');
+    setProgressScreen('ranks');
     setCurrentView('progress');
   }
 

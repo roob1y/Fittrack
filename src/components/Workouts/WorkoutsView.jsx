@@ -108,14 +108,7 @@ export default function WorkoutsView() {
           />
         </>
       )}
-      {phase === 'workout' && (
-        <>
-          <button className="back-btn" onClick={() => handleBack()}>
-            <Icon name="arrowLeft" size={16} /> Back to today
-          </button>
-          <DayDetail dayId={currentDayId} onBack={handleBack} />
-        </>
-      )}
+      {phase === 'workout' && <DayDetail dayId={currentDayId} onBack={handleBack} />}
 
       {showExitModal && (
         <>

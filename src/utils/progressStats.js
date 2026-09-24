@@ -45,14 +45,20 @@ export function sessionsFor(days, slice, dayId, ex, maxWeeks = 52) {
         const reps = parseInt(d.reps, 10);
         const weight = parseFloat(d.weight);
         if (!(reps > 0)) continue;
-        sets.push({ si, reps, weight: weight > 0 ? weight : null });
+        sets.push({ si, reps, weight: weight > 0 ? weight : null, via: d.via || null });
       }
       if (!sets.length) continue;
       const loaded = sets.filter((s) => s.weight !== null);
+      // Which exercise the session was actually done on. `via` is stamped on a set
+      // when it was logged on the alternative (a manual ⇄ swap, or an equipment
+      // substitution); null means the programmed exercise. A session is the via of
+      // its heaviest set — mixing machines inside one session is not a thing he does.
+      const top = loaded.length ? loaded.reduce((a, b) => (b.weight > a.weight ? b : a)) : sets[0];
       out.push({
         week,
         dayId: peer.dayId,
         date,
+        via: top?.via ?? null,
         note: slice?.exerciseNotes?.[exerciseNoteKey(week, peer.dayId, peer.ex)] ?? '',
         sets,
         topLoad: loaded.length ? Math.max(...loaded.map((s) => s.weight)) : null,
@@ -74,7 +80,14 @@ export function sessionsFor(days, slice, dayId, ex, maxWeeks = 52) {
 export function comparable(ex, sessions) {
   if (ex.excludeFromOverload) return [];
   const from = ex.compareFrom;
-  return from ? sessions.filter((s) => s.date >= from) : sessions;
+  const dated = from ? sessions.filter((s) => s.date >= from) : sessions;
+  // Only sessions done on the same exercise as the latest one. A Smith machine
+  // press at 55 and a barbell bench at 55 are not the same lift, so a swap session
+  // must not be read against the barbell history — nor pull the barbell numbers
+  // down when he swaps back.
+  const last = dated[dated.length - 1];
+  if (!last) return dated;
+  return dated.filter((s) => (s.via ?? null) === (last.via ?? null));
 }
 
 // Matched-load comparison for one exercise, or null when nothing is comparable yet.

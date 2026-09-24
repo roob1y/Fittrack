@@ -54,8 +54,14 @@
 // strengthlevel.com (chin-up and Romanian deadlift added 15 Sep, cross-checked
 // against the same tables in lb so a mistyped row could not pass silently); the
 // untrained bench multiple from the ExRx-aligned figures at strengthmath.com.
-// **Anything not listed here has no standard yet — that is the honest state, not
-// an oversight to be filled in by estimating.**
+// Machine and cable tables were added 18 Sep at Robbie's request ("I really want
+// there to be one") — Strength Level publishes standards for far more lifts than
+// its index shows. They ARE community data for that machine type, so they are
+// real standards, but a stack number still means something different on every
+// machine, so every one of them carries `proxy` naming the table it was scored
+// on and comes back `approx: true`. Bodyweight-rep lifts (push-ups, inverted rows)
+// use `repsBased` tables: the value is the best set's rep count, not a 1RM.
+// **Anything still not listed here has no standard — say so rather than estimate.**
 //
 // ⚠ THE HACK SQUAT IS SCORED ON PLATES ONLY, AND HERE IS THE EVIDENCE. Strength
 // Level's hack squat page never says whether the community logs the carriage or
@@ -148,6 +154,256 @@ export const STANDARDS = {
     [74, 115, 168, 232, 302],
     [79, 121, 176, 241, 312],
   ]),
+
+  // ── Added 18 Sep 2026, strengthlevel.com, male kg tables at 85/90/95 ──────
+  // Machine and cable lifts: real community tables, but stacks differ, so `proxy`.
+  // Dumbbell tables are per hand as ever; pair totals are halved in scoreExercise.
+
+  // Push
+  'Smith Machine Chest Press': {
+    ...T(false, [
+      [57, 76, 100, 126, 154],
+      [61, 81, 105, 132, 161],
+      [65, 85, 110, 138, 167],
+    ]),
+    proxy: 'Smith machine bench press',
+  },
+  'Incline Dumbbell Press': T(true, [
+    [23, 32, 42, 53, 65],
+    [25, 33, 44, 55, 68],
+    [27, 35, 46, 58, 71],
+  ]),
+  'Chest Flyes': {
+    ...T(false, [
+      [46, 67, 93, 124, 158],
+      [49, 71, 98, 130, 164],
+      [52, 74, 102, 135, 170],
+    ]),
+    proxy: 'machine chest fly',
+  },
+  'Shoulder Press (Machine)': {
+    ...T(false, [
+      [32, 53, 81, 114, 152],
+      [35, 57, 86, 120, 158],
+      [38, 61, 90, 125, 164],
+    ]),
+    proxy: 'machine shoulder press',
+  },
+  'Cable Tricep Pushdowns': {
+    ...T(false, [
+      [23, 39, 59, 83, 111],
+      [25, 41, 62, 87, 115],
+      [27, 43, 65, 90, 118],
+    ]),
+    proxy: 'tricep pushdown',
+  },
+  'Cable Overhead Tricep Extensions': {
+    ...T(false, [
+      [16, 29, 46, 67, 91],
+      [18, 31, 48, 70, 94],
+      [19, 33, 51, 73, 98],
+    ]),
+    proxy: 'cable overhead tricep extension',
+  },
+  // A dumbbell held to the chest is not a cable stack, but both are loaded trunk
+  // flexion and the cable crunch is the only weighted-crunch table published.
+  'Optional Finisher — Weighted Crunches': {
+    ...T(false, [
+      [27, 46, 70, 100, 133],
+      [29, 48, 73, 103, 136],
+      [30, 50, 75, 106, 140],
+    ]),
+    proxy: 'cable crunch',
+  },
+
+  // Pull
+  // Bodyweight reps: the table is reps in one set, so the value is his best set.
+  'Inverted Barbell Rows': {
+    ...T(false, [
+      [0, 9, 19, 32, 45],
+      [0, 9, 19, 31, 44],
+      [0, 9, 19, 30, 43],
+    ]),
+    repsBased: true,
+    proxy: 'inverted row (reps)',
+  },
+  // Transcribed 19 Sep from strengthlevel.com/strength-standards/seated-cable-row/kg
+  // (711k lifts). A stack number is still machine-specific, hence ≈.
+  'Seated Cable Row': {
+    ...T(false, [
+      [50, 69, 91, 117, 145],
+      [53, 72, 96, 122, 150],
+      [56, 76, 100, 127, 155],
+    ]),
+    proxy: 'seated cable row',
+  },
+  'Dumbbell Rear Delt Flys': T(true, [
+    [4, 10, 18, 30, 44],
+    [4, 10, 19, 31, 45],
+    [5, 11, 20, 32, 47],
+  ]),
+  'Crossbody Hammer Curls': T(true, [
+    [12, 18, 25, 34, 44],
+    [12, 19, 27, 36, 46],
+    [13, 20, 28, 37, 48],
+  ]),
+  'Incline Bench Curls': T(true, [
+    [10, 15, 21, 27, 34],
+    [11, 16, 22, 28, 36],
+    [12, 17, 22, 29, 37],
+  ]),
+
+  // Legs
+  'Leg Press (Plates)': {
+    ...T(false, [
+      [118, 173, 243, 324, 412],
+      [127, 184, 255, 338, 429],
+      [135, 194, 268, 353, 444],
+    ]),
+    proxy: 'sled leg press',
+  },
+  'Leg Press (Machine)': {
+    ...T(false, [
+      [82, 126, 183, 251, 325],
+      [87, 133, 191, 260, 335],
+      [92, 139, 198, 269, 345],
+    ]),
+    proxy: 'horizontal leg press',
+  },
+  // Decided 18 Sep: the machine RDL scores on the barbell table. He is moving to a
+  // barbell RDL anyway, and one history on one standard beats two half-histories.
+  'Romanian Deadlifts (Machine)': {
+    ...T(false, [
+      [70, 98, 132, 171, 213],
+      [75, 104, 139, 179, 221],
+      [80, 110, 145, 186, 230],
+    ]),
+    proxy: 'barbell Romanian deadlift',
+  },
+  'Leg Extensions': {
+    ...T(false, [
+      [51, 76, 108, 145, 186],
+      [53, 79, 111, 149, 191],
+      [56, 82, 115, 154, 196],
+    ]),
+    proxy: 'leg extension',
+  },
+  'Leg Curls': {
+    ...T(false, [
+      [41, 61, 86, 116, 148],
+      [44, 64, 90, 120, 152],
+      [46, 67, 93, 123, 157],
+    ]),
+    proxy: 'seated leg curl',
+  },
+  // Both calf entries score on the sled table — see the note on the leg-press one.
+  'Calf Press': {
+    ...T(false, [
+      [92, 146, 217, 301, 394],
+      [100, 156, 229, 315, 410],
+      [108, 166, 240, 329, 426],
+    ]),
+    proxy: 'sled press calf raise',
+  },
+
+  // ── Alternatives in the v2 programme, so a substituted session still scores ──
+  // (A substitution logs under the primary's key today, so these are used only
+  // when an alternative is promoted to its own exercise. Resistance Band
+  // Pushdowns has no table anywhere — a band has no load number to compare.)
+  'Goblet Squats': T(false, [
+    [16, 28, 43, 61, 82],
+    [17, 29, 44, 63, 84],
+    [18, 30, 46, 65, 86],
+  ]),
+  'Dumbbell Romanian Deadlifts': T(true, [
+    [20, 32, 46, 63, 82],
+    [22, 34, 48, 66, 85],
+    [23, 35, 51, 69, 88],
+  ]),
+  'Barbell Back Squat': T(false, [
+    [81, 108, 140, 177, 216],
+    [87, 115, 148, 186, 226],
+    [93, 121, 156, 194, 235],
+  ]),
+  'Chest Supported Row': {
+    ...T(false, [
+      [51, 77, 110, 148, 191],
+      [54, 81, 115, 155, 198],
+      [58, 86, 120, 161, 205],
+    ]),
+    proxy: 'machine row',
+  },
+  'Lat Pulldowns': {
+    ...T(false, [
+      [50, 67, 88, 112, 137],
+      [52, 70, 92, 116, 142],
+      [55, 73, 95, 120, 146],
+    ]),
+    proxy: 'lat pulldown',
+  },
+  'Cable Rear Delt Fly': {
+    ...T(false, [
+      [3, 11, 23, 41, 62],
+      [4, 12, 25, 42, 64],
+      [4, 12, 26, 44, 66],
+    ]),
+    proxy: 'cable reverse fly',
+  },
+  'Barbell Curls': T(false, [
+    [23, 35, 49, 65, 84],
+    [25, 36, 51, 68, 87],
+    [26, 38, 53, 71, 89],
+  ]),
+  'Barbell Shrugs': T(false, [
+    [59, 92, 135, 185, 241],
+    [65, 99, 143, 195, 253],
+    [70, 106, 151, 205, 264],
+  ]),
+  'Incline Dumbbell Flys': T(true, [
+    [11, 18, 27, 38, 51],
+    [12, 19, 29, 40, 53],
+    [13, 21, 30, 42, 55],
+  ]),
+  'Cable Lateral Raise': {
+    ...T(false, [
+      [3, 9, 17, 28, 40],
+      [4, 9, 18, 29, 41],
+      [4, 10, 18, 29, 43],
+    ]),
+    proxy: 'cable lateral raise',
+  },
+  'Barbell Overhead Press': T(false, [
+    [36, 49, 66, 85, 106],
+    [38, 53, 70, 90, 111],
+    [41, 56, 74, 94, 115],
+  ]),
+  // Published per dumbbell in one hand; a single bell in both hands scores on it
+  // as a proxy rather than not at all.
+  'Dumbbell Overhead Tricep Extension': {
+    ...T(false, [
+      [7, 13, 23, 35, 49],
+      [7, 14, 24, 37, 51],
+      [8, 15, 26, 38, 53],
+    ]),
+    proxy: 'dumbbell tricep extension',
+  },
+  // He does this on the selectorised leg press, not a 45° plate sled (18 Sep).
+  // Scored first on the machine calf raise table, which called 140 kg × 15
+  // Intermediate — he said that was plainly inflated, and he is right: a calf
+  // press on a leg press has a tiny range of motion and the whole stack goes,
+  // which is exactly the population behind Strength Level's "sled press calf
+  // raise" table (the same movement, logged as plates on an angled sled). That
+  // table runs ~50% heavier and reads him as Novice. It is the closer match in
+  // MOVEMENT even though his load is a stack rather than plates; if the machine
+  // ever changes, this is the line to revisit.
+  'Calf Press on Leg Press': {
+    ...T(false, [
+      [92, 146, 217, 301, 394],
+      [100, 156, 229, 315, 410],
+      [108, 166, 240, 329, 426],
+    ]),
+    proxy: 'sled press calf raise',
+  },
 };
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -188,9 +444,21 @@ export function scoreExercise(ex, sessions, bodyweightKg) {
   let approx = false;
   let bestSession = null;
   let bestRaw = 0;
+  let bestReps = 0;
   for (const s of sessions ?? []) {
     for (const set of s.sets ?? []) {
-      if (!(set.weight > 0) || !(set.reps > 0)) continue;
+      if (!(set.reps > 0)) continue;
+      if (std.repsBased) {
+        // Bodyweight-rep tables: the best single set's reps, no estimator, no cap.
+        if (set.reps > best) {
+          best = set.reps;
+          bestSession = s;
+          bestRaw = set.weight ?? null;
+          bestReps = set.reps;
+        }
+        continue;
+      }
+      if (!(set.weight > 0)) continue;
       const w = std.perHand ? set.weight / 2 : set.weight;
       const est = e1rm(w, set.reps);
       if (est > best) {
@@ -198,13 +466,17 @@ export function scoreExercise(ex, sessions, bodyweightKg) {
         approx = set.reps > REP_CAP;
         bestSession = s;
         bestRaw = set.weight;
+        bestReps = set.reps;
       }
     }
   }
   if (!(best > 0)) return null;
+  if (std.proxy) approx = true;
 
   // How much of that session was carried at the load the score came from.
-  const setsAtValue = (bestSession?.sets ?? []).filter((x) => x.weight === bestRaw && x.reps > 0).length;
+  const setsAtValue = std.repsBased
+    ? (bestSession?.sets ?? []).filter((x) => x.reps > 0).length
+    : (bestSession?.sets ?? []).filter((x) => x.weight === bestRaw && x.reps > 0).length;
 
   const th = thresholdsFor(ex.name, bodyweightKg);
   // A bodyweight lift is published as ADDED weight, so the comparable figure is
@@ -237,7 +509,17 @@ export function scoreExercise(ex, sessions, bodyweightKg) {
 
   return {
     value,
-    unit: std.bodyweightRelative ? 'kg added' : std.perHand ? 'kg per hand' : 'kg',
+    unit: std.repsBased ? 'reps' : std.bodyweightRelative ? 'kg added' : std.perHand ? 'kg per hand' : 'kg',
+    proxy: std.proxy ?? null,
+    repsBased: !!std.repsBased,
+    // The set the score came from, in the standard's units, so the screen can show
+    // "from 10 kg × 15" next to an estimated 14 kg — the estimate on its own reads
+    // like a weight he never lifted.
+    from: {
+      weight: bestRaw == null ? null : std.perHand ? bestRaw / 2 : bestRaw,
+      reps: bestReps,
+      date: bestSession?.date ?? null,
+    },
     bodyweightRelative: !!std.bodyweightRelative,
     thresholds: th,
     level,
@@ -248,7 +530,7 @@ export function scoreExercise(ex, sessions, bodyweightKg) {
     approx,
     setsAtValue,
     setsProgrammed: ex.sets ?? null,
-    bodyweightRatio: Math.round((best / bodyweightKg) * 100) / 100,
+    bodyweightRatio: std.repsBased ? null : Math.round((best / bodyweightKg) * 100) / 100,
     untrainedRatio: std.untrained ?? null,
   };
 }

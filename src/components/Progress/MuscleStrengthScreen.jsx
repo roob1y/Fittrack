@@ -67,7 +67,7 @@ function ExerciseRow({ row }) {
   if (!row.hasStandard) {
     return (
       <div style={{ padding: '10px 0', borderTop: '1px solid var(--border)' }}>
-        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{row.ex.name}</div>
+        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{row.name ?? row.ex.name}</div>
         <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
           No portable standard — this is a machine or cable lift, and the same number means a different load on every
           machine.
@@ -78,7 +78,7 @@ function ExerciseRow({ row }) {
   if (!s) {
     return (
       <div style={{ padding: '10px 0', borderTop: '1px solid var(--border)' }}>
-        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{row.ex.name}</div>
+        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{row.name ?? row.ex.name}</div>
         <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>Not logged with a weight yet.</div>
       </div>
     );
@@ -86,11 +86,20 @@ function ExerciseRow({ row }) {
   return (
     <div style={{ padding: '12px 0', borderTop: '1px solid var(--border)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
-        <div style={{ fontSize: '13px', color: 'var(--text)' }}>{row.ex.name}</div>
+        <div style={{ fontSize: '13px', color: 'var(--text)' }}>{row.name ?? row.ex.name}</div>
         <div style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 600, whiteSpace: 'nowrap' }}>
-          {s.value} {s.unit}
+          {s.repsBased ? `${s.value} reps` : `est. 1RM ${s.value} ${s.unit}`}
         </div>
       </div>
+      {/* The estimate is not a weight he lifted. Say what it came from, in the
+          same units, or "14 kg per hand" reads as a typo next to a 10 kg dumbbell. */}
+      {!s.repsBased && s.from?.weight != null && (
+        <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
+          from {s.from.weight} {s.unit} × {s.from.reps}
+          {s.from.reps > 12 ? ' (counted as 12)' : ''} — the tables are one-rep maxes, so every set is converted with
+          weight × (1 + reps ÷ 30)
+        </div>
+      )}
 
       {/* A bodyweight lift is published as ADDED weight, so a negative number is the
           table saying "not one unassisted yet" rather than a bug. Without this line
@@ -115,7 +124,9 @@ function ExerciseRow({ row }) {
             </span>
           </>
         )}
-        {s.approx && ' · reps capped at 12 for the estimate, so this is a floor'}
+        {s.proxy
+          ? ` · scored on the ${s.proxy} table`
+          : s.approx && ' · reps capped at 12 for the estimate, so this is a floor'}
       </div>
 
       {/* Sets sit BESIDE the score, never inside it: the standards are 1RM figures,
@@ -143,12 +154,12 @@ function ExerciseRow({ row }) {
   );
 }
 
-export default function MuscleStrengthScreen({ onBack }) {
+export default function MuscleStrengthScreen({ onBack, initialOpen = null }) {
   const activeProgrammeId = useStore((s) => s.activeProgrammeId);
   const slice = useStore((s) => s.programmeData[s.activeProgrammeId]);
   const weightLog = useStore((s) => s.weightLog);
   const days = PROGRAMMES[activeProgrammeId]?.days ?? [];
-  const [open, setOpen] = React.useState(null);
+  const [open, setOpen] = React.useState(initialOpen);
 
   const bw = bodyweightAt(weightLog, new Date().toISOString().slice(0, 10))?.kg ?? null;
   const muscles = React.useMemo(() => (bw ? allMuscles(days, slice, bw) : []), [days, slice, bw]);
@@ -177,8 +188,8 @@ export default function MuscleStrengthScreen({ onBack }) {
     const agg = muscleScore(rows);
     return (
       <div>
-        <button onClick={() => setOpen(null)} style={backBtn}>
-          ‹ Strength by muscle
+        <button onClick={() => (initialOpen ? onBack() : setOpen(null))} style={backBtn}>
+          ‹ {initialOpen ? 'Ranks' : 'Strength by muscle'}
         </button>
         <div className="section-title" style={{ marginTop: 0 }}>
           {open.label.toUpperCase()}
